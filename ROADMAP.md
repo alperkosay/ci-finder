@@ -215,7 +215,7 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 ### Aşama 0 — İskelet
 - [x] Monorepo ve npm workspaces kurulumu
 - [x] Ortak `tsconfig`, tsup build, Vitest altyapısı
-- [ ] Lint/format ayarları (ESLint/Prettier henüz eklenmedi)
+- [x] Lint/format ayarları (ESLint + Prettier, `.gitattributes` ile LF)
 
 ### Aşama 1 — Core + LocalDriver
 - [x] `StorageDriver` arayüzü ve `LocalDriver`
@@ -227,7 +227,7 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] `get` / `put` (metin ve binary)
 - [x] Bağımlılıksız zip (zip64 dahil); `archive` / `extract`
 - [x] Hook sistemi
-- [x] Testler: 51 test, Node (Vitest) ve Bun'da geçiyor
+- [x] Testler: 61 test (+8 gerçek S3 testi), Node (Vitest) ve Bun'da geçiyor
 
 ### Aşama 1b — S3 sürücüsü
 - [x] Bağımlılıksız SigV4 imzalama (AWS'nin resmî test vektörleriyle doğrulandı)
@@ -236,7 +236,7 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] Multipart upload (sunucu durum tutmaz)
 - [x] Presigned URL ile dosya sunumu
 - [x] Bellek içi sahte S3 ile entegrasyon testleri
-- [ ] Gerçek MinIO / R2 / AWS üzerinde test
+- [x] Gerçek S3 uyumlu sunucuda test (Versity Gateway 1.8, `npm run test:s3`)
 
 ### Aşama 2 — Next.js paketi, adaptörler ve örnekler
 - [x] `projectRoot()` / `uploadsDir()`: dev, start ve standalone'da proje kökü tespiti
@@ -246,7 +246,7 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] Node `http`, Express, Fastify, Koa adaptörleri
 - [x] Genel `createFileServer()` (Bun, Express, Node)
 - [x] Next.js, Bun ve Express örnekleri
-- [ ] Fastify ve Koa adaptörleri için canlı test
+- [x] Fastify 5 ve Koa 3 adaptörleri için canlı test
 
 ### Aşama 3 — UI temeli
 - [x] Tasarım tokenları, açık/koyu/otomatik tema
@@ -285,24 +285,30 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] Arayüz: kenar çubuğunda sayaçlı "Çöp Kutusu", "Geri al" bildirimi, Shift+Delete
 - [x] Testler: 10 birim testi + 10 e2e senaryosu
 
+### Aşama 5d — Küçük resimler ve yetkilendirme
+- [x] Sunucuda küçük resim üretimi (sharp, WebP, `.cf-thumbs` önbelleği, yerel + S3)
+- [x] `authorize` hook'u: 401, 403 ve istek bazında salt-okunur mod
+- [x] Arayüzde `onUnauthorized`
+
 ### Aşama 6 — Cila
 - [x] Büyük klasörler için sanal liste (10.000 dosyada DOM'da ~100 öğe)
-- [ ] Erişilebilirlik denetimi (ekran okuyucu ile manuel test)
+- [x] Otomatik erişilebilirlik denetimi (axe-core, 0 ihlal)
+- [ ] Ekran okuyucuyla elle test (NVDA / VoiceOver)
 - [x] i18n (TR, EN)
 - [x] Yoğunluk seçenekleri ve tema özelleştirme
 - [x] Dar ekran uyumu (container query, açılır kenar çubuğu)
-- [ ] Dokunmatik: uzun basma ile menü, dokunarak lasso
+- [x] Dokunmatik: dokunarak açma, uzun basmayla menü ve seçim modu
 - [x] Performans ölçümü (10.000 dosya)
 
 ### Aşama 7 — Paketleme ve dokümantasyon
 - [x] README (kurulum, Next/Bun/Express, S3, prop'lar, tema, güvenlik)
-- [ ] Paket başına README ve API referansı
+- [x] Paket başına README
+- [ ] Ayrıntılı API referansı
 - [x] Yayına hazır `package.json` (exports, types, sideEffects)
 - [ ] npm'e yayın ve sürüm yönetimi (changesets)
 
 ## Sonraya bırakılanlar
 
-- Sunucu taraflı küçük resim (thumbnail) üretimi (opsiyonel eklenti)
 - Orijinal elFinder protokolü için uyumluluk katmanı
 - Vue / Svelte / vanilla JS bileşenleri (`client` paketi zaten hazır olacağı için)
 

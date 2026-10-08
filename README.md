@@ -25,7 +25,8 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
   - Kod editörü: 13 dil ailesi için renklendirme, bul/değiştir, satıra git, akıllı girinti, Ctrl+S ile kaydetme.
   - Önizlemeli Markdown editörü.
   - Görsel editörü: kırp, döndür, çevir, boyutlandır, biçim ve kalite seçimi.
-- **Klavye ve erişilebilirlik:** Tüm işlemler klavyeyle yapılabilir; ARIA rolleri tanımlı.
+- **Klavye ve erişilebilirlik:** Tüm işlemler klavyeyle yapılabilir. Liste görünümü bir ARIA grid'i, simge görünümü bir listbox olarak tanımlı. axe-core taramasında açık ve koyu temada 0 WCAG 2.1 AA ihlali çıktı.
+- **Dokunmatik:** Dokunma açar, uzun basma seçip menüyü açar (iOS dahil). Uzun basmadan sonraki dokunmalar seçime ekler veya çıkarır. Dar ekranda kenar çubuğu açılır menü olarak gelir.
 - **Görünüm:** Açık/koyu/otomatik tema, iki yoğunluk seçeneği, dar ekranlara uyum (container query).
 - **Dil:** Türkçe ve İngilizce hazır; `messages` prop'u ile başka diller eklenebilir.
 
@@ -102,6 +103,12 @@ export default function Files() {
 - Dosyalar neden `public/` altında değil? Next.js production'da, build sonrası `public/` klasörüne eklenen dosyaları sunmaz. `createUploadsRoute` ise dosyaları her istekte diskten okur. Range (video ileri sarma), ETag ve 304 destekler; HTML ve SVG dosyalarını `CSP: sandbox` ile sunar.
 - Standalone build `.next/static` klasörünü kendiliğinden kopyalamaz. [examples/next/scripts/copy-standalone-assets.mjs](examples/next/scripts/copy-standalone-assets.mjs) bu işi `postbuild` adımında yapar.
 - Monorepo'da `next.config` içine `outputFileTracingRoot` ekleyin; örnek: [examples/next/next.config.mjs](examples/next/next.config.mjs).
+- Küçük resimler standalone'da da çalışsın diye sharp'ın yerel kütüphanelerini pakete ekleyin. Next'in dosya izleyicisi `libvips` DLL/`.so` dosyalarını kendiliğinden almıyor:
+  ```js
+  // next.config.mjs
+  outputFileTracingIncludes: { "/api/files": ["./node_modules/@img/**/*"] },
+  ```
+  Bu ayar unutulsa bile dosya yöneticisi çalışmaya devam eder: sunucu günlüğe bir uyarı yazar ve küçük resim yerine orijinal görselleri gönderir.
 
 ### Yetkilendirme
 
@@ -156,7 +163,7 @@ fastify.register(toFastify(finder.handler), { prefix: "/api/files" });  // Fasti
 router.all("/api/files", toKoa(finder.handler));                        // Koa
 ```
 
-`express.json()` gibi gövde ayrıştırıcılar sorun çıkarmaz; gövde önceden okunmuşsa adaptör onu yeniden oluşturur. Hono, Deno ve Cloudflare gibi Web standardı ortamlarda `finder.handler` doğrudan kullanılır.
+`express.json()` ve `koa-bodyparser` gibi gövde ayrıştırıcılar sorun çıkarmaz; gövde önceden okunmuşsa adaptör onu yeniden oluşturur. Adaptörler Express 5, Fastify 5 ve Koa 3 üzerinde gerçek sunucuyla test edildi. Testlerde JSON komutları, parça parça yükleme, Range indirme ve zip indirme denendi. Hono, Deno ve Cloudflare gibi Web standardı ortamlarda `finder.handler` doğrudan kullanılır.
 
 ## S3, R2, MinIO
 
@@ -208,7 +215,7 @@ createCiFinder({
   - Yalnızca belirlenen boyutlar üretilir, keyfi boyut istenemez.
   - Aynı anda yapılan üretim sayısı sınırlıdır ve aynı görsel için gelen eşzamanlı istekler tek üretimde birleştirilir.
   - 40 MB'tan büyük dosyalar ve 120 megapikselden büyük görseller küçük resme çevrilmez.
-- Biçimi desteklenmeyen ya da bozuk bir dosyada orijinal gönderilir; arayüz yine düzgün çalışır.
+- Biçimi desteklenmeyen ya da bozuk bir dosyada orijinal gönderilir; arayüz yine düzgün çalışır. sharp hiç yüklenemiyorsa (örneğin yerel ikili dosyalar sunucuya kopyalanmamışsa) API çalışmaya devam eder, günlüğe bir kez uyarı düşer ve orijinal görseller gösterilir.
 - Küçük resimler `?v=<mtime>` içeren adreslerle sunulduğu için tarayıcı onları 1 yıl önbellekte tutar.
 
 ## Çöp kutusu
