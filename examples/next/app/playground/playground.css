@@ -1,0 +1,390 @@
+/* Playground page. Native CSS on the demo's page tokens. */
+:root {
+  --card: #ffffff;
+  --line: #dedbd5;
+  --line-strong: #cbc7bf;
+  --field: #ffffff;
+  --accent: #2a64d6;
+  --code: #f6f5f2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --card: #1d1c1a;
+    --line: #34322e;
+    --line-strong: #46433d;
+    --field: #161513;
+    --accent: #5b8ff0;
+    --code: #161513;
+  }
+}
+
+:root[data-theme="dark"] {
+  --card: #1d1c1a;
+  --line: #34322e;
+  --line-strong: #46433d;
+  --field: #161513;
+  --accent: #5b8ff0;
+  --code: #161513;
+}
+
+.page.is-scroll {
+  height: auto;
+  min-height: 100dvh;
+}
+
+.play {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  align-items: start;
+  gap: 16px;
+  padding: 0 16px 24px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+}
+
+.panel-head h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.panel-head p {
+  margin: 0;
+  color: var(--page-muted);
+  line-height: 1.5;
+}
+
+.panel code {
+  padding: 0 4px;
+  border-radius: 4px;
+  background: var(--code);
+  font:
+    12px ui-monospace,
+    "Cascadia Code",
+    Menlo,
+    Consolas,
+    monospace;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* CKEditor 4 runs in an iframe with its own (light) skin. */
+.rich-editor-4 textarea {
+  width: 100%;
+  min-height: 300px;
+}
+
+/* form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field > label,
+.field > .label {
+  font-weight: 600;
+}
+
+.field input {
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--field);
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.file-row input {
+  flex: 1;
+  font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+.file-thumb {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.hint {
+  margin: 0;
+  color: var(--page-muted);
+  font-size: 12px;
+}
+
+.btn {
+  flex: none;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--page-seg);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+}
+
+.btn.ghost {
+  width: 32px;
+  padding: 0;
+  box-shadow: none;
+  color: var(--page-muted);
+  font-size: 16px;
+}
+
+.btn.primary {
+  background: var(--accent);
+  box-shadow: none;
+  color: #fff;
+}
+
+.btn.primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, #000);
+}
+
+.btn:focus-visible,
+.gallery button:focus-visible,
+.tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.form-actions .btn {
+  margin-top: 12px;
+}
+
+/* gallery */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gallery li {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.gallery img {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px var(--line);
+}
+
+.gallery li > button:not(.gallery-add) {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(0 0 0 / 0.55);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.gallery-add {
+  width: 100%;
+  height: 100%;
+  border: 1px dashed var(--line-strong);
+  border-radius: 6px;
+  background: none;
+  color: var(--page-muted);
+  font: inherit;
+  font-size: 12px;
+}
+
+.gallery-add:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--page-text);
+}
+
+/* output & code */
+.output {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.output-label {
+  color: var(--page-muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.output pre,
+.snippet pre {
+  max-height: 320px;
+  margin: 0;
+  padding: 12px 14px;
+  overflow: auto;
+  border-radius: 6px;
+  background: var(--code);
+  font:
+    12px/1.6 ui-monospace,
+    "Cascadia Code",
+    Menlo,
+    Consolas,
+    monospace;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.snippet summary {
+  width: max-content;
+  color: var(--page-muted);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.snippet[open] summary {
+  margin-bottom: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+}
+
+.tabs button {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--page-muted);
+  font: inherit;
+  font-weight: 500;
+}
+
+.tabs button[aria-selected="true"] {
+  background: var(--page-seg);
+  color: var(--page-text);
+}
+
+.rendered {
+  padding: 4px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  line-height: 1.6;
+}
+
+.rendered img {
+  max-width: 100%;
+  height: auto;
+}
+
+.rendered figure {
+  margin: 12px 0;
+}
+
+/* CKEditor sits on the page's surfaces in both themes. */
+.rich-editor {
+  --ck-border-radius: 6px;
+  --ck-color-base-border: var(--line-strong);
+  --ck-color-toolbar-border: var(--line-strong);
+  --ck-color-focus-border: var(--accent);
+}
+
+.rich-editor .ck-editor__editable_inline {
+  min-height: 260px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rich-editor {
+    --ck-color-base-background: var(--field);
+    --ck-color-base-foreground: var(--card);
+    --ck-color-text: #ecebe7;
+    --ck-color-toolbar-background: var(--card);
+    --ck-color-button-default-hover-background: #2c2b28;
+    --ck-color-button-on-background: #2c2b28;
+    --ck-color-button-on-color: #ecebe7;
+    --ck-color-dropdown-panel-background: var(--card);
+    --ck-color-panel-background: var(--card);
+    --ck-color-panel-border: var(--line-strong);
+    --ck-color-list-background: var(--card);
+    --ck-color-list-button-hover-background: #2c2b28;
+    --ck-color-input-background: var(--field);
+    --ck-color-input-border: var(--line-strong);
+    --ck-color-labeled-field-label-background: var(--card);
+  }
+
+  :root:not([data-theme="light"]) .rich-editor .ck-content {
+    color: var(--page-text);
+  }
+}
+
+@media (max-width: 960px) {
+  .play {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 8px 16px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+}

@@ -1,4 +1,4 @@
-import { sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
 import { createCiFinder, localDriver, s3Driver, uploadsDir, type VolumeOptions } from "@ci-finder/next";
 
 /**
@@ -38,6 +38,8 @@ export const finder = createCiFinder({
   volumes,
   // sharp ships with Next.js (next/image), so thumbnails need no extra install here.
   thumbnails: { generator: sharpThumbnailer() },
+  // Bulk resize / compress / convert (WebP, AVIF...) from the "Optimize images" dialog.
+  images: sharpImages(),
   // Plug in your app's session here, e.g.:
   // authorize: async ({ request }) => {
   //   const session = await getSession(request);

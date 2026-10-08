@@ -6,7 +6,8 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 |---|---|
 | `@ci-finder/core` | Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok. |
 | `@ci-finder/next` | Next.js route'ları ve standalone uyumlu proje kökü tespiti. |
-| `@ci-finder/react` | `<CiFinder />` bileşeni ve `styles.css`. Tek bağımlılığı `react` (peer). |
+| `@ci-finder/react` | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
+| `@ci-finder/ckeditor` | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
 ## Özellikler
 
@@ -18,6 +19,10 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 - **İndirme:** Tek dosya doğrudan iner. Birden çok dosya ya da klasör, sunucuda anında oluşturulan zip olarak iner (zip64 destekli).
 - **Arşiv:** Zip oluşturma ve çıkarma; zip-slip ve zip bombası koruması dahil.
 - **Çöp kutusu:** Veritabanı gerektirmez. `Delete` öğeyi onay sormadan çöpe taşır ve bildirimde "Geri al" düğmesi çıkar. `Shift+Delete` kalıcı olarak siler. Geri yükleme, kalıcı silme, boşaltma ve 30 gün sonra otomatik temizlik var.
+- **Sürüm geçmişi:** Veritabanı gerektirmez. Bir dosyanın üzerine kaydedildiğinde (editör, toplu optimizasyon, "değiştir" ile yükleme) eski hali saklanır; önizlenebilir, geri yüklenebilir, silinebilir.
+- **Toplu görsel işlemleri:** Seçili görselleri yeniden boyutlandırma, kaliteyi düşürme, WebP / AVIF / JPEG'e çevirme. Biçim değişince orijinal yerinde kalır, yanına yeni dosya oluşur.
+- **Depolama paneli:** Üst çubuktaki düğmeyle açılır. Dosya türlerine göre kullanım, en büyük dosyalar, sürümler, çöp kutusu ve önbellek boyutu; sürüm ve önbellek temizliği.
+- **Dosya seçici:** `useFilePicker` hook'u ile formdaki bir alanın yanına "Dosya seç" düğmesi; CKEditor 5 / 4 connector'ı.
 - **Arama:** Alt klasörlerde de arar. Büyük/küçük harf ve aksan duyarsızdır; Türkçe ı/İ doğru eşleşir.
 - **Küçük resimler:** Sunucuda üretilir (WebP, 128/256/512 px) ve önbellekte tutulur. Telefon fotoğrafları EXIF bilgisine göre doğru yöne çevrilir.
 - **Hızlı bakış (Space):** Resim, video, ses, PDF, kod ve Markdown önizlemesi.
@@ -241,6 +246,106 @@ uploads/.cf-trash/
 
 API komutları: `rm` (varsayılan olarak çöpe taşır, `permanent: true` ile kalıcı siler), `trash`, `restore`, `purge` (`{ ids }` ya da `{ all: true }`).
 
+## Sürüm geçmişi
+
+Çöp kutusu gibi veritabanı kullanmaz. Bir dosyanın üzerine yazılmadan önce eski içeriği volume içindeki gizli `.cf-versions/` klasörüne kopyalanır:
+
+```
+uploads/.cf-versions/
+  3f0a…c9/                         ← sha1(dosya yolu)
+    file.json                      ← { path }
+    mgh2k1-a8f3c2-edit.bin         ← zaman-rastgele-sebep
+    mgh3p0-19bd04-optimize.bin
+```
+
+- Sürüm alınan durumlar: editörde kaydetme (kod ve görsel), toplu optimizasyonda üzerine yazma, "değiştir" ile yükleme, yapıştırmada "değiştir", bir sürümü geri yükleme (geri yüklemeden önceki hali de sürüm olur, yani geri alınabilir).
+- Yeniden adlandırma ve taşımada (klasör taşıma dahil) geçmiş dosyayla birlikte gider. Dosya çöpe gidince geçmiş kalır, çöpten geri gelince yine bağlı olur; kalıcı silinince geçmiş de silinir.
+- ciFinder dışında silinen bir dosyanın geçmişinden sürüm geri yüklenirse dosya yeniden oluşturulur.
+- Sürüm almak bir kopyalamadır: yerel diskte dosya kopyası, S3'te sunucu tarafı `CopyObject` (veri sunucudan geçmez). Bir dosyanın geçmişini listelemek tek bir klasör listeleme isteğidir.
+
+```ts
+{ id: "uploads", driver, versions: { maxPerFile: 20, retentionDays: 0 } } // varsayılan; 0 = süresiz
+{ id: "tmp", driver, versions: false }
+```
+
+Arayüzde: sağ tık → "Sürüm geçmişi", ayrıntılar paneli ve görsel editöründeki geçmiş düğmesi. Toplu temizlik depolama panelinden yapılır: X günden eski sürümler, dosya başına son N sürüm, silinmiş dosyaların sürümleri, tümü.
+
+API komutları: `versions`, `version` (GET, sürümü sunar), `revert`, `rmVersions`, `stats`, `cleanup` (`{ target: "versions", mode: "all" | "orphaned" | "older" | "keep" }` ya da `{ target: "cache" }`).
+
+## Toplu görsel işlemleri
+
+```ts
+import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
+
+createCiFinder({
+  volumes,
+  thumbnails: { generator: sharpThumbnailer() },
+  images: sharpImages(), // yeniden boyutlandırma, sıkıştırma, WebP / AVIF / JPEG / PNG
+});
+```
+
+- Görselleri seçip sağ tık → "Görselleri optimize et…": hazır boyutlar (3840, 2560, 1920, 1280, 800) ya da özel boyut, biçim, kalite.
+- Görsel en-boy oranı korunarak kutuya sığdırılır, asla büyütülmez. EXIF yönü uygulanır, meta veriler temizlenir; animasyonlu GIF/WebP, hedef biçim destekliyorsa animasyonlu kalır.
+- **Biçim değişirse** (örn. PNG → WebP) orijinal dosya korunur ve yanına `foto.webp` oluşturulur. **Biçim aynıysa** üzerine yazılır (eski hali sürüm geçmişine girer) ya da `-optimized` kopyası oluşturulur.
+- "Küçülmeyen görselleri atla" açıkken, sonucu orijinalden büyük çıkan dosyaya dokunulmaz. PNG'de kalite 100'ün altındaysa 256 renkli palete indirilir.
+- Aynı anda en fazla iki görsel işlenir; 60 MB'tan büyük girdiler reddedilir (`maxImageSize`).
+- `images` verilmezse aynı pencere görselleri tarayıcıda (canvas ile) işler: PNG, JPEG ve WebP.
+
+## Dosya seçici: `useFilePicker`
+
+ciFinder'ı modal bir seçici olarak açar ve seçilen dosyaları `Promise` ile döndürür. Vazgeçilirse `null` gelir.
+
+```tsx
+import { useFilePicker } from "@ci-finder/react";
+
+const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
+
+<input value={cover} onChange={(e) => setCover(e.target.value)} />
+<button onClick={async () => {
+  const files = await picker.open();
+  if (files) setCover(files[0].url); // "/uploads/kapak.png"
+}}>Dosya seç</button>
+```
+
+- `accept`: `<input type="file">` ile aynı söz dizimi (`"image/*"`, `".pdf,.docx"`) ya da `(entry) => boolean`. Uymayan dosyalar soluk görünür, seçilemez.
+- `multiple`, `selectLabel`, `locale`, `theme` ve diğer `<CiFinder />` prop'ları geçerlidir. `absoluteUrls: true` tam adres döndürür.
+- React dışında (vanilla JS, Vue…) aynı şey: `const files = await openFilePicker({ endpoint: "/api/files" })`.
+- Çalışan örnek: `examples/next` içindeki `/playground` sayfası.
+
+## CKEditor
+
+`@ci-finder/ckeditor`, CKFinder'ın yaptığı işi yapar: araç çubuğuna dosya yöneticisi düğmesi ekler ve yapıştırılan / sürüklenen görselleri ciFinder üzerinden yükler.
+
+**CKEditor 5**
+
+```ts
+import { CiFinder } from "@ci-finder/ckeditor";
+
+ClassicEditor.create(el, {
+  licenseKey: "GPL",
+  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, CiFinder],
+  toolbar: ["bold", "link", "|", "ciFinder"],
+  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+});
+```
+
+**CKEditor 4**
+
+```ts
+import { registerCiFinder } from "@ci-finder/ckeditor/v4";
+
+registerCiFinder(window.CKEDITOR);
+CKEDITOR.replace("body", {
+  extraPlugins: "cifinder,uploadimage",
+  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+});
+```
+
+- Seçilen görseller görsel olarak, diğer dosyalar bağlantı olarak eklenir (seçili metin varsa ona bağlantı verilir).
+- CKEditor 4'te Resim ve Bağlantı pencerelerindeki "Sunucuyu Gözat" düğmeleri de ciFinder'ı açar.
+- `uploadFolder` yoksa oluşturulur; `false` verilirse editörün kendi yükleme ayarı kullanılır. `picker` ile seçicinin ayarları (`accept`, `theme`…), `openPicker` ile tamamen kendi seçiciniz verilebilir.
+- CKEditor 4'ün açık kaynak son sürümü 4.22.1'dir; 4.23 ve sonrası ticari lisans anahtarı ister. Connector iki sürümle de çalışır.
+
 ## `<CiFinder />` prop'ları
 
 | Prop | Açıklama |
@@ -253,6 +358,7 @@ API komutları: `rm` (varsayılan olarak çöpe taşır, `permanent: true` ile k
 | `height`, `className`, `style` | Boyut ve stil. Varsayılan yükseklik ebeveynin %100'ü |
 | `initialFolder`, `defaultView`, `persistKey` | Başlangıç klasörü, varsayılan görünüm ve sıralama, tercihlerin saklanacağı localStorage anahtarı |
 | `onSelect`, `selectLabel`, `multiple` | Seçici modu (örn. CMS'te "görsel seç" alanı) |
+| `accept`, `onCancel` | Seçici modunda seçilebilecek dosyalar (`"image/*"`, `".pdf"`…) ve "Vazgeç" düğmesi |
 | `onOpen` | Dosya açılışını yakalar; `true` döndürürseniz varsayılan davranış çalışmaz |
 | `onChange` | Her değişiklikten sonra çağrılır (yükleme, silme, taşıma…) |
 | `editors` | "Birlikte aç" menüsüne kendi editörünüzü ekler |

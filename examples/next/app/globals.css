@@ -84,6 +84,30 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.nav {
+  display: flex;
+  gap: 2px;
+  margin-right: auto;
+  margin-left: 12px;
+}
+
+.nav a {
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--page-muted);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: var(--page-text);
+}
+
+.nav a[aria-current="page"] {
+  background: var(--page-seg);
+  color: var(--page-text);
+}
+
 .controls {
   display: flex;
   gap: 8px;

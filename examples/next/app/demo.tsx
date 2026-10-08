@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CiFinder } from "@ci-finder/react";
+import { Nav } from "./nav";
 
 type Theme = "auto" | "light" | "dark";
 
@@ -42,6 +43,7 @@ export function Demo() {
           <strong>ciFinder</strong>
           <span>0.1</span>
         </div>
+        <Nav />
         <div className="controls">
           <Segmented
             label="Theme"
