@@ -198,7 +198,7 @@ export class LocalDriver implements StorageDriver {
       } else {
         await fs.writeFile(tmp, typeof data === "string" ? data : data instanceof Uint8Array ? data : new Uint8Array(data), { flag: "wx" });
       }
-      await fs.rename(tmp, abs);
+      await replaceFile(tmp, abs);
     } catch (e) {
       await fs.rm(tmp, { force: true }).catch(() => {});
       throw e;
@@ -271,7 +271,7 @@ export class LocalDriver implements StorageDriver {
         await fs.rm(tmp, { force: true });
         throw new CiFinderError("BAD_REQUEST", `Upload incomplete: received ${size} of ${chunk.size} bytes`);
       }
-      await fs.rename(tmp, dst);
+      await replaceFile(tmp, dst);
     }
     return { session, done };
   }
@@ -280,6 +280,32 @@ export class LocalDriver implements StorageDriver {
     if (session.includes("/") || session.includes("\\") || !session.endsWith(UPLOAD_SUFFIX)) return;
     const dir = nodePath.dirname(await this.safe(path));
     await fs.rm(nodePath.join(dir, session), { force: true });
+  }
+}
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Atomically replaces `dst` with `tmp`. On Windows a rename over a file that is currently open
+ * (e.g. being streamed to a browser) fails with EPERM/EACCES/EBUSY: retry briefly, then fall back
+ * to copying the content over the destination, which shared-mode handles allow.
+ */
+async function replaceFile(tmp: string, dst: string): Promise<void> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await fs.rename(tmp, dst);
+      return;
+    } catch (e) {
+      const code = (e as NodeJS.ErrnoException).code;
+      if (code !== "EPERM" && code !== "EACCES" && code !== "EBUSY") throw e;
+      if (attempt < 3) {
+        await sleep(40 * (attempt + 1));
+        continue;
+      }
+      await fs.copyFile(tmp, dst);
+      await fs.rm(tmp, { force: true });
+      return;
+    }
   }
 }
 
