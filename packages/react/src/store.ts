@@ -1,4 +1,4 @@
-import { ApiError, type CiFinderClient, type ConflictMode, type Entry, type VolumeInfo } from "@ci-finder/core/client";
+import { ApiError, type CiFinderClient, type ConflictMode, type Entry, type InitResult, type VolumeInfo } from "@ci-finder/core/client";
 import { baseOf, categoryOf, createCollator, extOf, isEditableText } from "./format";
 import type { MessageKey, Translate } from "./i18n";
 
@@ -82,6 +82,8 @@ export interface State extends Prefs {
   sidebarOpen: boolean;
   /** Number of items in the trash across volumes. */
   trashCount: number;
+  /** Server-side thumbnail support announced by `init`. */
+  thumbs: InitResult["thumbnails"];
 }
 
 export interface StoreOptions {
@@ -171,6 +173,7 @@ export class FinderStore {
       editor: null,
       sidebarOpen: true,
       trashCount: 0,
+      thumbs: null,
     };
   }
 
@@ -401,10 +404,18 @@ export class FinderStore {
 
   async init(initialId?: string) {
     try {
-      const { volumes } = await this.client.init();
+      const { volumes, thumbnails } = await this.client.init();
       const roots = volumes.map((v) => v.root);
       const trashCount = volumes.reduce((n, v) => n + (v.trash?.count ?? 0), 0);
-      this.set({ volumes, trashCount, entries: this.merge(roots), expanded: Object.fromEntries(roots.map((r) => [r.id, true])), ready: true, initError: null });
+      this.set({
+        volumes,
+        trashCount,
+        thumbs: thumbnails ?? null,
+        entries: this.merge(roots),
+        expanded: Object.fromEntries(roots.map((r) => [r.id, true])),
+        ready: true,
+        initError: null,
+      });
       roots.forEach((r) => this.loadTree(r.id));
       await this.open(initialId ?? roots[0]!.id);
     } catch (e) {
@@ -564,6 +575,14 @@ export class FinderStore {
 
   fileUrl(entry: Entry): string {
     return entry.url ?? this.client.fileUrl(entry);
+  }
+
+  /** Server thumbnail URL for images when the server generates them; otherwise the original file. */
+  previewUrl(entry: Entry, size: number): string {
+    const thumbs = this.state.thumbs;
+    const ext = extOf(entry.name);
+    if (thumbs && thumbs.extensions.includes(ext)) return this.client.thumbUrl(entry, size);
+    return this.fileUrl(entry);
   }
 
   download(entries: Entry[] = this.selectedEntries()) {

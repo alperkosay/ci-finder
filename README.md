@@ -19,6 +19,7 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 - **Arşiv:** Zip oluşturma ve çıkarma; zip-slip ve zip bombası koruması dahil.
 - **Çöp kutusu:** Veritabanı gerektirmez. `Delete` öğeyi onay sormadan çöpe taşır ve bildirimde "Geri al" düğmesi çıkar. `Shift+Delete` kalıcı olarak siler. Geri yükleme, kalıcı silme, boşaltma ve 30 gün sonra otomatik temizlik var.
 - **Arama:** Alt klasörlerde de arar. Büyük/küçük harf ve aksan duyarsızdır; Türkçe ı/İ doğru eşleşir.
+- **Küçük resimler:** Sunucuda üretilir (WebP, 128/256/512 px) ve önbellekte tutulur. Telefon fotoğrafları EXIF bilgisine göre doğru yöne çevrilir.
 - **Hızlı bakış (Space):** Resim, video, ses, PDF, kod ve Markdown önizlemesi.
 - **Dahili editörler:**
   - Kod editörü: 13 dil ailesi için renklendirme, bul/değiştir, satıra git, akıllı girinti, Ctrl+S ile kaydetme.
@@ -162,6 +163,26 @@ volumes: [
 - Yüklemeler S3 multipart olarak yapılır ve sunucu istekler arasında durum tutmaz, bu yüzden serverless ortamda da çalışır. S3 kullanılıyorsa `chunkSize` en az 5 MiB olmalı (varsayılan 5 MiB).
 - Görsel editörü S3'teki görselleri düzenleyebilsin diye bucket'ta CORS ayarı gerekir (`GET`, uygulamanızın origin'i).
 
+## Küçük resimler
+
+```ts
+import { sharpThumbnailer } from "@ci-finder/core/sharp";
+
+createCiFinder({
+  volumes,
+  thumbnails: { generator: sharpThumbnailer() }, // sizes: [128, 256, 512], concurrency: 2
+});
+```
+
+- Üretim için [`sharp`](https://sharp.pixelplumbing.com) kullanılır. Next.js projelerinde zaten kurulu gelir (`next/image` onu kullanır); diğer projelerde `npm i sharp` yeterli. Core paketinin kendisi sharp'a bağımlı değildir, sadece `@ci-finder/core/sharp` alt yolu onu içeri alır.
+- İlk istekte üretilir, volume içindeki gizli `.cf-thumbs/` klasöründe saklanır (S3'te de çalışır). Kaynak görsel değişince yeniden üretilir; dosya silinince, taşınınca veya adı değişince ilgili küçük resim temizlenir. Klasör istendiği zaman silinebilir, gerektiğinde yeniden oluşur.
+- **Kötüye kullanıma karşı koruma:**
+  - Yalnızca belirlenen boyutlar üretilir, keyfi boyut istenemez.
+  - Aynı anda yapılan üretim sayısı sınırlıdır ve aynı görsel için gelen eşzamanlı istekler tek üretimde birleştirilir.
+  - 40 MB'tan büyük dosyalar ve 120 megapikselden büyük görseller küçük resme çevrilmez.
+- Biçimi desteklenmeyen ya da bozuk bir dosyada orijinal gönderilir; arayüz yine düzgün çalışır.
+- Küçük resimler `?v=<mtime>` içeren adreslerle sunulduğu için tarayıcı onları 1 yıl önbellekte tutar.
+
 ## Çöp kutusu
 
 Veritabanı kullanılmaz. Her volume'ün çöpü kendi içinde, gizli `.cf-trash/` klasöründe tutulur:
@@ -222,6 +243,7 @@ Tüm stiller `@layer ci-finder` içindedir, yani katman dışında yazdığını
 - **CSRF:** Tüm değişiklik isteklerinde `x-ci-finder` başlığı zorunludur; değişiklik yapan komutlar GET ile çalışmaz.
 - **Yetkilendirme:** Volume bazında `readOnly`, `permission(action, path)`, uzantı izin ve yasak listeleri, `maxUploadSize`; komut bazında `authorize` hook'u.
 - **Arşivler:** Zip-slip ve zip bombası koruması (`maxExtractSize`).
+- **İç klasörler:** `.cf-trash` ve `.cf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
 - **Aktif içerik:** Yüklenen HTML ve SVG dosyaları sandbox CSP ile sunulur, uygulamanızın origin'inde script çalıştıramaz.
 - **Kimlik doğrulama:** `authorize` hook'unda kendiniz yapmalısınız. Varsayılan ayarlarla API'ye herkes erişebilir.
 

@@ -1,6 +1,6 @@
 import { normalizePath } from "./path";
 import { serveFile } from "./serve";
-import { isTrashPath } from "./trash";
+import { isReservedPath } from "./trash";
 import type { StorageDriver } from "./types";
 
 export interface FileServerOptions {
@@ -44,7 +44,7 @@ export function createFileServer(options: FileServerOptions): (request: Request)
       return notFound();
     }
     if (path === "/") return notFound();
-    if (isTrashPath(path) || (!options.showHidden && path.split("/").some((s) => s.startsWith(".")))) return notFound();
+    if (isReservedPath(path) || (!options.showHidden && path.split("/").some((s) => s.startsWith(".")))) return notFound();
     if (options.authorize && !(await options.authorize(request, path))) return notFound();
     const stat = await options.driver.stat(path);
     if (!stat || stat.kind !== "file") return notFound();

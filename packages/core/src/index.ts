@@ -8,5 +8,6 @@ export { createFileServer, type FileServerOptions } from "./file-server";
 export { createZipStream, type ZipSource } from "./zip/writer";
 export { readZipEntries, openZipEntry, type ZipEntry } from "./zip/reader";
 export { Volume } from "./volume";
-export { isTrashPath, TRASH_ROOT } from "./trash";
+export { isTrashPath, isReservedPath, TRASH_ROOT } from "./trash";
+export { ThumbnailService, THUMBS_ROOT } from "./thumbnails";
 export type * from "./types";

@@ -89,7 +89,7 @@ function RenameInput({ entry, multiline }: { entry: Entry; multiline: boolean })
   return multiline ? <textarea rows={2} {...props} /> : <input {...props} />;
 }
 
-function Thumb({ entry, size }: { entry: Entry; size: number }) {
+function Thumb({ entry, size, pixels }: { entry: Entry; size: number; pixels: number }) {
   const { store, thumbnails } = useFinder();
   const [failed, setFailed] = useState(false);
   const category = categoryOf(entry);
@@ -97,7 +97,7 @@ function Thumb({ entry, size }: { entry: Entry; size: number }) {
   if (thumbnails && category === "image" && !failed && entry.size > 0 && !entry.trash) {
     return (
       <span className="cf-thumb" style={{ width: size, height: size }}>
-        <img src={store.fileUrl(entry)} alt="" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
+        <img src={store.previewUrl(entry, pixels)} alt="" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
       </span>
     );
   }
@@ -188,7 +188,7 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
     return (
       <div {...common} title={entry.name}>
         <div className="cf-item-icon">
-          <Thumb entry={entry} size={iconSize} />
+          <Thumb entry={entry} size={iconSize} pixels={256} />
         </div>
         {renaming ? <RenameInput entry={entry} multiline /> : <div className="cf-item-name">{entry.name}</div>}
       </div>
@@ -199,7 +199,7 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
   return (
     <div {...common}>
       <div className="cf-col cf-col-name">
-        <Thumb entry={entry} size={18} />
+        <Thumb entry={entry} size={18} pixels={128} />
         {renaming ? <RenameInput entry={entry} multiline={false} /> : <span className="cf-item-name">{entry.name}</span>}
       </div>
       <div className="cf-col cf-col-date">{formatDate(entry.mtime, locale, t)}</div>

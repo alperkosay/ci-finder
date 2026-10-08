@@ -5,6 +5,7 @@ import { basename, dirname, extname, isInside, joinPath, normalizePath } from ".
 import { contentDisposition, serveFile } from "./serve";
 import { mapLimit, readAll, toUint8 } from "./stream";
 import type { CiFinderOptions, CommandContext, DriverStat, Entry, InitResult, VolumePath } from "./types";
+import { ThumbnailService } from "./thumbnails";
 import { emptyTrash, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash } from "./trash";
 import { Volume } from "./volume";
 import { openZipEntry, readZipEntries } from "./zip/reader";
@@ -18,7 +19,7 @@ type Target = { vol: Volume; path: VolumePath };
 type Command = (p: Params, ctx: CommandContext) => Promise<unknown>;
 
 /** Commands that never change anything; they are the only ones accepted over GET. */
-const READ_COMMANDS = new Set(["init", "ls", "tree", "parents", "info", "size", "search", "file", "download", "get", "trash"]);
+const READ_COMMANDS = new Set(["init", "ls", "tree", "parents", "info", "size", "search", "file", "thumb", "download", "get", "trash"]);
 
 /** Header every state-changing request must carry. Browsers cannot add it to cross-site form posts. */
 export const CSRF_HEADER = "x-ci-finder";
@@ -103,6 +104,7 @@ export class CiFinder {
   readonly options: Required<Pick<CiFinderOptions, "chunkSize" | "maxEditSize" | "searchLimit">> & CiFinderOptions;
   private readonly volumes = new Map<string, Volume>();
   private readonly commands: Record<string, Command>;
+  private readonly thumbs: ThumbnailService | null;
 
   constructor(options: CiFinderOptions) {
     if (!options?.volumes?.length) throw new Error("ciFinder: at least one volume is required");
@@ -116,6 +118,7 @@ export class CiFinder {
       if (this.volumes.has(v.id)) throw new Error(`ciFinder: duplicate volume id "${v.id}"`);
       this.volumes.set(v.id, new Volume(v));
     }
+    this.thumbs = options.thumbnails ? new ThumbnailService(options.thumbnails) : null;
     if (options.volumes.some((v) => v.driver.kind === "s3") && this.options.chunkSize < 5 * MiB) {
       throw new Error("ciFinder: chunkSize must be at least 5 MiB when an S3 volume is configured");
     }
@@ -144,6 +147,7 @@ export class CiFinder {
       archive: (p) => this.archive(p),
       extract: (p) => this.extract(p),
       file: (p, ctx) => this.file(p, ctx.request),
+      thumb: (p, ctx) => this.thumb(p, ctx.request),
       download: (p, ctx) => this.download(p, ctx.request),
     };
   }
@@ -219,7 +223,8 @@ export class CiFinder {
 
   private async init(): Promise<InitResult> {
     const volumes = await Promise.all([...this.volumes.values()].map((v) => v.info()));
-    return { volumes, chunkSize: this.options.chunkSize, version: VERSION };
+    const thumbnails = this.thumbs ? { sizes: this.thumbs.sizes, extensions: [...this.thumbs.extensions] } : null;
+    return { volumes, chunkSize: this.options.chunkSize, version: VERSION, thumbnails };
   }
 
   private async ls(p: Params) {
@@ -348,6 +353,7 @@ export class CiFinder {
     const caseOnly = name.toLowerCase() === stat.name.toLowerCase();
     if (!caseOnly && (await vol.driver.stat(target))) throw new CiFinderError("EXISTS", `"${name}" already exists`);
     await vol.driver.move(path, target);
+    if (stat.kind === "file") await this.thumbs?.forget(vol, path);
     return { entry: await this.entryAt(vol, target), removed: [p.id] };
   }
 
@@ -378,6 +384,7 @@ export class CiFinder {
       const stat = await vol.stat(path);
       if (!permanent && vol.trash.enabled) trashed.push(await moveToTrash(vol, stat));
       else await vol.driver.remove(path);
+      if (stat.kind === "file") await this.thumbs?.forget(vol, path);
       removed.push(id);
     }
     return { removed, trashed };
@@ -482,7 +489,10 @@ export class CiFinder {
         await this.copyAcross(src.vol, src.path, stat, dst.vol, target);
         if (cut) await src.vol.driver.remove(src.path);
       }
-      if (cut) removed.push(id);
+      if (cut) {
+        removed.push(id);
+        if (stat.kind === "file") await this.thumbs?.forget(src.vol, src.path);
+      }
       added.push(await this.entryAt(dst.vol, target));
     }
     return { added, removed, skipped };
@@ -596,6 +606,35 @@ export class CiFinder {
     const signed = await vol.driver.signedUrl?.(path, { download, filename: stat.name });
     if (signed) return Response.redirect(signed, 302);
     return serveFile({ request, stat, download, open: (range) => vol.driver.read(path, range) });
+  }
+
+  /**
+   * Small preview of an image, generated on first use and cached. Falls back to the original file
+   * when thumbnails are disabled, the format is not supported or generation fails.
+   */
+  private async thumb(p: Params, request: Request): Promise<Response> {
+    const { vol, path } = this.target(p.id);
+    vol.assertCan("read", path);
+    const stat = await vol.stat(path);
+    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (!this.thumbs?.supports(stat)) return this.file({ id: p.id }, request);
+    const size = this.thumbs.pick(int(p, "size", 256));
+    let thumb: DriverStat;
+    try {
+      thumb = await this.thumbs.get(vol, stat, size);
+    } catch (e) {
+      if (!isCiFinderError(e)) console.warn("[ci-finder] thumbnail failed:", stat.path, (e as Error)?.message ?? e);
+      return this.file({ id: p.id }, request);
+    }
+    return serveFile({
+      request,
+      stat: thumb,
+      mime: "image/webp",
+      filename: `${stat.name}.webp`,
+      // The URL carries the source mtime (`v`), so a changed image gets a new URL.
+      cacheControl: "private, max-age=31536000, immutable",
+      open: (range) => vol.driver.read(thumb.path, range),
+    });
   }
 
   private async download(p: Params, request: Request): Promise<Response> {

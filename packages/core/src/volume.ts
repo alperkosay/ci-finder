@@ -2,7 +2,7 @@ import { CiFinderError } from "./errors";
 import { encodeId } from "./id";
 import { DIRECTORY_MIME, mimeOf } from "./mime";
 import { assertValidName, basename, dirname, extname, joinPath, numberedName } from "./path";
-import { countTrash, isTrashPath, TRASH_NAME } from "./trash";
+import { countTrash, isReservedPath, RESERVED_NAMES } from "./trash";
 import type { Action, DriverStat, Entry, StorageDriver, VolumeInfo, VolumeOptions, VolumePath } from "./types";
 
 const VOLUME_ID = /^[a-zA-Z0-9-]{1,32}$/;
@@ -40,7 +40,7 @@ export class Volume {
 
   /** True when any segment of the path is hidden. Hidden paths behave as if they did not exist. */
   isHiddenPath(path: VolumePath): boolean {
-    if (isTrashPath(path)) return true; // the trash is never reachable through normal commands
+    if (isReservedPath(path)) return true; // trash and thumbnail cache are never reachable directly
     if (this.options.showHidden) return false;
     return path.split("/").some((s) => s.startsWith("."));
   }
@@ -86,12 +86,12 @@ export class Volume {
 
   async list(path: VolumePath): Promise<DriverStat[]> {
     const items = await this.driver.list(path);
-    return items.filter((s) => !this.isHiddenName(s.name) && !(path === "/" && s.name === TRASH_NAME));
+    return items.filter((s) => !this.isHiddenName(s.name) && !(path === "/" && RESERVED_NAMES.has(s.name)));
   }
 
   /** Rejects creating anything at a reserved location (the trash folder). */
   assertCreatable(path: VolumePath): void {
-    if (isTrashPath(path)) throw new CiFinderError("INVALID_NAME", "This name is reserved");
+    if (isReservedPath(path)) throw new CiFinderError("INVALID_NAME", "This name is reserved");
   }
 
   /** Picks "name", "name (2)", "name (3)"... whichever does not exist yet in `dir`. */

@@ -149,6 +149,28 @@ export interface InitResult {
   volumes: VolumeInfo[];
   chunkSize: number;
   version: string;
+  /** Present when server-side thumbnails are enabled. */
+  thumbnails: { sizes: number[]; extensions: string[] } | null;
+}
+
+/** Turns image bytes into a small preview. See `sharpThumbnailer` in `@ci-finder/core/sharp`. */
+export interface Thumbnailer {
+  /** Lowercase file extensions the generator can read. */
+  extensions: string[];
+  /** Extension of the produced files. Default: "webp". */
+  extension?: string;
+  /** Returns the encoded thumbnail, fitting inside `size`×`size`. */
+  generate(input: Uint8Array, size: number): Promise<Uint8Array>;
+}
+
+export interface ThumbnailOptions {
+  generator: Thumbnailer;
+  /** Allowed sizes in px; requests snap to the nearest one. Default: [128, 256, 512]. */
+  sizes?: number[];
+  /** Larger source files are not thumbnailed (served as-is). Default: 40 MiB. */
+  maxInputSize?: number;
+  /** Max thumbnails generated at the same time. Default: 2. */
+  concurrency?: number;
 }
 
 export interface CommandContext {
@@ -172,6 +194,8 @@ export interface CiFinderOptions {
   maxEditSize?: number;
   /** Max number of results returned by `search`. Default: 500. */
   searchLimit?: number;
+  /** Server-side thumbnails, cached in a hidden `.cf-thumbs` folder of each volume. */
+  thumbnails?: ThumbnailOptions;
   /** Max total uncompressed size when extracting an archive (zip bomb guard). Default: 4 GiB. */
   maxExtractSize?: number;
   /**

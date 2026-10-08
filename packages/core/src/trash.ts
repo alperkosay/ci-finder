@@ -30,6 +30,13 @@ export function isTrashPath(path: VolumePath): boolean {
   return path === TRASH_ROOT || path.startsWith(TRASH_ROOT + "/");
 }
 
+/** Internal folders (trash, thumbnail cache) that are never reachable through normal commands. */
+export function isReservedPath(path: VolumePath): boolean {
+  return isTrashPath(path) || path === "/.cf-thumbs" || path.startsWith("/.cf-thumbs/");
+}
+
+export const RESERVED_NAMES = new Set([".cf-trash", ".cf-thumbs"]);
+
 const metaPath = (tid: string) => `${TRASH_ROOT}/${tid}.json`;
 const itemDir = (tid: string) => `${TRASH_ROOT}/${tid}`;
 

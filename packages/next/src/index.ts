@@ -1,5 +1,5 @@
 import * as nodePath from "node:path";
-import { CiFinder, createCiFinder, isTrashPath, normalizePath, serveFile, type CiFinderOptions, type StorageDriver } from "@ci-finder/core";
+import { CiFinder, createCiFinder, isReservedPath, normalizePath, serveFile, type CiFinderOptions, type StorageDriver } from "@ci-finder/core";
 import { localDriver } from "@ci-finder/core/local";
 
 export { createCiFinder };
@@ -118,8 +118,8 @@ export function createUploadsRoute(options: UploadsRouteOptions = {}): {
     } catch {
       return notFound();
     }
-    // The trash folder is never public, even with showHidden.
-    if (isTrashPath(path) || (!options.showHidden && path.split("/").some((s) => s.startsWith(".")))) return notFound();
+    // The trash and thumbnail cache are never public, even with showHidden.
+    if (isReservedPath(path) || (!options.showHidden && path.split("/").some((s) => s.startsWith(".")))) return notFound();
     if (options.authorize && !(await options.authorize(request, path))) return notFound();
 
     const d = getDriver();

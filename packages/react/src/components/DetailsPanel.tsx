@@ -107,8 +107,9 @@ function RegularItem({ entry }: { entry: Entry }) {
   const { store, t, locale, thumbnails } = useFinder();
   const actions = useActions();
   const category = categoryOf(entry);
-  const src = category === "image" && entry.size > 0 ? store.fileUrl(entry) : null;
-  const dims = useImageSize(src);
+  const original = category === "image" && entry.size > 0 ? store.fileUrl(entry) : null;
+  const src = original ? store.previewUrl(entry, 512) : null;
+  const dims = useImageSize(original);
   const url = entry.kind === "file" ? new URL(store.fileUrl(entry), typeof location !== "undefined" ? location.href : "http://localhost").toString() : null;
 
   return (

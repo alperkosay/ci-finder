@@ -36,6 +36,11 @@
       "types": "./dist/client.d.ts",
       "import": "./dist/client.js",
       "require": "./dist/client.cjs"
+    },
+    "./sharp": {
+      "types": "./dist/sharp.d.ts",
+      "import": "./dist/sharp.js",
+      "require": "./dist/sharp.cjs"
     }
   },
   "scripts": {
@@ -47,5 +52,16 @@
   },
   "engines": {
     "node": ">=18.17"
+  },
+  "peerDependencies": {
+    "sharp": ">=0.33"
+  },
+  "peerDependenciesMeta": {
+    "sharp": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "sharp": "^0.35.5"
   }
 }

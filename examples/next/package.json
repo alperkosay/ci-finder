@@ -11,6 +11,7 @@
     "seed": "node scripts/seed-demo.mjs"
   },
   "dependencies": {
+    "@ci-finder/core": "0.1.0",
     "@ci-finder/next": "0.1.0",
     "@ci-finder/react": "0.1.0",
     "next": "^16.4.0",

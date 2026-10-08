@@ -1,3 +1,4 @@
+import { sharpThumbnailer } from "@ci-finder/core/sharp";
 import { createCiFinder, localDriver, s3Driver, uploadsDir, type VolumeOptions } from "@ci-finder/next";
 
 /**
@@ -35,5 +36,7 @@ if (process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECR
 
 export const finder = createCiFinder({
   volumes,
+  // sharp ships with Next.js (next/image), so thumbnails need no extra install here.
+  thumbnails: { generator: sharpThumbnailer() },
   // authorize: async ({ request }) => Boolean(await getSession(request)),
 });

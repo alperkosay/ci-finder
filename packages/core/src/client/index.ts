@@ -190,6 +190,11 @@ export class CiFinderClient {
     return this.url({ cmd: "file", id: entry.id, v: String(entry.mtime), ...(download ? { download: "1" } : {}) });
   }
 
+  /** URL of a server-generated thumbnail (falls back to the original on the server when unavailable). */
+  thumbUrl(entry: Pick<Entry, "id" | "mtime">, size: number): string {
+    return this.url({ cmd: "thumb", id: entry.id, size: String(size), v: String(entry.mtime) });
+  }
+
   /** URL that downloads one file, or a ZIP of several files / folders. */
   downloadUrl(ids: string[]): string {
     return this.url({ cmd: "download", ids: ids.join(",") });

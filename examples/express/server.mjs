@@ -3,10 +3,12 @@ import { fileURLToPath } from "node:url";
 import { createCiFinder, createFileServer } from "@ci-finder/core";
 import { localDriver } from "@ci-finder/core/local";
 import { toExpress } from "@ci-finder/core/node";
+import { sharpThumbnailer } from "@ci-finder/core/sharp";
 
 const driver = localDriver({ root: fileURLToPath(new URL("./uploads", import.meta.url)) });
 const finder = createCiFinder({
   volumes: [{ id: "files", name: "Files", driver, url: "/uploads" }],
+  thumbnails: { generator: sharpThumbnailer() },
   // authorize: ({ request }) => request.headers.get("authorization") === `Bearer ${process.env.TOKEN}`,
 });
 
