@@ -954,6 +954,13 @@
     position: relative;
     outline: none;
     cursor: default;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+
+  .cf-tree-row,
+  .cf-view {
+    -webkit-touch-callout: none;
   }
 
   .cf-item.is-cut {
@@ -2781,6 +2788,15 @@
 
     .cf-tree-row {
       height: 34px;
+    }
+
+    .cf-menu-item {
+      height: 40px;
+    }
+
+    /* Keyboard hints mean nothing on a phone. */
+    .cf-menu-kbd {
+      display: none;
     }
   }
 

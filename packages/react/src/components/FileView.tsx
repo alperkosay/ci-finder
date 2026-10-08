@@ -14,6 +14,7 @@ import { cx, modKey, useElementSize, useFinder, useIsoLayoutEffect, useStore, us
 import { baseOf, categoryOf, formatDate, formatSize, kindLabel, locationOf } from "../format";
 import { FileIcon, FolderIcon, Icon, Spinner } from "../icons";
 import { TRASH_ID } from "../store";
+import { useTouch } from "../touch";
 import { isFileDrag, isInternalDrag, readDragIds, readDroppedFiles, startDrag } from "./dnd";
 
 export const LAYOUT = {
@@ -119,9 +120,14 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
   const { store, t, locale, rootRef } = useFinder();
   const [dropOver, setDropOver] = useState(false);
   const isDir = entry.kind === "dir" && !entry.trash;
+  const touch = useTouch(({ x, y }) => {
+    const s = store.state;
+    if (!s.selection.includes(entry.id)) store.select(entry.id, s.touchSelecting ? "toggle" : "single");
+    store.set({ touchSelecting: true, menu: { x, y, context: "item", targetId: entry.id } });
+  });
 
   const onMouseDown = (e: ReactMouseEvent) => {
-    if (e.button !== 0 || renaming) return;
+    if (e.button !== 0 || renaming || touch.wasTouch()) return;
     e.stopPropagation();
     if (e.shiftKey) store.select(entry.id, "range");
     else if (modKey(e)) store.select(entry.id, "toggle");
@@ -131,6 +137,15 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
 
   const onClick = (e: ReactMouseEvent) => {
     e.stopPropagation();
+    if (touch.wasTouch()) {
+      // Tap: open, or toggle while a selection is being built (after a long press).
+      if (touch.consumeLongPress() || renaming) return;
+      if (store.state.touchSelecting) {
+        store.select(entry.id, "toggle");
+        if (!store.state.selection.length) store.set({ touchSelecting: false });
+      } else store.openEntry(entry);
+      return;
+    }
     if (!e.shiftKey && !modKey(e) && store.state.selection.length > 1) store.select(entry.id, "single");
   };
 
@@ -165,12 +180,14 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
     "data-id": entry.id,
     draggable: !renaming && !entry.locked && !entry.trash,
     className: cx("cf-item", selected && "is-selected", focused && "is-focused", cut && "is-cut", dropOver && "is-drop"),
+    ...touch.handlers,
     onMouseDown,
     onClick,
     onDoubleClick: () => !renaming && store.openEntry(entry),
     onContextMenu: (e: ReactMouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      if (touch.wasTouch()) return; // the long press already handled it (Android fires both)
       if (!selected) store.select(entry.id, "single");
       store.set({ menu: { x: e.clientX, y: e.clientY, context: "item", targetId: entry.id } });
     },
@@ -295,6 +312,10 @@ export function FileView({ density }: { density: Density }) {
   const [scrollTop, setScrollTop] = useState(0);
   const [lasso, setLasso] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   const [fileDrag, setFileDrag] = useState(false);
+  const bgTouch = useTouch(({ x, y }) => {
+    store.clearSelection();
+    store.set({ menu: { x, y, context: "background" } });
+  });
   const dragDepth = useRef(0);
   const typeahead = useRef({ text: "", at: 0 });
 
@@ -453,7 +474,9 @@ export function FileView({ density }: { density: Density }) {
   // --- lasso selection ---------------------------------------------------------------------------
 
   const onPointerDown = (e: ReactPointerEvent) => {
-    if (e.button !== 0 || e.pointerType === "touch") return;
+    // Track every pointer type so a later mouse click is never mistaken for a tap.
+    if (!(e.target as HTMLElement).closest(".cf-item, .cf-list-head")) bgTouch.handlers.onPointerDown(e);
+    if (e.pointerType === "touch" || e.button !== 0) return;
     const el = scrollRef.current!;
     if ((e.target as HTMLElement).closest(".cf-item, .cf-list-head")) return;
     if (e.clientX > el.getBoundingClientRect().left + el.clientWidth) return; // scrollbar
@@ -573,10 +596,18 @@ export function FileView({ density }: { density: Density }) {
         aria-label={searching ? t("search") : (cwdEntry?.name ?? "")}
         aria-activedescendant={focus && ids.includes(focus) ? `cf-item-${focus}` : undefined}
         onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+        onPointerMove={bgTouch.handlers.onPointerMove}
+        onPointerUp={bgTouch.handlers.onPointerUp}
+        onPointerCancel={bgTouch.handlers.onPointerCancel}
+        onClick={(e) => {
+          // Tapping empty space ends a touch selection.
+          if (bgTouch.wasTouch() && !bgTouch.consumeLongPress() && !(e.target as HTMLElement).closest(".cf-item")) store.clearSelection();
+        }}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onContextMenu={(e) => {
           if ((e.target as HTMLElement).closest(".cf-item")) return;
+          if (bgTouch.wasTouch()) return e.preventDefault();
           e.preventDefault();
           store.clearSelection();
           store.set({ menu: { x: e.clientX, y: e.clientY, context: "background" } });

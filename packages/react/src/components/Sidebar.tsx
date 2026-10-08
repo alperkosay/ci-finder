@@ -2,7 +2,8 @@ import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as Rea
 import type { Entry } from "@ci-finder/core/client";
 import { cx, useFinder, useStore } from "../context";
 import { FolderIcon, Icon, Spinner } from "../icons";
-import { TRASH_ID } from "../store";
+import { TRASH_ID, type FinderStore } from "../store";
+import { useTouch } from "../touch";
 import { isFileDrag, isInternalDrag, readDragIds, readDroppedFiles } from "./dnd";
 
 interface Row {
@@ -42,6 +43,7 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
   const [over, setOver] = useState(false);
   const volume = store.volumeOf(entry);
   const expandable = entry.hasDirs !== false;
+  const touch = useTouch(({ x, y }) => store.set({ menu: { x, y, context: "tree", targetId: entry.id } }));
 
   return (
     <div
@@ -53,14 +55,18 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
       tabIndex={focused ? 0 : -1}
       className={cx("cf-tree-row", isCwd && "is-current", over && "is-drop", isRoot && "is-root")}
       style={{ "--depth": depth } as React.CSSProperties}
-      onClick={() => {
+      {...touch.handlers}
+      onClick={(e) => {
+        if (touch.consumeLongPress()) return;
         onFocusRow(entry.id);
         void store.open(entry.id);
+        closeDrawerIfNarrow(e.currentTarget, store);
         // Clicking a folder in the tree also reveals its sub-folders.
         if (expandable && !expanded) store.toggleExpanded(entry.id, true);
       }}
       onContextMenu={(e) => {
         e.preventDefault();
+        if (touch.wasTouch()) return;
         onFocusRow(entry.id);
         store.set({ menu: { x: e.clientX, y: e.clientY, context: "tree", targetId: entry.id } });
       }}
@@ -102,6 +108,11 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
   );
 }
 
+/** On narrow screens the sidebar is an overlay drawer: close it once a location is chosen. */
+function closeDrawerIfNarrow(el: HTMLElement, store: FinderStore) {
+  if (el.closest(".cf-root")?.classList.contains("is-narrow")) store.set({ sidebarOpen: false });
+}
+
 function TrashRow({ focused, onFocusRow }: { focused: boolean; onFocusRow: (id: string) => void }) {
   const { store, t } = useFinder();
   const count = useStore((s) => s.trashCount);
@@ -116,9 +127,10 @@ function TrashRow({ focused, onFocusRow }: { focused: boolean; onFocusRow: (id: 
       tabIndex={focused ? 0 : -1}
       className={cx("cf-tree-row is-root is-trash", isCwd && "is-current", over && "is-drop")}
       style={{ "--depth": 0 } as React.CSSProperties}
-      onClick={() => {
+      onClick={(e) => {
         onFocusRow(TRASH_ID);
         void store.open(TRASH_ID);
+        closeDrawerIfNarrow(e.currentTarget, store);
       }}
       onContextMenu={(e) => {
         e.preventDefault();

@@ -83,6 +83,10 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
     setOpenSub(null);
   };
 
+  // A long press opens the menu under the finger; the click produced when that finger lifts
+  // must not trigger the item underneath. Only clicks whose press started inside the open menu count.
+  const armed = useRef(false);
+
   const activate = (i: number) => {
     const e = entries[i];
     if (!e) return;
@@ -163,6 +167,9 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
       tabIndex={-1}
       style={{ left: pos.left, top: pos.top, visibility: pos.ready ? "visible" : "hidden" }}
       onKeyDown={onKeyDown}
+      onPointerDown={() => {
+        armed.current = true;
+      }}
       onContextMenu={(e) => e.preventDefault()}
       aria-activedescendant={active >= 0 ? `cf-mi-${active}` : undefined}
     >
@@ -220,7 +227,7 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
               setActive(action.enabled ? i : -1);
               setOpenSub(null);
             }}
-            onClick={() => activate(i)}
+            onClick={() => armed.current && activate(i)}
           >
             <span className="cf-menu-icon">{checked ? <Icon name="check" /> : action.icon && <Icon name={action.icon} />}</span>
             <span className="cf-menu-text">{action.label}</span>

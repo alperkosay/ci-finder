@@ -84,6 +84,8 @@ export interface State extends Prefs {
   trashCount: number;
   /** Server-side thumbnail support announced by `init`. */
   thumbs: InitResult["thumbnails"];
+  /** Touch: a long press started a multi-selection; taps toggle until it ends. */
+  touchSelecting: boolean;
 }
 
 export interface StoreOptions {
@@ -176,6 +178,7 @@ export class FinderStore {
       sidebarOpen: true,
       trashCount: 0,
       thumbs: null,
+      touchSelecting: false,
     };
   }
 
@@ -454,6 +457,7 @@ export class FinderStore {
           selection: select,
           anchor: select[0] ?? null,
           focus: select[0] ?? null,
+          touchSelecting: false,
         };
       });
       void this.revealInTree(cwd);
@@ -561,7 +565,7 @@ export class FinderStore {
   }
 
   clearSelection() {
-    if (this.state.selection.length) this.set({ selection: [] });
+    if (this.state.selection.length || this.state.touchSelecting) this.set({ selection: [], touchSelecting: false });
   }
 
   // --- opening files -----------------------------------------------------------------------------
