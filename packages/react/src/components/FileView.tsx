@@ -107,6 +107,8 @@ function Thumb({ entry, size, pixels }: { entry: Entry; size: number; pixels: nu
 
 interface ItemProps {
   entry: Entry;
+  /** 1-based ARIA row index in list view (row 1 is the header); the list is virtualized. */
+  rowIndex: number;
   selected: boolean;
   focused: boolean;
   cut: boolean;
@@ -116,7 +118,7 @@ interface ItemProps {
   showLocation: boolean;
 }
 
-const Item = memo(function Item({ entry, selected, focused, cut, renaming, view, iconSize, showLocation }: ItemProps) {
+const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renaming, view, iconSize, showLocation }: ItemProps) {
   const { store, t, locale, rootRef } = useFinder();
   const [dropOver, setDropOver] = useState(false);
   const isDir = entry.kind === "dir" && !entry.trash;
@@ -175,7 +177,8 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
 
   const common = {
     id: `cf-item-${entry.id}`,
-    role: "option",
+    role: view === "list" ? "row" : "option",
+    "aria-rowindex": view === "list" ? rowIndex : undefined,
     "aria-selected": selected,
     "data-id": entry.id,
     draggable: !renaming && !entry.locked && !entry.trash,
@@ -215,13 +218,17 @@ const Item = memo(function Item({ entry, selected, focused, cut, renaming, view,
   const location = showLocation ? locationOf(entry, store.volumeOf(entry)?.name ?? entry.volume) : "";
   return (
     <div {...common}>
-      <div className="cf-col cf-col-name">
+      <div className="cf-col cf-col-name" role="gridcell">
         <Thumb entry={entry} size={18} pixels={128} />
         {renaming ? <RenameInput entry={entry} multiline={false} /> : <span className="cf-item-name">{entry.name}</span>}
       </div>
-      <div className="cf-col cf-col-date">{formatDate(entry.mtime, locale, t)}</div>
-      <div className="cf-col cf-col-size">{entry.kind === "dir" ? "—" : formatSize(entry.size, locale)}</div>
-      <div className="cf-col cf-col-kind" title={location || undefined}>
+      <div className="cf-col cf-col-date" role="gridcell">
+        {formatDate(entry.mtime, locale, t)}
+      </div>
+      <div className="cf-col cf-col-size" role="gridcell">
+        {entry.kind === "dir" ? "—" : formatSize(entry.size, locale)}
+      </div>
+      <div className="cf-col cf-col-kind" role="gridcell" title={location || undefined}>
         {showLocation ? location : kindLabel(entry, t)}
       </div>
     </div>
@@ -233,23 +240,25 @@ function ListHeader({ showLocation, inTrash }: { showLocation: boolean; inTrash:
   const sortKey = useStore((s) => s.sortKey);
   const sortDir = useStore((s) => s.sortDir);
   const col = (key: "name" | "mtime" | "size" | "kind", label: string, cls: string) => (
-    <button
-      type="button"
-      role="columnheader"
-      aria-sort={sortKey === key ? (sortDir === 1 ? "ascending" : "descending") : "none"}
-      className={cx("cf-col", cls, sortKey === key && "is-sorted")}
-      onClick={() => store.setSort(key)}
-    >
-      <span>{label}</span>
-      {sortKey === key && <Icon name={sortDir === 1 ? "chevronUp" : "chevronDown"} size={12} />}
-    </button>
+    <div role="columnheader" aria-sort={sortKey === key ? (sortDir === 1 ? "ascending" : "descending") : "none"} className={cx("cf-col-head", cls)}>
+      <button type="button" className={cx("cf-col", sortKey === key && "is-sorted")} onClick={() => store.setSort(key)}>
+        <span>{label}</span>
+        {sortKey === key && <Icon name={sortDir === 1 ? "chevronUp" : "chevronDown"} size={12} />}
+      </button>
+    </div>
   );
   return (
-    <div className="cf-list-head" role="row" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="cf-list-head" role="row" aria-rowindex={1} onMouseDown={(e) => e.stopPropagation()}>
       {col("name", t("name"), "cf-col-name")}
       {col("mtime", inTrash ? t("deletedAt") : t("modified"), "cf-col-date")}
       {col("size", t("size"), "cf-col-size")}
-      {showLocation ? <div className="cf-col cf-col-kind">{inTrash ? t("originalLocation") : t("location")}</div> : col("kind", t("kind"), "cf-col-kind")}
+      {showLocation ? (
+        <div role="columnheader" className="cf-col-head cf-col-kind">
+          <span className="cf-col">{inTrash ? t("originalLocation") : t("location")}</span>
+        </div>
+      ) : (
+        col("kind", t("kind"), "cf-col-kind")
+      )}
     </div>
   );
 }
@@ -591,8 +600,9 @@ export function FileView({ density }: { density: Density }) {
         className={cx("cf-view", `is-${view}`)}
         data-cf-view
         tabIndex={0}
-        role="listbox"
+        role={view === "list" ? "grid" : "listbox"}
         aria-multiselectable="true"
+        aria-rowcount={view === "list" ? ids.length + 1 : undefined}
         aria-label={searching ? t("search") : (cwdEntry?.name ?? "")}
         aria-activedescendant={focus && ids.includes(focus) ? `cf-item-${focus}` : undefined}
         onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
@@ -625,13 +635,14 @@ export function FileView({ density }: { density: Density }) {
         <div className="cf-view-canvas" style={{ height: geometry.height }}>
           {view === "list" && ids.length > 0 && <ListHeader showLocation={searching || inTrash} inTrash={inTrash} />}
           <div className={cx("cf-view-block", `is-${view}`)} style={{ transform: `translateY(${blockTop}px)` }}>
-            {slice.map((id) => {
+            {slice.map((id, k) => {
               const entry = entries[id];
               if (!entry) return null;
               return (
                 <Item
                   key={id}
                   entry={entry}
+                  rowIndex={start + k + 2}
                   selected={selected.has(id)}
                   focused={focus === id}
                   cut={cutSet.has(id)}

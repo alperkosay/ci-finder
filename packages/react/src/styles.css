@@ -14,6 +14,8 @@
 
     --cf-accent: #2a64d6;
     --cf-accent-text: #ffffff;
+    /* Accent used as text on neutral surfaces (links); kept separate from the fill color for contrast. */
+    --cf-accent-ink: var(--cf-accent);
     --cf-accent-soft: color-mix(in srgb, var(--cf-accent) 14%, transparent);
     --cf-accent-line: color-mix(in srgb, var(--cf-accent) 55%, transparent);
 
@@ -25,7 +27,7 @@
     --cf-line-strong: #d3cfc8;
     --cf-text: #1d1c1a;
     --cf-text-2: #5d5a53;
-    --cf-text-3: #8e8a81;
+    --cf-text-3: #6f6b64;
     --cf-hover: rgb(29 28 26 / 0.05);
     --cf-press: rgb(29 28 26 / 0.09);
     --cf-sel: #d9e4fa;
@@ -88,7 +90,8 @@
 
   .cf-root[data-theme="dark"] {
     color-scheme: dark;
-    --cf-accent: #5a8cf0;
+    --cf-accent: #3a6fd9;
+    --cf-accent-ink: #8fb4ff;
     --cf-bg: #1b1a18;
     --cf-surface: #272623;
     --cf-chrome: #21201e;
@@ -97,7 +100,7 @@
     --cf-line-strong: #46433d;
     --cf-text: #ecebe7;
     --cf-text-2: #b2aea6;
-    --cf-text-3: #807c73;
+    --cf-text-3: #98948b;
     --cf-hover: rgb(255 255 255 / 0.055);
     --cf-press: rgb(255 255 255 / 0.09);
     --cf-sel: rgb(90 140 240 / 0.26);
@@ -132,7 +135,8 @@
   @media (prefers-color-scheme: dark) {
     .cf-root[data-theme="auto"] {
       color-scheme: dark;
-      --cf-accent: #5a8cf0;
+      --cf-accent: #3a6fd9;
+      --cf-accent-ink: #8fb4ff;
       --cf-bg: #1b1a18;
       --cf-surface: #272623;
       --cf-chrome: #21201e;
@@ -141,7 +145,7 @@
       --cf-line-strong: #46433d;
       --cf-text: #ecebe7;
       --cf-text-2: #b2aea6;
-      --cf-text-3: #807c73;
+      --cf-text-3: #98948b;
       --cf-hover: rgb(255 255 255 / 0.055);
       --cf-press: rgb(255 255 255 / 0.09);
       --cf-sel: rgb(90 140 240 / 0.26);
@@ -386,7 +390,7 @@
     padding: 0;
     border: 0;
     background: none;
-    color: var(--cf-accent);
+    color: var(--cf-accent-ink);
     font-weight: 500;
     cursor: pointer;
     border-radius: 3px;
@@ -1053,6 +1057,15 @@
 
   [data-density="compact"] .cf-list-head {
     height: 28px;
+  }
+
+  .cf-col-head {
+    min-width: 0;
+  }
+
+  .cf-list-head .cf-col-size {
+    display: flex;
+    justify-content: flex-end;
   }
 
   .cf-list-head .cf-col {
@@ -2258,7 +2271,7 @@
   }
 
   .cf-md a {
-    color: var(--cf-accent);
+    color: var(--cf-accent-ink);
   }
 
   .cf-md code {
@@ -2495,7 +2508,7 @@
 
   .cf-icon-row .cf-btn.is-on {
     box-shadow: inset 0 0 0 1.5px var(--cf-accent);
-    color: var(--cf-accent);
+    color: var(--cf-accent-ink);
   }
 
   .cf-chips {

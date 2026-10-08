@@ -388,7 +388,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
 
             <section>
               <h4>{t("format")}</h4>
-              <select className="cf-input is-small" value={format} onChange={(e) => setFormat(e.target.value)}>
+              <select className="cf-input is-small" aria-label={t("format")} value={format} onChange={(e) => setFormat(e.target.value)}>
                 {Object.values(FORMATS).map((f) => (
                   <option key={f.mime} value={f.mime}>
                     {f.ext.toUpperCase()}

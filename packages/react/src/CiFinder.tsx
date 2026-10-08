@@ -201,9 +201,9 @@ function Shell({ density, theme, height, className, style }: Pick<CiFinderProps,
                 <Sidebar />
               </>
             )}
-            <main className="cf-main">
+            <div className="cf-main">
               <FileView density={density} />
-            </main>
+            </div>
             {detailsOpen && (
               <>
                 {narrow && <div className="cf-scrim" onClick={() => store.set({ detailsOpen: false })} />}
