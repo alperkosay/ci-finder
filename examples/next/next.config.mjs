@@ -12,6 +12,10 @@ const nextConfig = {
   turbopack: { root: repoRoot },
   // Never trace runtime uploads into the build output.
   outputFileTracingExcludes: { "*": ["uploads/**", "**/uploads/**"] },
+  // sharp's native libraries (libvips DLL/.so) are loaded by the binary, not by `require`, so
+  // file tracing misses them; ship them explicitly so thumbnails work in standalone deploys.
+  // In a non-monorepo app the path is "./node_modules/@img/**/*".
+  outputFileTracingIncludes: { "/api/files": ["../../node_modules/@img/**/*"] },
 };
 
 export default nextConfig;
