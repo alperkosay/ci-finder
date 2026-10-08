@@ -38,5 +38,10 @@ export const finder = createCiFinder({
   volumes,
   // sharp ships with Next.js (next/image), so thumbnails need no extra install here.
   thumbnails: { generator: sharpThumbnailer() },
-  // authorize: async ({ request }) => Boolean(await getSession(request)),
+  // Plug in your app's session here, e.g.:
+  // authorize: async ({ request }) => {
+  //   const session = await getSession(request);
+  //   if (!session) throw new CiFinderError("UNAUTHORIZED");
+  //   return session.role === "viewer" ? { readOnly: true } : true;
+  // },
 });

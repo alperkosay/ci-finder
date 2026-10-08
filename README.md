@@ -103,6 +103,29 @@ export default function Files() {
 - Standalone build `.next/static` klasörünü kendiliğinden kopyalamaz. [examples/next/scripts/copy-standalone-assets.mjs](examples/next/scripts/copy-standalone-assets.mjs) bu işi `postbuild` adımında yapar.
 - Monorepo'da `next.config` içine `outputFileTracingRoot` ekleyin; örnek: [examples/next/next.config.mjs](examples/next/next.config.mjs).
 
+### Yetkilendirme
+
+ciFinder oturum yönetimi yapmaz; uygulamanızdaki oturumu (Auth.js, Clerk, kendi çereziniz…) `authorize` hook'unda okursunuz:
+
+```ts
+import { CiFinderError } from "@ci-finder/next"; // veya "@ci-finder/core"
+
+createCiFinder({
+  volumes,
+  authorize: async ({ request, cmd }) => {
+    const session = await getSession(request);
+    if (!session) throw new CiFinderError("UNAUTHORIZED");          // → 401
+    if (session.role === "viewer") return { readOnly: true };       // her şey salt okunur
+    return true;                                                     // false → 403
+  },
+});
+```
+
+- `false` döndürmek 403, `UNAUTHORIZED` fırlatmak 401 verir.
+- `{ readOnly: true }` döndürülürse o istek için bütün volume'ler salt okunur olur. Arayüz yazma eylemlerini kendiliğinden gizler, API de yazma isteklerini `READ_ONLY` hatasıyla reddeder.
+- Arayüz 401 alınca `onUnauthorized` çağrılır, örneğin `<CiFinder onUnauthorized={() => location.assign("/login")} />`.
+- `/uploads` adresini de korumak isterseniz: `createUploadsRoute({ authorize: (request) => isSignedIn(request) })`.
+
 ## Bun
 
 ```ts
@@ -245,7 +268,7 @@ Tüm stiller `@layer ci-finder` içindedir, yani katman dışında yazdığını
 - **Arşivler:** Zip-slip ve zip bombası koruması (`maxExtractSize`).
 - **İç klasörler:** `.cf-trash` ve `.cf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
 - **Aktif içerik:** Yüklenen HTML ve SVG dosyaları sandbox CSP ile sunulur, uygulamanızın origin'inde script çalıştıramaz.
-- **Kimlik doğrulama:** `authorize` hook'unda kendiniz yapmalısınız. Varsayılan ayarlarla API'ye herkes erişebilir.
+- **Kimlik doğrulama:** Kimlik doğrulama `authorize` hook'unda yapılır; varsayılan ayarlarla API'ye herkes erişebilir. Ayrıntılar için [Yetkilendirme](#yetkilendirme) bölümüne bakın.
 
 ## Geliştirme
 

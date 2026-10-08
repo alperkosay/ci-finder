@@ -96,6 +96,8 @@ export interface StoreOptions {
   onChange?: (event: { type: string; entries?: Entry[]; ids?: string[] }) => void;
   pickMode?: boolean;
   onPick?: (entries: Entry[]) => void;
+  /** Called when the API answers 401 (session expired / not signed in). */
+  onUnauthorized?: () => void;
 }
 
 const PREF_KEYS: (keyof Prefs)[] = ["view", "sortKey", "sortDir", "foldersFirst", "detailsOpen", "sidebarWidth"];
@@ -269,6 +271,7 @@ export class FinderStore {
   }
 
   errorMessage(e: unknown): string {
+    if (e instanceof ApiError && e.status === 401) this.options.onUnauthorized?.();
     if (e instanceof ApiError) {
       const key = `error.${e.code}` as MessageKey;
       const translated = this.t(key);
@@ -395,6 +398,7 @@ export class FinderStore {
           if (this.state.tree[id]) await this.loadTree(id);
         } catch (e) {
           if (e instanceof ApiError && e.code === "NOT_FOUND") this.removeLocal([id]);
+          else if (e instanceof ApiError && e.status === 401) this.options.onUnauthorized?.();
         }
       }),
     );

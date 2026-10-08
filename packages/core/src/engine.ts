@@ -16,7 +16,7 @@ const MiB = 1024 * 1024;
 
 type Params = Record<string, unknown>;
 type Target = { vol: Volume; path: VolumePath };
-type Command = (p: Params, ctx: CommandContext) => Promise<unknown>;
+type Command = (engine: CiFinder, p: Params, ctx: CommandContext) => Promise<unknown>;
 
 /** Commands that never change anything; they are the only ones accepted over GET. */
 const READ_COMMANDS = new Set(["init", "ls", "tree", "parents", "info", "size", "search", "file", "thumb", "download", "get", "trash"]);
@@ -105,6 +105,7 @@ export class CiFinder {
   private readonly volumes = new Map<string, Volume>();
   private readonly commands: Record<string, Command>;
   private readonly thumbs: ThumbnailService | null;
+  private readOnlyView: CiFinder | null = null;
 
   constructor(options: CiFinderOptions) {
     if (!options?.volumes?.length) throw new Error("ciFinder: at least one volume is required");
@@ -123,32 +124,33 @@ export class CiFinder {
       throw new Error("ciFinder: chunkSize must be at least 5 MiB when an S3 volume is configured");
     }
 
+    // Commands receive the engine to run on: the instance itself, or a read-only view of it.
     this.commands = {
-      init: () => this.init(),
-      ls: (p) => this.ls(p),
-      tree: (p) => this.tree(p),
-      parents: (p) => this.parents(p),
-      info: (p) => this.info(p),
-      size: (p) => this.size(p),
-      search: (p) => this.search(p),
-      mkdir: (p) => this.mkdir(p),
-      mkfile: (p) => this.mkfile(p),
-      rename: (p) => this.rename(p),
-      duplicate: (p) => this.duplicate(p),
-      rm: (p) => this.rm(p),
-      trash: (p) => this.trashList(p),
-      restore: (p) => this.restore(p),
-      purge: (p) => this.purge(p),
-      paste: (p) => this.paste(p),
-      upload: (p) => this.upload(p),
-      abort: (p) => this.abort(p),
-      get: (p) => this.get(p),
-      put: (p) => this.put(p),
-      archive: (p) => this.archive(p),
-      extract: (p) => this.extract(p),
-      file: (p, ctx) => this.file(p, ctx.request),
-      thumb: (p, ctx) => this.thumb(p, ctx.request),
-      download: (p, ctx) => this.download(p, ctx.request),
+      init: (e) => e.init(),
+      ls: (e, p) => e.ls(p),
+      tree: (e, p) => e.tree(p),
+      parents: (e, p) => e.parents(p),
+      info: (e, p) => e.info(p),
+      size: (e, p) => e.size(p),
+      search: (e, p) => e.search(p),
+      mkdir: (e, p) => e.mkdir(p),
+      mkfile: (e, p) => e.mkfile(p),
+      rename: (e, p) => e.rename(p),
+      duplicate: (e, p) => e.duplicate(p),
+      rm: (e, p) => e.rm(p),
+      trash: (e, p) => e.trashList(p),
+      restore: (e, p) => e.restore(p),
+      purge: (e, p) => e.purge(p),
+      paste: (e, p) => e.paste(p),
+      upload: (e, p) => e.upload(p),
+      abort: (e, p) => e.abort(p),
+      get: (e, p) => e.get(p),
+      put: (e, p) => e.put(p),
+      archive: (e, p) => e.archive(p),
+      extract: (e, p) => e.extract(p),
+      file: (e, p, ctx) => e.file(p, ctx.request),
+      thumb: (e, p, ctx) => e.thumb(p, ctx.request),
+      download: (e, p, ctx) => e.download(p, ctx.request),
     };
   }
 
@@ -190,13 +192,22 @@ export class CiFinder {
   }
 
   private async run(ctx: CommandContext): Promise<unknown> {
-    if (this.options.authorize && (await this.options.authorize(ctx)) === false) {
-      throw new CiFinderError("FORBIDDEN", "Not authorized");
-    }
+    const verdict = this.options.authorize ? await this.options.authorize(ctx) : true;
+    if (verdict === false) throw new CiFinderError("FORBIDDEN", "Not authorized");
+    const engine = typeof verdict === "object" && verdict?.readOnly ? this.readOnly() : this;
     await this.options.onBeforeCommand?.(ctx);
-    const result = await this.commands[ctx.cmd]!(ctx.params, ctx);
+    const result = await this.commands[ctx.cmd]!(engine, ctx.params, ctx);
     await this.options.onAfterCommand?.({ ...ctx, result });
     return result;
+  }
+
+  /** Same engine and hooks, but every volume is read-only. Created once and reused. */
+  private readOnly(): CiFinder {
+    if (!this.readOnlyView) {
+      const volumes = new Map([...this.volumes].map(([id, v]) => [id, new Volume({ ...v.options, readOnly: true })]));
+      this.readOnlyView = Object.create(this, { volumes: { value: volumes } }) as CiFinder;
+    }
+    return this.readOnlyView;
   }
 
   private target(id: unknown): Target {

@@ -173,6 +173,8 @@ export interface ThumbnailOptions {
   concurrency?: number;
 }
 
+export type AuthorizeResult = boolean | void | { readOnly?: boolean };
+
 export interface CommandContext {
   cmd: string;
   request: Request;
@@ -186,8 +188,13 @@ export interface CiFinderOptions {
    * Default: 5 MiB.
    */
   chunkSize?: number;
-  /** Called before every command. Return false (or throw) to reject the request with 403. */
-  authorize?: (ctx: CommandContext) => boolean | Promise<boolean>;
+  /**
+   * Called before every command.
+   * - `false` rejects the request with 403; throw `new CiFinderError("UNAUTHORIZED")` for 401.
+   * - `{ readOnly: true }` lets the request through but makes every volume read-only for it
+   *   (e.g. a "viewer" role); the UI hides write actions automatically.
+   */
+  authorize?: (ctx: CommandContext) => AuthorizeResult | Promise<AuthorizeResult>;
   onBeforeCommand?: (ctx: CommandContext) => void | Promise<void>;
   onAfterCommand?: (ctx: CommandContext & { result: unknown }) => void | Promise<void>;
   /** Max size for the text editor `get`/`put` commands. Default: 5 MiB. */

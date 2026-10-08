@@ -8,8 +8,9 @@ export async function tempDir(): Promise<{ dir: string; cleanup: () => Promise<v
   return { dir, cleanup: () => rm(dir, { recursive: true, force: true }) };
 }
 
-export function api(finder: CiFinder) {
-  const post = async <T = any>(cmd: string, body: Record<string, unknown> = {}, headers: Record<string, string> = { "x-ci-finder": "1" }) => {
+export function api(finder: CiFinder, role?: string) {
+  const roleHeader: Record<string, string> = role ? { "x-role": role } : {};
+  const post = async <T = any>(cmd: string, body: Record<string, unknown> = {}, headers: Record<string, string> = { "x-ci-finder": "1", ...roleHeader }) => {
     const res = await finder.handler(
       new Request("http://localhost/api/files", {
         method: "POST",

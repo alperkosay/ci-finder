@@ -1,5 +1,6 @@
 export type ErrorCode =
   | "BAD_REQUEST"
+  | "UNAUTHORIZED"
   | "UNKNOWN_COMMAND"
   | "NOT_FOUND"
   | "EXISTS"
@@ -19,6 +20,7 @@ export type ErrorCode =
 
 const STATUS: Record<ErrorCode, number> = {
   BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
   UNKNOWN_COMMAND: 400,
   NOT_FOUND: 404,
   EXISTS: 409,

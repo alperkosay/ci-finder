@@ -153,6 +153,7 @@ const en = {
   // errors
   errorGeneric: "Something went wrong",
   errorLoad: "Couldn't load this folder",
+  "error.UNAUTHORIZED": "Your session has ended. Please sign in again.",
   "error.NOT_FOUND": "The item no longer exists.",
   "error.EXISTS": "An item with this name already exists.",
   "error.INVALID_NAME": "That name isn't allowed.",
@@ -335,6 +336,7 @@ const tr: Messages = {
   imageTainted: "Bu görsel CORS izni olmayan başka bir kaynaktan geliyor, bu yüzden tarayıcıda düzenlenemiyor.",
   errorGeneric: "Bir şeyler ters gitti",
   errorLoad: "Bu klasör yüklenemedi",
+  "error.UNAUTHORIZED": "Oturumunuz sona erdi. Lütfen tekrar giriş yapın.",
   "error.NOT_FOUND": "Öğe artık mevcut değil.",
   "error.EXISTS": "Bu adda bir öğe zaten var.",
   "error.INVALID_NAME": "Bu ad kullanılamaz.",

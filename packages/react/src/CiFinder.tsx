@@ -67,6 +67,8 @@ export interface CiFinderProps {
   onChange?: (event: { type: string; entries?: Entry[]; ids?: string[] }) => void;
   /** Extra editors offered under "Open with". */
   editors?: CustomEditor[];
+  /** Called when the API answers 401, e.g. to redirect to your login page. */
+  onUnauthorized?: () => void;
 }
 
 function defaultLocale(): string {
@@ -256,6 +258,7 @@ export function CiFinder(props: CiFinderProps) {
       onOpen: (entry) => latest.current.onOpen?.(entry),
       onChange: (event) => latest.current.onChange?.(event),
       onPick: (entries) => latest.current.onSelect?.(entries),
+      onUnauthorized: () => latest.current.onUnauthorized?.(),
     });
   });
   store.options.t = t;

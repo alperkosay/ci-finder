@@ -3,6 +3,7 @@ import { CiFinder, createCiFinder, isReservedPath, normalizePath, serveFile, typ
 import { localDriver } from "@ci-finder/core/local";
 
 export { createCiFinder };
+export { CiFinderError } from "@ci-finder/core";
 export { localDriver } from "@ci-finder/core/local";
 export { s3Driver } from "@ci-finder/core/s3";
 export type * from "@ci-finder/core";
