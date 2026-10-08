@@ -1,0 +1,12 @@
+{
+  "name": "example-express",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@ci-finder/core": "0.1.0",
+    "express": "^5.2.1"
+  }
+}

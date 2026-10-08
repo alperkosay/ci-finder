@@ -1,0 +1,24 @@
+{
+  "name": "ci-finder-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/core",
+    "packages/next",
+    "packages/react",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @ci-finder/core && npm run build -w @ci-finder/next && npm run build -w @ci-finder/react",
+    "dev": "npm run build && npm run dev -w example-next",
+    "test": "npm run test -w @ci-finder/core",
+    "test:bun": "npm run test:bun -w @ci-finder/core",
+    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3",
+    "vitest": "^5.0.3"
+  }
+}

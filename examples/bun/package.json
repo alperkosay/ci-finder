@@ -1,0 +1,15 @@
+{
+  "name": "example-bun",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot server.ts",
+    "start": "bun server.ts"
+  },
+  "dependencies": {
+    "@ci-finder/core": "0.1.0",
+    "@ci-finder/react": "0.1.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "example-next",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "start:standalone": "node .next/standalone/examples/next/server.js",
+    "postbuild": "node scripts/copy-standalone-assets.mjs",
+    "seed": "node scripts/seed-demo.mjs"
+  },
+  "dependencies": {
+    "@ci-finder/next": "0.1.0",
+    "@ci-finder/react": "0.1.0",
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "~5.9.3"
+  }
+}

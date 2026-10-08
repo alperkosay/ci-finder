@@ -1,0 +1,38 @@
+{
+  "name": "@ci-finder/react",
+  "version": "0.1.0",
+  "description": "ciFinder React UI: a fast, keyboard-friendly file manager written with native CSS.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": ["*.css"],
+  "files": ["dist"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styles.css": "./dist/styles.css"
+  },
+  "scripts": {
+    "build": "tsup && node ./scripts/copy-css.mjs",
+    "dev": "tsup --watch --onSuccess \"node ./scripts/copy-css.mjs\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ci-finder/core": "0.1.0"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  }
+}
