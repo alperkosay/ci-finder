@@ -4,8 +4,12 @@
   "description": "ciFinder React UI: a fast, keyboard-friendly file manager written with native CSS.",
   "license": "MIT",
   "type": "module",
-  "sideEffects": ["*.css"],
-  "files": ["dist"],
+  "sideEffects": [
+    "*.css"
+  ],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

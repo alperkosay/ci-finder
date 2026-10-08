@@ -32,14 +32,7 @@ function invalid(): never {
 const u64 = (v: DataView, o: number) => Number(v.getBigUint64(o, true));
 
 function dosToMs(date: number, time: number): number {
-  return new Date(
-    ((date >> 9) & 0x7f) + 1980,
-    ((date >> 5) & 0x0f) - 1,
-    date & 0x1f,
-    (time >> 11) & 0x1f,
-    (time >> 5) & 0x3f,
-    (time & 0x1f) * 2,
-  ).getTime();
+  return new Date(((date >> 9) & 0x7f) + 1980, ((date >> 5) & 0x0f) - 1, date & 0x1f, (time >> 11) & 0x1f, (time >> 5) & 0x3f, (time & 0x1f) * 2).getTime();
 }
 
 export async function readZipEntries(read: RangeReader, fileSize: number): Promise<ZipEntry[]> {
@@ -98,8 +91,14 @@ export async function readZipEntries(read: RangeReader, fileSize: number): Promi
       const len = cd.getUint16(e + 2, true);
       if (id === 0x0001) {
         let q = e + 4;
-        if (size === 0xffffffff) (size = u64(cd, q)), (q += 8);
-        if (compressedSize === 0xffffffff) (compressedSize = u64(cd, q)), (q += 8);
+        if (size === 0xffffffff) {
+          size = u64(cd, q);
+          q += 8;
+        }
+        if (compressedSize === 0xffffffff) {
+          compressedSize = u64(cd, q);
+          q += 8;
+        }
         if (localHeaderOffset === 0xffffffff) localHeaderOffset = u64(cd, q);
       }
       e += 4 + len;

@@ -25,11 +25,13 @@ export function formatDate(ms: number, locale: string, t: Translate): string {
   if (ms >= startOfToday) return `${t("today")} ${time}`;
   if (ms >= startOfToday - dayMs) return `${t("yesterday")} ${time}`;
   const sameYear = d.getFullYear() === now.getFullYear();
-  return new Intl.DateTimeFormat(locale, {
-    day: "numeric",
-    month: "short",
-    ...(sameYear ? {} : { year: "numeric" }),
-  }).format(d) + (sameYear ? ` ${time}` : "");
+  return (
+    new Intl.DateTimeFormat(locale, {
+      day: "numeric",
+      month: "short",
+      ...(sameYear ? {} : { year: "numeric" }),
+    }).format(d) + (sameYear ? ` ${time}` : "")
+  );
 }
 
 export function formatFullDate(ms: number, locale: string): string {
@@ -48,22 +50,54 @@ export function baseOf(name: string): string {
 }
 
 export type FileCategory =
-  | "folder"
-  | "image"
-  | "video"
-  | "audio"
-  | "pdf"
-  | "doc"
-  | "sheet"
-  | "slides"
-  | "archive"
-  | "code"
-  | "text"
-  | "markdown"
-  | "font"
-  | "other";
+  "folder" | "image" | "video" | "audio" | "pdf" | "doc" | "sheet" | "slides" | "archive" | "code" | "text" | "markdown" | "font" | "other";
 
-const CODE = new Set(["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx", "json", "jsonc", "html", "htm", "css", "scss", "less", "xml", "yml", "yaml", "toml", "sh", "bash", "zsh", "ps1", "bat", "py", "rb", "php", "java", "kt", "go", "rs", "c", "h", "cpp", "hpp", "cs", "swift", "sql", "vue", "svelte", "graphql", "ini", "env", "dockerfile"]);
+const CODE = new Set([
+  "js",
+  "mjs",
+  "cjs",
+  "jsx",
+  "ts",
+  "mts",
+  "cts",
+  "tsx",
+  "json",
+  "jsonc",
+  "html",
+  "htm",
+  "css",
+  "scss",
+  "less",
+  "xml",
+  "yml",
+  "yaml",
+  "toml",
+  "sh",
+  "bash",
+  "zsh",
+  "ps1",
+  "bat",
+  "py",
+  "rb",
+  "php",
+  "java",
+  "kt",
+  "go",
+  "rs",
+  "c",
+  "h",
+  "cpp",
+  "hpp",
+  "cs",
+  "swift",
+  "sql",
+  "vue",
+  "svelte",
+  "graphql",
+  "ini",
+  "env",
+  "dockerfile",
+]);
 const TEXT = new Set(["txt", "log", "csv", "tsv", "rtf"]);
 
 export function categoryOf(entry: Pick<Entry, "kind" | "name" | "mime">): FileCategory {

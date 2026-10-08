@@ -188,7 +188,8 @@ describe("upload", () => {
     await mkdir(join(dir, "inbox"));
     const form = new FormData();
     const session = btoa(JSON.stringify({ p: "/elsewhere.txt", s: ".x.cf-upload" })).replace(/=+$/, "");
-    for (const [k, v] of Object.entries({ cmd: "upload", dst: id("local", "/inbox"), name: "a.txt", size: "4", index: "1", total: "2", offset: "2", session })) form.set(k, v);
+    for (const [k, v] of Object.entries({ cmd: "upload", dst: id("local", "/inbox"), name: "a.txt", size: "4", index: "1", total: "2", offset: "2", session }))
+      form.set(k, v);
     form.set("chunk", new Blob([new Uint8Array(2)]));
     const res = await finder.handler(new Request("http://localhost/", { method: "POST", headers: { "x-ci-finder": "1" }, body: form }));
     expect((await res.json()).error.code).toBe("BAD_REQUEST");

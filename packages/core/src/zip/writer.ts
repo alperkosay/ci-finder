@@ -178,17 +178,7 @@ async function* zipGenerator(sources: AsyncIterable<ZipSource> | Iterable<ZipSou
   const needsEocd64 = records.length >= 0xffff || cdStart >= MAX32 || cdSize >= MAX32;
   if (needsEocd64) {
     const eocd64Offset = offset;
-    yield new Bytes(56)
-      .u32(0x06064b50)
-      .u64(44)
-      .u16(45)
-      .u16(45)
-      .u32(0)
-      .u32(0)
-      .u64(records.length)
-      .u64(records.length)
-      .u64(cdSize)
-      .u64(cdStart).result;
+    yield new Bytes(56).u32(0x06064b50).u64(44).u16(45).u16(45).u32(0).u32(0).u64(records.length).u64(records.length).u64(cdSize).u64(cdStart).result;
     yield new Bytes(20).u32(0x07064b50).u32(0).u64(eocd64Offset).u32(1).result;
   }
   yield new Bytes(22)

@@ -98,7 +98,10 @@ const notFound = () => new Response("Not Found", { status: 404, headers: { "Cont
  * export const { GET, HEAD } = createUploadsRoute();
  * ```
  */
-export function createUploadsRoute(options: UploadsRouteOptions = {}): { GET: (r: Request, c: RouteContext) => Promise<Response>; HEAD: (r: Request, c: RouteContext) => Promise<Response> } {
+export function createUploadsRoute(options: UploadsRouteOptions = {}): {
+  GET: (r: Request, c: RouteContext) => Promise<Response>;
+  HEAD: (r: Request, c: RouteContext) => Promise<Response>;
+} {
   let driver: StorageDriver | undefined = options.driver;
   const getDriver = () => (driver ??= localDriver({ root: options.dir ?? uploadsDir(), create: true }));
   const param = options.param ?? "path";

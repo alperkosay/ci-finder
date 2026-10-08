@@ -17,7 +17,6 @@ function useRows(): Row[] {
   const tree = useStore((s) => s.tree);
   const expanded = useStore((s) => s.expanded);
   const entries = useStore((s) => s.entries);
-  const { store } = useFinder();
   return useMemo(() => {
     const rows: Row[] = [];
     const visit = (id: string, depth: number, isRoot: boolean) => {
@@ -31,8 +30,7 @@ function useRows(): Row[] {
     };
     for (const v of volumes) visit(v.root.id, 0, true);
     return rows;
-    // store is stable; entries/tree/expanded drive the result
-  }, [volumes, tree, expanded, entries, store]);
+  }, [volumes, tree, expanded, entries]);
 }
 
 function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onFocusRow: (id: string) => void }) {
@@ -166,8 +164,13 @@ export function Sidebar() {
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (activeId === TRASH_ID) {
-      if (e.key === "ArrowUp" && rows.length) (e.preventDefault(), focusRow(rows[rows.length - 1]!.entry.id));
-      if (e.key === "Enter" || e.key === " ") (e.preventDefault(), void store.open(TRASH_ID));
+      if (e.key === "ArrowUp" && rows.length) {
+        e.preventDefault();
+        focusRow(rows[rows.length - 1]!.entry.id);
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        void store.open(TRASH_ID);
+      }
       return;
     }
     const i = rows.findIndex((r) => r.entry.id === activeId);

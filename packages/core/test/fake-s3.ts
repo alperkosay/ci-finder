@@ -16,7 +16,8 @@ export function fakeS3(bucket = "test") {
   const requests: { method: string; url: string }[] = [];
   let uploadSeq = 0;
 
-  const xml = (body: string, status = 200) => new Response(`<?xml version="1.0" encoding="UTF-8"?>${body}`, { status, headers: { "content-type": "application/xml" } });
+  const xml = (body: string, status = 200) =>
+    new Response(`<?xml version="1.0" encoding="UTF-8"?>${body}`, { status, headers: { "content-type": "application/xml" } });
   const notFound = () => xml("<Error><Code>NoSuchKey</Code><Message>Not found</Message></Error>", 404);
 
   const fetchImpl = async (input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> => {
@@ -45,7 +46,10 @@ export function fakeS3(bucket = "test") {
         const i = delimiter ? restKey.indexOf(delimiter) : -1;
         if (i >= 0) {
           const p = prefix + restKey.slice(0, i + 1);
-          if (!seen.has(p)) seen.add(p), items.push({ prefix: p });
+          if (!seen.has(p)) {
+            seen.add(p);
+            items.push({ prefix: p });
+          }
         } else items.push({ key: k });
       }
       const page = items.slice(start, start + max);
@@ -89,7 +93,10 @@ export function fakeS3(bucket = "test") {
       const chunks = order.map((n) => parts.get(n)!);
       const all = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
       let o = 0;
-      for (const c of chunks) all.set(c, o), (o += c.length);
+      for (const c of chunks) {
+        all.set(c, o);
+        o += c.length;
+      }
       objects.set(key, { body: all, mtime: Date.now(), type: "" });
       uploads.delete(q.get("uploadId")!);
       return xml("<CompleteMultipartUploadResult></CompleteMultipartUploadResult>");

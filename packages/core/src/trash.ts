@@ -94,7 +94,10 @@ export async function listTrash(vol: Volume): Promise<Entry[]> {
   if (!(await vol.driver.stat(TRASH_ROOT))) return [];
   const children = await vol.driver.list(TRASH_ROOT);
   const dirs = new Set(children.filter((c) => c.kind === "dir").map((c) => c.name));
-  const tids = children.filter((c) => c.kind === "file" && c.name.endsWith(".json")).map((c) => c.name.slice(0, -5)).filter((t) => TID.test(t));
+  const tids = children
+    .filter((c) => c.kind === "file" && c.name.endsWith(".json"))
+    .map((c) => c.name.slice(0, -5))
+    .filter((t) => TID.test(t));
   const expiry = vol.trash.retentionDays > 0 ? Date.now() - vol.trash.retentionDays * DAY : -Infinity;
 
   const entries = await mapLimit(tids, 8, async (tid) => {

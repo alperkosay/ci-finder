@@ -61,13 +61,7 @@ function list(p: Params, key: string): string[] {
 
 /** Case, accent and Turkish dotted/dotless i insensitive folding for search. */
 function fold(s: string): string {
-  return s
-    .replace(/İ/g, "i")
-    .replace(/I/g, "i")
-    .toLowerCase()
-    .replace(/ı/g, "i")
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "");
+  return s.replace(/İ/g, "i").replace(/I/g, "i").toLowerCase().replace(/ı/g, "i").normalize("NFD").replace(/\p{M}/gu, "");
 }
 
 function mapNativeError(e: unknown): CiFinderError {
@@ -281,8 +275,12 @@ export class CiFinder {
         continue;
       }
       for await (const s of this.walk(vol, path)) {
-        if (s.kind === "dir") dirs++;
-        else (files++, (size += s.size));
+        if (s.kind === "dir") {
+          dirs++;
+        } else {
+          files++;
+          size += s.size;
+        }
       }
     }
     return { size, files, dirs };
@@ -614,7 +612,7 @@ export class CiFinder {
     }
 
     const zipName = targets.length === 1 ? `${stats[0]!.name || targets[0]!.vol.name}.zip` : "download.zip";
-    const self = this;
+    const walk = (vol: Volume, path: VolumePath) => this.walk(vol, path);
     async function* sources(): AsyncGenerator<ZipSource> {
       for (let i = 0; i < targets.length; i++) {
         const { vol, path } = targets[i]!;
@@ -626,7 +624,7 @@ export class CiFinder {
         }
         yield { name: base + "/", mtime: stat.mtime };
         const prefix = path === "/" ? 1 : path.length + 1;
-        for await (const s of self.walk(vol, path)) {
+        for await (const s of walk(vol, path)) {
           const name = `${base}/${s.path.slice(prefix)}`;
           if (s.kind === "dir") yield { name: name + "/", mtime: s.mtime };
           else yield { name, mtime: s.mtime, size: s.size, open: () => vol.driver.read(s.path) };
@@ -711,7 +709,7 @@ export class CiFinder {
     const target = joinPath(dir, name);
     vol.assertCreatable(target);
 
-    const self = this;
+    const walk = (path: VolumePath) => this.walk(vol, path);
     async function* sources(): AsyncGenerator<ZipSource> {
       for (const stat of stats) {
         if (stat.kind === "file") {
@@ -719,7 +717,7 @@ export class CiFinder {
           continue;
         }
         yield { name: stat.name + "/", mtime: stat.mtime };
-        for await (const s of self.walk(vol, stat.path)) {
+        for await (const s of walk(stat.path)) {
           const name = `${stat.name}/${s.path.slice(stat.path.length + 1)}`;
           if (s.kind === "dir") yield { name: name + "/", mtime: s.mtime };
           else yield { name, mtime: s.mtime, size: s.size, open: () => vol.driver.read(s.path) };

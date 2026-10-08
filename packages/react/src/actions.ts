@@ -62,7 +62,15 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
   const deletable = sel.length > 0 && sel.every((e) => e.write && !e.locked);
   const toTrash = sel.length > 0 && sel.every((e) => store.volumeOf(e)?.trash);
 
-  const a = (id: ActionId, labelKey: MessageKey, icon: IconName | undefined, enabled: boolean, run: () => void, shortcut?: string, danger?: boolean): Action => ({
+  const a = (
+    id: ActionId,
+    labelKey: MessageKey,
+    icon: IconName | undefined,
+    enabled: boolean,
+    run: () => void,
+    shortcut?: string,
+    danger?: boolean,
+  ): Action => ({
     id,
     label: t(labelKey),
     icon,
@@ -82,7 +90,30 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
     // Only trash operations make sense here; everything else is disabled.
     const off = (id: ActionId, key: MessageKey) => a(id, key, undefined, false, () => {});
     const disabled = Object.fromEntries(
-      (["open", "preview", "edit", "editImage", "download", "copyLink", "rename", "duplicate", "cut", "copy", "paste", "pasteInto", "archive", "extract", "newFolder", "newFile", "uploadFiles", "uploadFolder", "deletePermanently", "openTrash"] as const).map((id) => [id, off(id, id === "deletePermanently" ? "deletePermanently" : id === "openTrash" ? "trash" : (id as MessageKey))]),
+      (
+        [
+          "open",
+          "preview",
+          "edit",
+          "editImage",
+          "download",
+          "copyLink",
+          "rename",
+          "duplicate",
+          "cut",
+          "copy",
+          "paste",
+          "pasteInto",
+          "archive",
+          "extract",
+          "newFolder",
+          "newFile",
+          "uploadFiles",
+          "uploadFolder",
+          "deletePermanently",
+          "openTrash",
+        ] as const
+      ).map((id) => [id, off(id, id === "deletePermanently" ? "deletePermanently" : id === "openTrash" ? "trash" : (id as MessageKey))]),
     ) as Record<ActionId, Action>;
     return {
       ...disabled,
@@ -115,7 +146,15 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
     paste: a("paste", "paste", "paste", !!s.clipboard && canWriteCwd, () => store.paste(), "Ctrl+V"),
     pasteInto: a("pasteInto", "pasteInto", "paste", !!s.clipboard && !!one && one.kind === "dir" && one.write, () => one && store.paste(one.id)),
     delete: a("delete", toTrash || !sel.length ? "moveToTrash" : "delete", "trash", deletable, () => store.remove(), "Delete", !toTrash && sel.length > 0),
-    deletePermanently: a("deletePermanently", "deletePermanently", undefined, deletable && toTrash, () => store.remove(undefined, { permanent: true }), "Shift+Delete", true),
+    deletePermanently: a(
+      "deletePermanently",
+      "deletePermanently",
+      undefined,
+      deletable && toTrash,
+      () => store.remove(undefined, { permanent: true }),
+      "Shift+Delete",
+      true,
+    ),
     restore: a("restore", "restore", "restore", false, () => {}),
     emptyTrash: a("emptyTrash", "emptyTrash", "trash", s.trashCount > 0, () => store.emptyTrash(), undefined, true),
     openTrash: a("openTrash", "trash", "trash", store.hasTrash, () => store.open(TRASH_ID)),

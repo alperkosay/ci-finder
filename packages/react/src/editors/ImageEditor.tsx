@@ -125,7 +125,10 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
     const scale = tw / rect.width;
-    const toImg = (cx: number, cy: number) => ({ x: Math.min(tw, Math.max(0, (cx - rect.left) * scale)), y: Math.min(th, Math.max(0, (cy - rect.top) * scale)) });
+    const toImg = (cx: number, cy: number) => ({
+      x: Math.min(tw, Math.max(0, (cx - rect.left) * scale)),
+      y: Math.min(th, Math.max(0, (cy - rect.top) * scale)),
+    });
     const start = toImg(e.clientX, e.clientY);
     const base = crop ?? { x: 0, y: 0, w: tw, h: th };
 
@@ -146,9 +149,15 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
       } else {
         const right = base.x + base.w;
         const bottom = base.y + base.h;
-        if (handle.includes("w")) (x = Math.min(right - 8, base.x + dx)), (w = right - x);
+        if (handle.includes("w")) {
+          x = Math.min(right - 8, base.x + dx);
+          w = right - x;
+        }
         if (handle.includes("e")) w = Math.max(8, base.w + dx);
-        if (handle.includes("n")) (y = Math.min(bottom - 8, base.y + dy)), (h = bottom - y);
+        if (handle.includes("n")) {
+          y = Math.min(bottom - 8, base.y + dy);
+          h = bottom - y;
+        }
         if (handle.includes("s")) h = Math.max(8, base.h + dy);
         if (aspect) {
           if (handle === "n" || handle === "s") w = h * aspect;
@@ -249,7 +258,12 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
               {saving === "copy" ? <Spinner size={14} /> : <Icon name="duplicate" />}
               <span>{t("saveAs")}</span>
             </button>
-            <button type="button" className="cf-btn is-primary" disabled={!changed || !!saving || !entry.write || !sameFormat} onClick={() => void save("overwrite")}>
+            <button
+              type="button"
+              className="cf-btn is-primary"
+              disabled={!changed || !!saving || !entry.write || !sameFormat}
+              onClick={() => void save("overwrite")}
+            >
               {saving === "overwrite" ? <Spinner size={14} /> : <Icon name="save" />}
               <span>{t("save")}</span>
             </button>
@@ -275,7 +289,11 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 <canvas ref={canvasRef} className="cf-image-canvas" />
                 {cropping && (
                   <div className="cf-crop-layer" onPointerDown={startDrag("new")}>
-                    <div className="cf-crop-box" style={{ left: pct(area.x, tw), top: pct(area.y, th), width: pct(area.w, tw), height: pct(area.h, th) }} onPointerDown={startDrag("move")}>
+                    <div
+                      className="cf-crop-box"
+                      style={{ left: pct(area.x, tw), top: pct(area.y, th), width: pct(area.w, tw), height: pct(area.h, th) }}
+                      onPointerDown={startDrag("move")}
+                    >
                       <span className="cf-crop-grid" />
                       {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as const).map((h) => (
                         <span key={h} className={`cf-crop-handle is-${h}`} onPointerDown={startDrag(h)} />
@@ -297,10 +315,24 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 <button type="button" className="cf-btn is-icon" title={t("rotateRight")} aria-label={t("rotateRight")} onClick={() => rotate(90)}>
                   <Icon name="rotateRight" />
                 </button>
-                <button type="button" className={cx("cf-btn is-icon", flipX && "is-on")} title={t("flipH")} aria-label={t("flipH")} aria-pressed={flipX} onClick={() => setFlipX((v) => !v)}>
+                <button
+                  type="button"
+                  className={cx("cf-btn is-icon", flipX && "is-on")}
+                  title={t("flipH")}
+                  aria-label={t("flipH")}
+                  aria-pressed={flipX}
+                  onClick={() => setFlipX((v) => !v)}
+                >
                   <Icon name="flipH" />
                 </button>
-                <button type="button" className={cx("cf-btn is-icon", flipY && "is-on")} title={t("flipV")} aria-label={t("flipV")} aria-pressed={flipY} onClick={() => setFlipY((v) => !v)}>
+                <button
+                  type="button"
+                  className={cx("cf-btn is-icon", flipY && "is-on")}
+                  title={t("flipV")}
+                  aria-label={t("flipV")}
+                  aria-pressed={flipY}
+                  onClick={() => setFlipY((v) => !v)}
+                >
                   <Icon name="flipV" />
                 </button>
               </div>

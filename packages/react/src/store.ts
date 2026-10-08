@@ -568,7 +568,8 @@ export class FinderStore {
 
   download(entries: Entry[] = this.selectedEntries()) {
     if (!entries.length) return;
-    const href = entries.length === 1 && entries[0]!.kind === "file" ? this.client.fileUrl(entries[0]!, true) : this.client.downloadUrl(entries.map((e) => e.id));
+    const href =
+      entries.length === 1 && entries[0]!.kind === "file" ? this.client.fileUrl(entries[0]!, true) : this.client.downloadUrl(entries.map((e) => e.id));
     const a = document.createElement("a");
     a.href = href;
     a.download = "";
@@ -710,7 +711,20 @@ export class FinderStore {
   // --- trash -------------------------------------------------------------------------------------
 
   private trashRoot(): Entry {
-    return { id: TRASH_ID, parent: null, volume: "", name: this.t("trash"), path: "/", kind: "dir", size: 0, mtime: 0, mime: "directory", read: true, write: false, locked: true };
+    return {
+      id: TRASH_ID,
+      parent: null,
+      volume: "",
+      name: this.t("trash"),
+      path: "/",
+      kind: "dir",
+      size: 0,
+      mtime: 0,
+      mime: "directory",
+      read: true,
+      write: false,
+      locked: true,
+    };
   }
 
   async openTrash(opts: { history?: "push" | "keep" } = {}) {
@@ -783,7 +797,12 @@ export class FinderStore {
 
   async emptyTrash() {
     const count = this.inTrash ? (this.state.listings[TRASH_ID]?.length ?? 0) : this.state.trashCount;
-    const ok = await this.confirm({ title: this.t("emptyTrashTitle", { n: count }), body: this.t("deleteBody"), confirmLabel: this.t("emptyTrash"), danger: true });
+    const ok = await this.confirm({
+      title: this.t("emptyTrashTitle", { n: count }),
+      body: this.t("deleteBody"),
+      confirmLabel: this.t("emptyTrash"),
+      danger: true,
+    });
     if (!ok) return;
     try {
       await this.client.emptyTrash();
@@ -837,7 +856,12 @@ export class FinderStore {
     }
 
     try {
-      const result = await this.client.paste(items.map((e) => e.id), dstId, cut, conflict);
+      const result = await this.client.paste(
+        items.map((e) => e.id),
+        dstId,
+        cut,
+        conflict,
+      );
       this.removeLocal(result.removed);
       this.addLocal(result.added);
       if (dstId === this.state.cwd) this.setSelection(result.added.map((e) => e.id));
@@ -858,7 +882,10 @@ export class FinderStore {
     const name = await this.prompt(this.t("archiveName"), suggested, this.t("archive"));
     if (!name) return;
     try {
-      const { entry } = await this.client.archive(entries.map((e) => e.id), name);
+      const { entry } = await this.client.archive(
+        entries.map((e) => e.id),
+        name,
+      );
       this.addLocal([entry]);
       this.setSelection([entry.id]);
       this.toast(this.t("archived", { name: entry.name }), "success");

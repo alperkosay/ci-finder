@@ -13,12 +13,21 @@
     "dev": "npm run build && npm run dev -w example-next",
     "test": "npm run test -w @ci-finder/core",
     "test:bun": "npm run test:bun -w @ci-finder/core",
-    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react"
+    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^24.0.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
     "tsup": "^8.5.1",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.71.1",
     "vitest": "^5.0.3"
   }
 }

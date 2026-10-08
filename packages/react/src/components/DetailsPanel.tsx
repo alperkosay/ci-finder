@@ -77,7 +77,13 @@ function TrashItem({ entry }: { entry: Entry }) {
           <Icon name="restore" />
           <span>{t("restore")}</span>
         </button>
-        <button type="button" className="cf-btn is-icon" title={t("deletePermanently")} aria-label={t("deletePermanently")} onClick={() => store.purge([entry])}>
+        <button
+          type="button"
+          className="cf-btn is-icon"
+          title={t("deletePermanently")}
+          aria-label={t("deletePermanently")}
+          onClick={() => store.purge([entry])}
+        >
           <Icon name="trash" />
         </button>
       </div>

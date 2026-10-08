@@ -168,7 +168,12 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
     >
       {entries.map((e, i) => {
         if (e.type === "separator") return <div key={`s${i}`} className="cf-menu-sep" role="separator" />;
-        if (e.type === "label") return <div key={`l${i}`} className="cf-menu-label">{e.label}</div>;
+        if (e.type === "label")
+          return (
+            <div key={`l${i}`} className="cf-menu-label">
+              {e.label}
+            </div>
+          );
         if (e.type === "submenu") {
           return (
             <div
@@ -227,7 +232,19 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
   );
 }
 
-function SubMenu({ parent, index, entries, onClose, onBack }: { parent: React.RefObject<HTMLDivElement | null>; index: number; entries: MenuEntry[]; onClose: () => void; onBack: () => void }) {
+function SubMenu({
+  parent,
+  index,
+  entries,
+  onClose,
+  onBack,
+}: {
+  parent: React.RefObject<HTMLDivElement | null>;
+  index: number;
+  entries: MenuEntry[];
+  onClose: () => void;
+  onBack: () => void;
+}) {
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   useIsoLayoutEffect(() => {
     const row = parent.current?.querySelector<HTMLElement>(`#cf-mi-${index}`);

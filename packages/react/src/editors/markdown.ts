@@ -20,8 +20,14 @@ function inline(text: string): string {
     return `\u0000${codes.length - 1}\u0000`;
   });
   s = escapeHtml(s);
-  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, alt, src, title) => `<img src="${safeUrl(src)}" alt="${alt}"${title ? ` title="${title}"` : ""} loading="lazy">`);
-  s = s.replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, label, href, title) => `<a href="${safeUrl(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${title}"` : ""}>${label}</a>`);
+  s = s.replace(
+    /!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g,
+    (_, alt, src, title) => `<img src="${safeUrl(src)}" alt="${alt}"${title ? ` title="${title}"` : ""} loading="lazy">`,
+  );
+  s = s.replace(
+    /\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g,
+    (_, label, href, title) => `<a href="${safeUrl(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${title}"` : ""}>${label}</a>`,
+  );
   s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_, pre, url) => `${pre}<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
   s = s.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_, a, b) => `<strong>${a ?? b}</strong>`);
   s = s.replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)|(^|[^_\w])_([^_\s][^_]*?)_(?!\w)/g, (_, p1, a, p3, b) => `${p1 ?? p3 ?? ""}<em>${a ?? b}</em>`);
@@ -31,11 +37,21 @@ function inline(text: string): string {
 }
 
 function table(lines: string[]): string {
-  const cells = (l: string) => l.trim().replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+  const cells = (l: string) =>
+    l
+      .trim()
+      .replace(/^\||\|$/g, "")
+      .split("|")
+      .map((c) => c.trim());
   const head = cells(lines[0]!);
   const aligns = cells(lines[1]!).map((c) => (c.startsWith(":") && c.endsWith(":") ? "center" : c.endsWith(":") ? "right" : c.startsWith(":") ? "left" : ""));
   const style = (i: number) => (aligns[i] ? ` style="text-align:${aligns[i]}"` : "");
-  const body = lines.slice(2).map((l) => `<tr>${cells(l).map((c, i) => `<td${style(i)}>${inline(c)}</td>`).join("")}</tr>`);
+  const body = lines.slice(2).map(
+    (l) =>
+      `<tr>${cells(l)
+        .map((c, i) => `<td${style(i)}>${inline(c)}</td>`)
+        .join("")}</tr>`,
+  );
   return `<table><thead><tr>${head.map((c, i) => `<th${style(i)}>${inline(c)}</th>`).join("")}</tr></thead><tbody>${body.join("")}</tbody></table>`;
 }
 

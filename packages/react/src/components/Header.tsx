@@ -74,7 +74,12 @@ function PathBar() {
   const submit = (value: string) => {
     setEditing(false);
     if (!cwd) return;
-    const path = "/" + value.split("/").filter((s) => s && s !== ".").join("/");
+    const path =
+      "/" +
+      value
+        .split("/")
+        .filter((s) => s && s !== ".")
+        .join("/");
     if (path !== cwd.path) void store.open(encodeId(cwd.volume, path));
   };
 
@@ -163,7 +168,14 @@ export function Header() {
   return (
     <div className="cf-header">
       <div className="cf-nav">
-        <button type="button" className={cx("cf-btn is-icon cf-sidebar-toggle", sidebarOpen && "is-on")} aria-label={t("toggleSidebar")} title={t("toggleSidebar")} aria-pressed={sidebarOpen} onClick={() => store.set({ sidebarOpen: !sidebarOpen })}>
+        <button
+          type="button"
+          className={cx("cf-btn is-icon cf-sidebar-toggle", sidebarOpen && "is-on")}
+          aria-label={t("toggleSidebar")}
+          title={t("toggleSidebar")}
+          aria-pressed={sidebarOpen}
+          onClick={() => store.set({ sidebarOpen: !sidebarOpen })}
+        >
           <Icon name="panelLeft" />
         </button>
         <button type="button" className="cf-btn is-icon" aria-label={t("back")} title={t("back")} disabled={!canBack} onClick={() => store.back()}>

@@ -16,7 +16,21 @@ function ToolButton({ action, label }: { action: Action; label?: boolean }) {
 }
 
 /** A button that opens a dropdown menu below itself. */
-function MenuButton({ label, icon, entries, showLabel, className, alignRight }: { label: string; icon?: Parameters<typeof Icon>[0]["name"]; entries: MenuEntry[]; showLabel?: boolean; className?: string; alignRight?: boolean }) {
+function MenuButton({
+  label,
+  icon,
+  entries,
+  showLabel,
+  className,
+  alignRight,
+}: {
+  label: string;
+  icon?: Parameters<typeof Icon>[0]["name"];
+  entries: MenuEntry[];
+  showLabel?: boolean;
+  className?: string;
+  alignRight?: boolean;
+}) {
   const ref = useRef<HTMLButtonElement>(null);
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
   const open = () => {
@@ -74,7 +88,8 @@ export function Toolbar() {
   const detailsOpen = useStore((s) => s.detailsOpen);
   const inTrash = useStore((s) => s.cwd === TRASH_ID);
 
-  const sortAction = (key: SortKey, label: string): MenuEntry => item({ id: `sort-${key}`, label, enabled: true, run: () => store.set({ sortKey: key }) }, sortKey === key);
+  const sortAction = (key: SortKey, label: string): MenuEntry =>
+    item({ id: `sort-${key}`, label, enabled: true, run: () => store.set({ sortKey: key }) }, sortKey === key);
 
   const sortMenu: MenuEntry[] = [
     sortAction("name", t("sortName")),
@@ -120,35 +135,58 @@ export function Toolbar() {
         </>
       ) : (
         <>
-      <div className="cf-toolgroup">
-        <MenuButton label={t("upload")} icon="upload" showLabel className="is-primary" entries={[item(actions.uploadFiles), item(actions.uploadFolder)]} />
-        <ToolButton action={actions.newFolder} />
-      </div>
-      <div className="cf-toolgroup is-clipboard">
-        <ToolButton action={actions.cut} />
-        <ToolButton action={actions.copy} />
-        <ToolButton action={actions.paste} />
-      </div>
-      <div className="cf-toolgroup">
-        <ToolButton action={actions.rename} />
-        <ToolButton action={actions.download} />
-        <ToolButton action={actions.delete} />
-        <MenuButton label={t("more")} icon="more" entries={moreMenu} />
-      </div>
+          <div className="cf-toolgroup">
+            <MenuButton label={t("upload")} icon="upload" showLabel className="is-primary" entries={[item(actions.uploadFiles), item(actions.uploadFolder)]} />
+            <ToolButton action={actions.newFolder} />
+          </div>
+          <div className="cf-toolgroup is-clipboard">
+            <ToolButton action={actions.cut} />
+            <ToolButton action={actions.copy} />
+            <ToolButton action={actions.paste} />
+          </div>
+          <div className="cf-toolgroup">
+            <ToolButton action={actions.rename} />
+            <ToolButton action={actions.download} />
+            <ToolButton action={actions.delete} />
+            <MenuButton label={t("more")} icon="more" entries={moreMenu} />
+          </div>
         </>
       )}
       <div className="cf-toolbar-spacer" />
       <div className="cf-toolgroup">
         <MenuButton label={t("sortBy")} icon="sort" entries={sortMenu} alignRight />
         <div className="cf-segmented" role="radiogroup" aria-label={t("view")}>
-          <button type="button" role="radio" aria-checked={view === "grid"} className={cx("cf-btn is-icon", view === "grid" && "is-on")} title={t("viewGrid")} aria-label={t("viewGrid")} onClick={() => store.set({ view: "grid" })}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={view === "grid"}
+            className={cx("cf-btn is-icon", view === "grid" && "is-on")}
+            title={t("viewGrid")}
+            aria-label={t("viewGrid")}
+            onClick={() => store.set({ view: "grid" })}
+          >
             <Icon name="grid" />
           </button>
-          <button type="button" role="radio" aria-checked={view === "list"} className={cx("cf-btn is-icon", view === "list" && "is-on")} title={t("viewList")} aria-label={t("viewList")} onClick={() => store.set({ view: "list" })}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={view === "list"}
+            className={cx("cf-btn is-icon", view === "list" && "is-on")}
+            title={t("viewList")}
+            aria-label={t("viewList")}
+            onClick={() => store.set({ view: "list" })}
+          >
             <Icon name="list" />
           </button>
         </div>
-        <button type="button" className={cx("cf-btn is-icon", detailsOpen && "is-on")} aria-pressed={detailsOpen} title={t("details")} aria-label={t("details")} onClick={() => store.set({ detailsOpen: !detailsOpen })}>
+        <button
+          type="button"
+          className={cx("cf-btn is-icon", detailsOpen && "is-on")}
+          aria-pressed={detailsOpen}
+          title={t("details")}
+          aria-label={t("details")}
+          onClick={() => store.set({ detailsOpen: !detailsOpen })}
+        >
           <Icon name="panelRight" />
         </button>
       </div>

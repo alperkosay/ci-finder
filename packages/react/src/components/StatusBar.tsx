@@ -41,7 +41,12 @@ export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: (
       )}
       <span className="cf-statusbar-spacer" />
       {uploads.length > 0 && (
-        <button type="button" className={cx("cf-upload-pill", uploadsOpen && "is-on", failed > 0 && "has-error")} onClick={onToggleUploads} aria-expanded={uploadsOpen}>
+        <button
+          type="button"
+          className={cx("cf-upload-pill", uploadsOpen && "is-on", failed > 0 && "has-error")}
+          onClick={onToggleUploads}
+          aria-expanded={uploadsOpen}
+        >
           {active.length ? <Spinner size={12} /> : <Icon name={failed ? "alert" : "check"} size={12} />}
           <span>{active.length ? t("uploadsProgress", { done, total: done + active.length }) : t("uploadsComplete", { n: done })}</span>
           {active.length > 0 && (

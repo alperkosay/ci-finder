@@ -71,7 +71,14 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
   const [saving, setSaving] = useState(false);
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
   const [cursor, setCursor] = useState({ line: 1, col: 1 });
-  const [find, setFind] = useState<{ open: boolean; replace: boolean; q: string; r: string; matchCase: boolean; index: number }>({ open: false, replace: false, q: "", r: "", matchCase: false, index: 0 });
+  const [find, setFind] = useState<{ open: boolean; replace: boolean; q: string; r: string; matchCase: boolean; index: number }>({
+    open: false,
+    replace: false,
+    q: "",
+    r: "",
+    matchCase: false,
+    index: 0,
+  });
   const [gotoOpen, setGotoOpen] = useState(false);
   const lang = langOf(entry.name);
   const isMarkdown = lang === "md";
@@ -196,7 +203,12 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
     const ta = taRef.current;
     if (!ta || !matches.length) return;
     const re = new RegExp(escapeRegExp(find.q), find.matchCase ? "g" : "gi");
-    insertText(ta, value.replace(re, () => find.r), 0, value.length);
+    insertText(
+      ta,
+      value.replace(re, () => find.r),
+      0,
+      value.length,
+    );
     findRef.current?.focus();
   };
 
@@ -355,7 +367,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
         ta.setSelectionRange(s + 1, en + 1);
         return;
       }
-      if ((")]}\"'`".includes(e.key)) && v[s] === e.key && s === en) {
+      if (")]}\"'`".includes(e.key) && v[s] === e.key && s === en) {
         e.preventDefault();
         ta.setSelectionRange(s + 1, s + 1);
         return;
@@ -398,19 +410,45 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             <span>{entry.path}</span>
           </div>
           <div className="cf-editor-tools">
-            <button type="button" className={cx("cf-btn is-icon", find.open && "is-on")} title={`${t("find")} (${shortcut("Ctrl+F")})`} aria-label={t("find")} onClick={() => (find.open ? setFind((f) => ({ ...f, open: false })) : openFind(false))}>
+            <button
+              type="button"
+              className={cx("cf-btn is-icon", find.open && "is-on")}
+              title={`${t("find")} (${shortcut("Ctrl+F")})`}
+              aria-label={t("find")}
+              onClick={() => (find.open ? setFind((f) => ({ ...f, open: false })) : openFind(false))}
+            >
               <Icon name="search" />
             </button>
-            <button type="button" className={cx("cf-btn is-icon", prefs.wrap && "is-on")} title={t("wrap")} aria-label={t("wrap")} aria-pressed={prefs.wrap} onClick={() => setPrefs((p) => ({ ...p, wrap: !p.wrap }))}>
+            <button
+              type="button"
+              className={cx("cf-btn is-icon", prefs.wrap && "is-on")}
+              title={t("wrap")}
+              aria-label={t("wrap")}
+              aria-pressed={prefs.wrap}
+              onClick={() => setPrefs((p) => ({ ...p, wrap: !p.wrap }))}
+            >
               <Icon name="wrap" />
             </button>
             {isMarkdown && (
-              <button type="button" className={cx("cf-btn is-icon", preview && "is-on")} title={t("previewPane")} aria-label={t("previewPane")} aria-pressed={preview} onClick={() => setPreview((p) => !p)}>
+              <button
+                type="button"
+                className={cx("cf-btn is-icon", preview && "is-on")}
+                title={t("previewPane")}
+                aria-label={t("previewPane")}
+                aria-pressed={preview}
+                onClick={() => setPreview((p) => !p)}
+              >
                 <Icon name="panelRight" />
               </button>
             )}
             <span className="cf-tool-sep" />
-            <button type="button" className="cf-btn is-primary" disabled={!dirty || saving || !entry.write} onClick={() => void save()} title={shortcut("Ctrl+S")}>
+            <button
+              type="button"
+              className="cf-btn is-primary"
+              disabled={!dirty || saving || !entry.write}
+              onClick={() => void save()}
+              title={shortcut("Ctrl+S")}
+            >
               {saving ? <Spinner size={14} /> : <Icon name="save" />}
               <span>{saving ? t("saving") : t("save")}</span>
             </button>
@@ -421,9 +459,18 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
         </header>
 
         {find.open && (
-          <div className="cf-findbar" onKeyDown={(e) => e.key === "Escape" && (e.preventDefault(), setFind((f) => ({ ...f, open: false })), taRef.current?.focus())}>
+          <div
+            className="cf-findbar"
+            onKeyDown={(e) => e.key === "Escape" && (e.preventDefault(), setFind((f) => ({ ...f, open: false })), taRef.current?.focus())}
+          >
             <div className="cf-findbar-row">
-              <button type="button" className="cf-btn is-icon is-small" aria-label={t("replaceWith")} aria-expanded={find.replace} onClick={() => setFind((f) => ({ ...f, replace: !f.replace }))}>
+              <button
+                type="button"
+                className="cf-btn is-icon is-small"
+                aria-label={t("replaceWith")}
+                aria-expanded={find.replace}
+                onClick={() => setFind((f) => ({ ...f, replace: !f.replace }))}
+              >
                 <Icon name={find.replace ? "chevronDown" : "chevronRight"} size={14} />
               </button>
               <input
@@ -440,7 +487,13 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
                   }
                 }}
               />
-              <button type="button" className={cx("cf-btn is-small cf-case", find.matchCase && "is-on")} title={t("matchCase")} aria-pressed={find.matchCase} onClick={() => setFind((f) => ({ ...f, matchCase: !f.matchCase }))}>
+              <button
+                type="button"
+                className={cx("cf-btn is-small cf-case", find.matchCase && "is-on")}
+                title={t("matchCase")}
+                aria-pressed={find.matchCase}
+                onClick={() => setFind((f) => ({ ...f, matchCase: !f.matchCase }))}
+              >
                 Aa
               </button>
               <span className="cf-find-count">{find.q ? (matches.length ? t("matchCount", { i: current + 1, n: matches.length }) : t("noMatches")) : ""}</span>
@@ -545,11 +598,24 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             >
               <label>
                 {t("goToLine")}
-                <input ref={gotoRef} className="cf-input is-small" type="number" min={1} max={lineCount} onBlur={() => setGotoOpen(false)} onKeyDown={(e) => e.key === "Escape" && (e.stopPropagation(), setGotoOpen(false), taRef.current?.focus())} />
+                <input
+                  ref={gotoRef}
+                  className="cf-input is-small"
+                  type="number"
+                  min={1}
+                  max={lineCount}
+                  onBlur={() => setGotoOpen(false)}
+                  onKeyDown={(e) => e.key === "Escape" && (e.stopPropagation(), setGotoOpen(false), taRef.current?.focus())}
+                />
               </label>
             </form>
           ) : (
-            <button type="button" className="cf-status-btn" onClick={() => (setGotoOpen(true), requestAnimationFrame(() => gotoRef.current?.focus()))} title={`${t("goToLine")} (${shortcut("Ctrl+G")})`}>
+            <button
+              type="button"
+              className="cf-status-btn"
+              onClick={() => (setGotoOpen(true), requestAnimationFrame(() => gotoRef.current?.focus()))}
+              title={`${t("goToLine")} (${shortcut("Ctrl+G")})`}
+            >
               {t("line", { line: cursor.line, col: cursor.col })}
             </button>
           )}
@@ -565,11 +631,21 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
           <span>{meta.crlf ? "CRLF" : "LF"}</span>
           <span>{LANG_LABEL[lang]}</span>
           <span className="cf-font-size">
-            <button type="button" className="cf-btn is-icon is-small" aria-label={`${t("fontSize")} −`} onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.max(10, p.fontSize - 1) }))}>
+            <button
+              type="button"
+              className="cf-btn is-icon is-small"
+              aria-label={`${t("fontSize")} −`}
+              onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.max(10, p.fontSize - 1) }))}
+            >
               <Icon name="minus" size={12} />
             </button>
             <span>{prefs.fontSize}px</span>
-            <button type="button" className="cf-btn is-icon is-small" aria-label={`${t("fontSize")} +`} onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.min(24, p.fontSize + 1) }))}>
+            <button
+              type="button"
+              className="cf-btn is-icon is-small"
+              aria-label={`${t("fontSize")} +`}
+              onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.min(24, p.fontSize + 1) }))}
+            >
               <Icon name="plus" size={12} />
             </button>
           </span>

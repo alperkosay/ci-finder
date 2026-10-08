@@ -289,7 +289,10 @@
     text-decoration: none;
     cursor: default;
     user-select: none;
-    transition: background-color 80ms, color 80ms, box-shadow 80ms;
+    transition:
+      background-color 80ms,
+      color 80ms,
+      box-shadow 80ms;
   }
 
   .cf-btn:hover:not(:disabled) {
@@ -338,7 +341,9 @@
   .cf-btn.is-primary {
     background: var(--cf-accent);
     color: var(--cf-accent-text);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 1px rgb(0 0 0 / 0.08);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.14),
+      0 1px 1px rgb(0 0 0 / 0.08);
   }
 
   .cf-btn.is-primary:hover:not(:disabled) {
@@ -443,7 +448,9 @@
     border: 1px solid var(--cf-line);
     border-radius: var(--cf-radius);
     background: var(--cf-field);
-    transition: border-color 100ms, box-shadow 100ms;
+    transition:
+      border-color 100ms,
+      box-shadow 100ms;
   }
 
   .cf-pathbar {
@@ -619,7 +626,9 @@
   .cf-segmented .cf-btn.is-on {
     background: var(--cf-surface);
     color: var(--cf-text);
-    box-shadow: 0 0 0 1px var(--cf-line), 0 1px 2px rgb(0 0 0 / 0.06);
+    box-shadow:
+      0 0 0 1px var(--cf-line),
+      0 1px 2px rgb(0 0 0 / 0.06);
   }
 
   /* ------------------------------------------------------------------------------------------
@@ -841,18 +850,42 @@
     letter-spacing: 0.02em;
   }
 
-  .cf-file-icon[data-category="pdf"] { --c: var(--cat-pdf); }
-  .cf-file-icon[data-category="doc"] { --c: var(--cat-doc); }
-  .cf-file-icon[data-category="sheet"] { --c: var(--cat-sheet); }
-  .cf-file-icon[data-category="slides"] { --c: var(--cat-slides); }
-  .cf-file-icon[data-category="archive"] { --c: var(--cat-archive); }
-  .cf-file-icon[data-category="image"] { --c: var(--cat-image); }
-  .cf-file-icon[data-category="video"] { --c: var(--cat-video); }
-  .cf-file-icon[data-category="audio"] { --c: var(--cat-audio); }
-  .cf-file-icon[data-category="code"] { --c: var(--cat-code); }
-  .cf-file-icon[data-category="markdown"] { --c: var(--cat-markdown); }
-  .cf-file-icon[data-category="text"] { --c: var(--cat-text); }
-  .cf-file-icon[data-category="font"] { --c: var(--cat-font); }
+  .cf-file-icon[data-category="pdf"] {
+    --c: var(--cat-pdf);
+  }
+  .cf-file-icon[data-category="doc"] {
+    --c: var(--cat-doc);
+  }
+  .cf-file-icon[data-category="sheet"] {
+    --c: var(--cat-sheet);
+  }
+  .cf-file-icon[data-category="slides"] {
+    --c: var(--cat-slides);
+  }
+  .cf-file-icon[data-category="archive"] {
+    --c: var(--cat-archive);
+  }
+  .cf-file-icon[data-category="image"] {
+    --c: var(--cat-image);
+  }
+  .cf-file-icon[data-category="video"] {
+    --c: var(--cat-video);
+  }
+  .cf-file-icon[data-category="audio"] {
+    --c: var(--cat-audio);
+  }
+  .cf-file-icon[data-category="code"] {
+    --c: var(--cat-code);
+  }
+  .cf-file-icon[data-category="markdown"] {
+    --c: var(--cat-markdown);
+  }
+  .cf-file-icon[data-category="text"] {
+    --c: var(--cat-text);
+  }
+  .cf-file-icon[data-category="font"] {
+    --c: var(--cat-font);
+  }
 
   .cf-thumb {
     display: flex;
@@ -867,7 +900,9 @@
     max-height: 100%;
     border-radius: 3px;
     background: repeating-conic-gradient(var(--cf-hover) 0% 25%, transparent 0% 50%) 50% / 10px 10px;
-    box-shadow: 0 0 0 1px var(--cf-line), 0 1px 3px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 0 0 1px var(--cf-line),
+      0 1px 3px rgb(0 0 0 / 0.1);
   }
 
   /* ------------------------------------------------------------------------------------------
@@ -2036,7 +2071,9 @@
     font-size: var(--cf-code-fs, 13px);
     line-height: var(--cf-code-lh, 21px);
     font-variant-ligatures: none;
-    font-feature-settings: "liga" 0, "calt" 0;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
     letter-spacing: 0;
     tab-size: 4;
     white-space: pre;
@@ -2114,24 +2151,64 @@
     -webkit-text-fill-color: transparent;
   }
 
-  .tk-kw { color: var(--tk-kw); }
-  .tk-str { color: var(--tk-str); }
-  .tk-com { color: var(--tk-com); font-style: italic; }
-  .tk-num { color: var(--tk-num); }
-  .tk-fn { color: var(--tk-fn); }
-  .tk-type { color: var(--tk-type); }
-  .tk-prop { color: var(--tk-prop); }
-  .tk-tag { color: var(--tk-tag); }
-  .tk-attr { color: var(--tk-attr); }
-  .tk-op { color: var(--tk-op); }
-  .tk-const { color: var(--tk-const); }
-  .tk-var { color: var(--tk-var); }
-  .tk-meta { color: var(--tk-meta); }
-  .tk-head { color: var(--cf-text); font-weight: 700; }
-  .tk-bold { font-weight: 700; }
-  .tk-em { font-style: italic; }
-  .tk-link { color: var(--tk-fn); text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
-  .tk-code { color: var(--tk-kw); }
+  .tk-kw {
+    color: var(--tk-kw);
+  }
+  .tk-str {
+    color: var(--tk-str);
+  }
+  .tk-com {
+    color: var(--tk-com);
+    font-style: italic;
+  }
+  .tk-num {
+    color: var(--tk-num);
+  }
+  .tk-fn {
+    color: var(--tk-fn);
+  }
+  .tk-type {
+    color: var(--tk-type);
+  }
+  .tk-prop {
+    color: var(--tk-prop);
+  }
+  .tk-tag {
+    color: var(--tk-tag);
+  }
+  .tk-attr {
+    color: var(--tk-attr);
+  }
+  .tk-op {
+    color: var(--tk-op);
+  }
+  .tk-const {
+    color: var(--tk-const);
+  }
+  .tk-var {
+    color: var(--tk-var);
+  }
+  .tk-meta {
+    color: var(--tk-meta);
+  }
+  .tk-head {
+    color: var(--cf-text);
+    font-weight: 700;
+  }
+  .tk-bold {
+    font-weight: 700;
+  }
+  .tk-em {
+    font-style: italic;
+  }
+  .tk-link {
+    color: var(--tk-fn);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  }
+  .tk-code {
+    color: var(--tk-kw);
+  }
 
   /* ------------------------------------------------------------------------------------------
    * Markdown preview
@@ -2261,13 +2338,17 @@
     place-items: center;
     padding: 24px;
     overflow: auto;
-    background: repeating-conic-gradient(var(--cf-hover) 0% 25%, transparent 0% 50%) 50% / 18px 18px, var(--cf-bg);
+    background:
+      repeating-conic-gradient(var(--cf-hover) 0% 25%, transparent 0% 50%) 50% / 18px 18px,
+      var(--cf-bg);
   }
 
   .cf-image-frame {
     position: relative;
     line-height: 0;
-    box-shadow: 0 0 0 1px var(--cf-line), 0 10px 30px -12px rgb(0 0 0 / 0.35);
+    box-shadow:
+      0 0 0 1px var(--cf-line),
+      0 10px 30px -12px rgb(0 0 0 / 0.35);
   }
 
   .cf-image-canvas {
@@ -2294,8 +2375,24 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(to right, transparent calc(33.33% - 0.5px), rgb(255 255 255 / 0.45) 33.33%, transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgb(255 255 255 / 0.45) 66.66%, transparent calc(66.66% + 0.5px)),
-      linear-gradient(to bottom, transparent calc(33.33% - 0.5px), rgb(255 255 255 / 0.45) 33.33%, transparent calc(33.33% + 0.5px), transparent calc(66.66% - 0.5px), rgb(255 255 255 / 0.45) 66.66%, transparent calc(66.66% + 0.5px));
+      linear-gradient(
+        to right,
+        transparent calc(33.33% - 0.5px),
+        rgb(255 255 255 / 0.45) 33.33%,
+        transparent calc(33.33% + 0.5px),
+        transparent calc(66.66% - 0.5px),
+        rgb(255 255 255 / 0.45) 66.66%,
+        transparent calc(66.66% + 0.5px)
+      ),
+      linear-gradient(
+        to bottom,
+        transparent calc(33.33% - 0.5px),
+        rgb(255 255 255 / 0.45) 33.33%,
+        transparent calc(33.33% + 0.5px),
+        transparent calc(66.66% - 0.5px),
+        rgb(255 255 255 / 0.45) 66.66%,
+        transparent calc(66.66% + 0.5px)
+      );
     pointer-events: none;
   }
 

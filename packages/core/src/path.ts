@@ -50,8 +50,7 @@ const RESERVED = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
 export function assertValidName(name: unknown): asserts name is string {
   if (typeof name !== "string") throw new CiFinderError("INVALID_NAME", "Name is required");
   const trimmed = name.trim();
-  if (!trimmed || trimmed === "." || trimmed === "..")
-    throw new CiFinderError("INVALID_NAME", "Name is required");
+  if (!trimmed || trimmed === "." || trimmed === "..") throw new CiFinderError("INVALID_NAME", "Name is required");
   if (trimmed !== name) throw new CiFinderError("INVALID_NAME", "Name cannot start or end with spaces");
   if (name.length > 255) throw new CiFinderError("INVALID_NAME", "Name is too long");
   if (INVALID_CHARS.test(name)) throw new CiFinderError("INVALID_NAME", 'Name cannot contain \\ / : * ? " < > |');

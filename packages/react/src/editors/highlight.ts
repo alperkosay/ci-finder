@@ -6,7 +6,8 @@
 
 export type Lang = "js" | "json" | "css" | "html" | "md" | "py" | "php" | "sql" | "yaml" | "sh" | "clike" | "ruby" | "ini" | "plain";
 
-export type TokenType = "kw" | "str" | "com" | "num" | "fn" | "type" | "prop" | "tag" | "attr" | "op" | "const" | "var" | "meta" | "head" | "bold" | "em" | "link" | "code";
+export type TokenType =
+  "kw" | "str" | "com" | "num" | "fn" | "type" | "prop" | "tag" | "attr" | "op" | "const" | "var" | "meta" | "head" | "bold" | "em" | "link" | "code";
 
 export interface Token {
   t?: TokenType;
@@ -14,24 +15,70 @@ export interface Token {
 }
 
 const EXT_LANG: Record<string, Lang> = {
-  js: "js", mjs: "js", cjs: "js", jsx: "js", ts: "js", mts: "js", cts: "js", tsx: "js",
-  json: "json", jsonc: "json", webmanifest: "json",
-  css: "css", scss: "css", less: "css",
-  html: "html", htm: "html", xml: "html", svg: "html", vue: "html", svelte: "html",
-  md: "md", markdown: "md",
+  js: "js",
+  mjs: "js",
+  cjs: "js",
+  jsx: "js",
+  ts: "js",
+  mts: "js",
+  cts: "js",
+  tsx: "js",
+  json: "json",
+  jsonc: "json",
+  webmanifest: "json",
+  css: "css",
+  scss: "css",
+  less: "css",
+  html: "html",
+  htm: "html",
+  xml: "html",
+  svg: "html",
+  vue: "html",
+  svelte: "html",
+  md: "md",
+  markdown: "md",
   py: "py",
   php: "php",
   sql: "sql",
-  yml: "yaml", yaml: "yaml",
-  sh: "sh", bash: "sh", zsh: "sh", env: "sh",
-  c: "clike", h: "clike", cpp: "clike", hpp: "clike", cs: "clike", java: "clike", kt: "clike", go: "clike", rs: "clike", swift: "clike", graphql: "clike",
+  yml: "yaml",
+  yaml: "yaml",
+  sh: "sh",
+  bash: "sh",
+  zsh: "sh",
+  env: "sh",
+  c: "clike",
+  h: "clike",
+  cpp: "clike",
+  hpp: "clike",
+  cs: "clike",
+  java: "clike",
+  kt: "clike",
+  go: "clike",
+  rs: "clike",
+  swift: "clike",
+  graphql: "clike",
   rb: "ruby",
-  ini: "ini", toml: "ini", conf: "ini", properties: "ini",
+  ini: "ini",
+  toml: "ini",
+  conf: "ini",
+  properties: "ini",
 };
 
 export const LANG_LABEL: Record<Lang, string> = {
-  js: "JavaScript", json: "JSON", css: "CSS", html: "HTML", md: "Markdown", py: "Python", php: "PHP", sql: "SQL",
-  yaml: "YAML", sh: "Shell", clike: "C-like", ruby: "Ruby", ini: "INI", plain: "Plain text",
+  js: "JavaScript",
+  json: "JSON",
+  css: "CSS",
+  html: "HTML",
+  md: "Markdown",
+  py: "Python",
+  php: "PHP",
+  sql: "SQL",
+  yaml: "YAML",
+  sh: "Shell",
+  clike: "C-like",
+  ruby: "Ruby",
+  ini: "INI",
+  plain: "Plain text",
 };
 
 export function langOf(name: string): Lang {
@@ -45,18 +92,34 @@ export function langOf(name: string): Lang {
 
 const words = (s: string) => new Set(s.split(" "));
 
-const JS_KW = words("break case catch class const continue debugger default delete do else export extends finally for from function if import in instanceof let new of return static super switch this throw try typeof var void while with yield async await as interface type enum implements private protected public readonly declare namespace abstract satisfies keyof infer is get set");
+const JS_KW = words(
+  "break case catch class const continue debugger default delete do else export extends finally for from function if import in instanceof let new of return static super switch this throw try typeof var void while with yield async await as interface type enum implements private protected public readonly declare namespace abstract satisfies keyof infer is get set",
+);
 const JS_LIT = words("true false null undefined NaN Infinity");
-const PY_KW = words("and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield match case self cls");
+const PY_KW = words(
+  "and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield match case self cls",
+);
 const PY_LIT = words("True False None");
-const PHP_KW = words("abstract and array as break callable case catch class clone const continue declare default do echo else elseif empty enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return static switch throw trait try unset use var while xor yield enum");
+const PHP_KW = words(
+  "abstract and array as break callable case catch class clone const continue declare default do echo else elseif empty enddeclare endfor endforeach endif endswitch endwhile extends final finally fn for foreach function global goto if implements include include_once instanceof insteadof interface isset list match namespace new or print private protected public readonly require require_once return static switch throw trait try unset use var while xor yield enum",
+);
 const PHP_LIT = words("true false null TRUE FALSE NULL");
-const SQL_KW = words("select from where and or not insert into values update set delete create table drop alter add column index primary key foreign references join left right inner outer full on as group by order having limit offset union all distinct case when then else end is null in like between exists default constraint unique check view trigger begin commit rollback transaction with returning asc desc cascade if replace database schema grant revoke");
-const SQL_TYPES = words("int integer bigint smallint serial bigserial varchar char text boolean bool date time timestamp timestamptz numeric decimal float real double json jsonb uuid blob bytea");
-const SH_KW = words("if then else elif fi for while until do done case esac function in return export local readonly declare unset shift source alias echo exit set cd FROM RUN CMD ENTRYPOINT COPY ADD ENV ARG WORKDIR EXPOSE USER VOLUME LABEL");
-const CLIKE_KW = words("auto break case catch char class const continue default delete do double else enum explicit extern float for friend goto if inline int long mutable namespace new operator private protected public register return short signed sizeof static struct switch template this throw try typedef typename union unsigned using virtual void volatile while bool abstract assert boolean byte extends final finally implements import instanceof interface native package super synchronized throws transient func go chan defer fallthrough map range select type var fn let mut impl pub use mod crate trait where match loop move ref self Self dyn async await override sealed val fun when object companion is in out internal lateinit init guard struct protocol extension");
+const SQL_KW = words(
+  "select from where and or not insert into values update set delete create table drop alter add column index primary key foreign references join left right inner outer full on as group by order having limit offset union all distinct case when then else end is null in like between exists default constraint unique check view trigger begin commit rollback transaction with returning asc desc cascade if replace database schema grant revoke",
+);
+const SQL_TYPES = words(
+  "int integer bigint smallint serial bigserial varchar char text boolean bool date time timestamp timestamptz numeric decimal float real double json jsonb uuid blob bytea",
+);
+const SH_KW = words(
+  "if then else elif fi for while until do done case esac function in return export local readonly declare unset shift source alias echo exit set cd FROM RUN CMD ENTRYPOINT COPY ADD ENV ARG WORKDIR EXPOSE USER VOLUME LABEL",
+);
+const CLIKE_KW = words(
+  "auto break case catch char class const continue default delete do double else enum explicit extern float for friend goto if inline int long mutable namespace new operator private protected public register return short signed sizeof static struct switch template this throw try typedef typename union unsigned using virtual void volatile while bool abstract assert boolean byte extends final finally implements import instanceof interface native package super synchronized throws transient func go chan defer fallthrough map range select type var fn let mut impl pub use mod crate trait where match loop move ref self Self dyn async await override sealed val fun when object companion is in out internal lateinit init guard struct protocol extension",
+);
 const CLIKE_LIT = words("true false null nullptr nil None");
-const RUBY_KW = words("alias and begin break case class def defined? do else elsif end ensure for if in module next not or redo rescue retry return self super then undef unless until when while yield require attr_accessor attr_reader private protected public");
+const RUBY_KW = words(
+  "alias and begin break case class def defined? do else elsif end ensure for if in module next not or redo rescue retry return self super then undef unless until when while yield require attr_accessor attr_reader private protected public",
+);
 const RUBY_LIT = words("true false nil");
 
 interface Spec {
@@ -116,7 +179,10 @@ function scanGeneric(s: string, spec: Spec): Token[] {
       plain += v;
       return;
     }
-    if (plain) out.push({ v: plain }), (plain = "");
+    if (plain) {
+      out.push({ v: plain });
+      plain = "";
+    }
     out.push({ t, v });
   };
   let i = 0;

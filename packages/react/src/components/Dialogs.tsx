@@ -4,7 +4,19 @@ import { baseOf } from "../format";
 import { Icon } from "../icons";
 
 /** Native <dialog> (focus trap, top layer, Esc) with ciFinder styling. */
-export function Modal({ children, onCancel, className, label, wide }: { children: ReactNode; onCancel: () => void; className?: string; label: string; wide?: boolean }) {
+export function Modal({
+  children,
+  onCancel,
+  className,
+  label,
+  wide,
+}: {
+  children: ReactNode;
+  onCancel: () => void;
+  className?: string;
+  label: string;
+  wide?: boolean;
+}) {
   const ref = useRef<HTMLDialogElement>(null);
   const cancel = useRef(onCancel);
   cancel.current = onCancel;

@@ -58,7 +58,8 @@ export function ContextMenu() {
       : [];
   } else {
     const viewItem = (v: "grid" | "list", label: string) => item({ id: `view-${v}`, label, enabled: true, run: () => store.set({ view: v }) }, view === v);
-    const sortItem = (k: "name" | "mtime" | "size" | "kind", label: string) => item({ id: `sort-${k}`, label, enabled: true, run: () => store.set({ sortKey: k }) }, sortKey === k);
+    const sortItem = (k: "name" | "mtime" | "size" | "kind", label: string) =>
+      item({ id: `sort-${k}`, label, enabled: true, run: () => store.set({ sortKey: k }) }, sortKey === k);
     entries = [
       item(actions.newFolder),
       item(actions.newFile),
@@ -68,7 +69,13 @@ export function ContextMenu() {
       sep,
       item(actions.paste),
       sep,
-      { type: "submenu", id: "view", label: t("view"), icon: view === "grid" ? "grid" : "list", items: [viewItem("grid", t("viewGrid")), viewItem("list", t("viewList"))] },
+      {
+        type: "submenu",
+        id: "view",
+        label: t("view"),
+        icon: view === "grid" ? "grid" : "list",
+        items: [viewItem("grid", t("viewGrid")), viewItem("list", t("viewList"))],
+      },
       {
         type: "submenu",
         id: "sort",

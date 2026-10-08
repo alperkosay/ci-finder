@@ -117,7 +117,13 @@ function Shell({ density, theme, height, className, style }: Pick<CiFinderProps,
     if (isTyping(e.target) || e.defaultPrevented) return;
     const mod = modKey(e);
     const key = e.key.toLowerCase();
-    const actions = getActions({ store, t, editors: ctx.editors, pickUpload: ctx.pickUpload, openDetails: () => store.set({ detailsOpen: !store.state.detailsOpen }) });
+    const actions = getActions({
+      store,
+      t,
+      editors: ctx.editors,
+      pickUpload: ctx.pickUpload,
+      openDetails: () => store.set({ detailsOpen: !store.state.detailsOpen }),
+    });
     const run = (action: { enabled: boolean; run: () => void }) => {
       e.preventDefault();
       if (action.enabled) action.run();
@@ -147,7 +153,8 @@ function Shell({ density, theme, height, className, style }: Pick<CiFinderProps,
     if (e.key === "Delete" || (isMac && mod && e.key === "Backspace")) return run(actions.delete);
     if (e.altKey && e.key === "ArrowLeft") return (e.preventDefault(), store.back());
     if (e.altKey && e.key === "ArrowRight") return (e.preventDefault(), store.forward());
-    if ((e.altKey && e.key === "ArrowUp") || (!isMac && e.key === "Backspace") || (isMac && mod && e.key === "ArrowUp")) return (e.preventDefault(), store.up());
+    if ((e.altKey && e.key === "ArrowUp") || (!isMac && e.key === "Backspace") || (isMac && mod && e.key === "ArrowUp"))
+      return (e.preventDefault(), store.up());
     if (e.key === "Escape") {
       if (store.state.searchQuery) store.clearSearch();
       else if (store.state.clipboard) store.set({ clipboard: null });

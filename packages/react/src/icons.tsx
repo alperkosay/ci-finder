@@ -262,14 +262,41 @@ function Glyph({ category }: { category: FileCategory }) {
         </g>
       );
     case "code":
-      return <path d="M13 19.5 9.5 23l3.5 3.5M19 19.5l3.5 3.5-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />;
+      return (
+        <path
+          d="M13 19.5 9.5 23l3.5 3.5M19 19.5l3.5 3.5-3.5 3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      );
     case "markdown":
-      return <path d="M8.5 27v-7.5l3.25 4 3.25-4V27M20.5 19.5V27M18 24.5l2.5 2.5 2.5-2.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />;
+      return (
+        <path
+          d="M8.5 27v-7.5l3.25 4 3.25-4V27M20.5 19.5V27M18 24.5l2.5 2.5 2.5-2.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      );
     case "text":
     case "doc":
     case "pdf":
     case "other":
-      return <path d="M9 17.5h14M9 21h14M9 24.5h9" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity={category === "other" ? 0.45 : 1} />;
+      return (
+        <path
+          d="M9 17.5h14M9 21h14M9 24.5h9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          opacity={category === "other" ? 0.45 : 1}
+        />
+      );
     case "sheet":
       return (
         <g fill="none" stroke="currentColor" strokeWidth="1.3">
@@ -285,7 +312,15 @@ function Glyph({ category }: { category: FileCategory }) {
         </g>
       );
     case "archive":
-      return <path d="M16 3v2.5M16 7.5V10M16 12v2.5M16 16.5V19M14 19h4v4.5a2 2 0 0 1-4 0z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />;
+      return (
+        <path
+          d="M16 3v2.5M16 7.5V10M16 12v2.5M16 16.5V19M14 19h4v4.5a2 2 0 0 1-4 0z"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      );
     default:
       return null;
   }
@@ -294,9 +329,15 @@ function Glyph({ category }: { category: FileCategory }) {
 export function FolderIcon({ size = 48, open = false }: { size?: number; open?: boolean }) {
   return (
     <svg className="cf-folder-icon" width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-      <path className="cf-folder-back" d="M3 9.5A2.5 2.5 0 0 1 5.5 7h9.4a2.5 2.5 0 0 1 1.85.82L19.1 10.5H34.5A2.5 2.5 0 0 1 37 13v19.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z" />
+      <path
+        className="cf-folder-back"
+        d="M3 9.5A2.5 2.5 0 0 1 5.5 7h9.4a2.5 2.5 0 0 1 1.85.82L19.1 10.5H34.5A2.5 2.5 0 0 1 37 13v19.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z"
+      />
       {open ? (
-        <path className="cf-folder-front" d="M5.2 16.6A2.5 2.5 0 0 1 7.6 14.75h29.1a1.6 1.6 0 0 1 1.55 2l-3.9 16.4A2.5 2.5 0 0 1 31.9 35H5.3a1.6 1.6 0 0 1-1.55-1.95z" />
+        <path
+          className="cf-folder-front"
+          d="M5.2 16.6A2.5 2.5 0 0 1 7.6 14.75h29.1a1.6 1.6 0 0 1 1.55 2l-3.9 16.4A2.5 2.5 0 0 1 31.9 35H5.3a1.6 1.6 0 0 1-1.55-1.95z"
+        />
       ) : (
         <path className="cf-folder-front" d="M3 15.75a2.5 2.5 0 0 1 2.5-2.5h29a2.5 2.5 0 0 1 2.5 2.5V32.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z" />
       )}
@@ -318,7 +359,10 @@ export function FileIcon({ entry, size = 48 }: { entry: Pick<Entry, "kind" | "na
 
   return (
     <svg className="cf-file-icon" data-category={category} width={size} height={size} viewBox="0 0 32 40" aria-hidden="true" focusable="false">
-      <path className="cf-page" d="M6 1.5h13.4c.4 0 .78.16 1.06.44l7.6 7.6c.28.28.44.66.44 1.06V36a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 36V4A2.5 2.5 0 0 1 6 1.5z" />
+      <path
+        className="cf-page"
+        d="M6 1.5h13.4c.4 0 .78.16 1.06.44l7.6 7.6c.28.28.44.66.44 1.06V36a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 36V4A2.5 2.5 0 0 1 6 1.5z"
+      />
       <path className="cf-fold" d="M19.5 1.75V8a2 2 0 0 0 2 2h6.25" />
       {small ? (
         <rect className="cf-band" x="3.5" y="27" width="25" height="9" rx="0" />

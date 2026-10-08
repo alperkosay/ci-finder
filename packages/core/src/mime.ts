@@ -133,14 +133,7 @@ export function mimeOf(name: string): string {
   return "application/octet-stream";
 }
 
-const ACTIVE = new Set([
-  "text/html",
-  "image/svg+xml",
-  "application/xml",
-  "text/xml",
-  "application/xhtml+xml",
-  "text/javascript",
-]);
+const ACTIVE = new Set(["text/html", "image/svg+xml", "application/xml", "text/xml", "application/xhtml+xml", "text/javascript"]);
 
 /** Types that can execute script when opened directly in a browser tab. Served with a sandbox CSP. */
 export function isActiveContent(mime: string): boolean {

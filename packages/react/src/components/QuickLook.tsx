@@ -38,7 +38,11 @@ function TextPreview({ entry, markdown }: { entry: Entry; markdown: boolean }) {
 
   if (state.error) return <div className="cf-ql-empty">{state.error}</div>;
   if (state.content === undefined) return <Spinner size={20} />;
-  return markdown ? <div className="cf-md cf-ql-md" dangerouslySetInnerHTML={{ __html: html }} /> : <pre className="cf-ql-code cf-code-hl" dangerouslySetInnerHTML={{ __html: html }} />;
+  return markdown ? (
+    <div className="cf-md cf-ql-md" dangerouslySetInnerHTML={{ __html: html }} />
+  ) : (
+    <pre className="cf-ql-code cf-code-hl" dangerouslySetInnerHTML={{ __html: html }} />
+  );
 }
 
 function Body({ entry }: { entry: Entry }) {
@@ -113,9 +117,14 @@ export function QuickLook() {
         tabIndex={-1}
         onKeyDown={(e) => {
           if ((e.target as HTMLElement).closest("video, audio, input, textarea")) return;
-          if (e.key === "ArrowRight" || e.key === "ArrowDown") (e.preventDefault(), go(1));
-          if (e.key === "ArrowLeft" || e.key === "ArrowUp") (e.preventDefault(), go(-1));
-          if (e.key === " ") (e.preventDefault(), close());
+          const delta = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+          if (delta) {
+            e.preventDefault();
+            go(delta);
+          } else if (e.key === " ") {
+            e.preventDefault();
+            close();
+          }
         }}
       >
         <header className="cf-ql-head">

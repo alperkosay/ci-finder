@@ -1,4 +1,14 @@
-import { memo, useEffect, useMemo, useRef, useState, type DragEvent as ReactDragEvent, type KeyboardEvent, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import {
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type DragEvent as ReactDragEvent,
+  type KeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import type { Entry } from "@ci-finder/core/client";
 import { cx, modKey, useElementSize, useFinder, useIsoLayoutEffect, useStore, useVisible } from "../context";
 import { baseOf, categoryOf, formatDate, formatSize, kindLabel, locationOf } from "../format";
@@ -295,12 +305,34 @@ export function FileView({ density }: { density: Density }) {
   const geometry: Geometry = useMemo(() => {
     const width = size.width;
     if (view === "list") {
-      return { view, cols: 1, colW: width, rowH: L.rowH, cellH: L.rowH, pad: 0, gap: 0, headH: L.headH, total: ids.length, height: L.headH + ids.length * L.rowH + 8 };
+      return {
+        view,
+        cols: 1,
+        colW: width,
+        rowH: L.rowH,
+        cellH: L.rowH,
+        pad: 0,
+        gap: 0,
+        headH: L.headH,
+        total: ids.length,
+        height: L.headH + ids.length * L.rowH + 8,
+      };
     }
     const cols = Math.max(1, Math.floor((width - L.pad * 2 + L.gap) / (L.cellW + L.gap)));
     const colW = (width - L.pad * 2 - (cols - 1) * L.gap) / cols;
     const rows = Math.ceil(ids.length / cols);
-    return { view, cols, colW, rowH: L.cellH + L.gap, cellH: L.cellH, pad: L.pad, gap: L.gap, headH: 0, total: ids.length, height: L.pad * 2 + Math.max(0, rows * (L.cellH + L.gap) - L.gap) };
+    return {
+      view,
+      cols,
+      colW,
+      rowH: L.cellH + L.gap,
+      cellH: L.cellH,
+      pad: L.pad,
+      gap: L.gap,
+      headH: 0,
+      total: ids.length,
+      height: L.pad * 2 + Math.max(0, rows * (L.cellH + L.gap) - L.gap),
+    };
   }, [view, size.width, ids.length, L]);
 
   // Reset scroll when the folder changes.

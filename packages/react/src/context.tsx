@@ -70,7 +70,11 @@ export function useActions() {
 
 export function useVisible(): string[] {
   const { store } = useFinder();
-  return useSyncExternalStore(store.subscribe, () => store.getVisible(), () => store.getVisible());
+  return useSyncExternalStore(
+    store.subscribe,
+    () => store.getVisible(),
+    () => store.getVisible(),
+  );
 }
 
 export const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
@@ -81,7 +85,8 @@ export function useElementSize<T extends HTMLElement>(): [React.RefObject<T | nu
   useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const update = () => setSize((prev) => (prev.width === el.clientWidth && prev.height === el.clientHeight ? prev : { width: el.clientWidth, height: el.clientHeight }));
+    const update = () =>
+      setSize((prev) => (prev.width === el.clientWidth && prev.height === el.clientHeight ? prev : { width: el.clientWidth, height: el.clientHeight }));
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
