@@ -6,14 +6,15 @@
     "packages/core",
     "packages/next",
     "packages/react",
+    "packages/ckeditor",
     "examples/*"
   ],
   "scripts": {
-    "build": "npm run build -w @ci-finder/core && npm run build -w @ci-finder/next && npm run build -w @ci-finder/react",
+    "build": "npm run build -w @ci-finder/core && npm run build -w @ci-finder/next && npm run build -w @ci-finder/react && npm run build -w @ci-finder/ckeditor",
     "dev": "npm run build && npm run dev -w example-next",
     "test": "npm run test -w @ci-finder/core",
     "test:bun": "npm run test:bun -w @ci-finder/core",
-    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react",
+    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react && npm run typecheck -w @ci-finder/ckeditor",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

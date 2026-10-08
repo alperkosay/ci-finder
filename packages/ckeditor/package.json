@@ -1,0 +1,60 @@
+{
+  "name": "@ci-finder/ckeditor",
+  "version": "0.1.0",
+  "description": "ciFinder connector for CKEditor 5: browse the file manager from the toolbar and upload pasted images.",
+  "license": "MIT",
+  "author": "Alper Koşay",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alperkosay/ci-finder.git",
+    "directory": "packages/ckeditor"
+  },
+  "homepage": "https://github.com/alperkosay/ci-finder#readme",
+  "bugs": "https://github.com/alperkosay/ci-finder/issues",
+  "keywords": [
+    "ckeditor",
+    "ckeditor5",
+    "ckfinder",
+    "file-manager",
+    "image-upload"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./v4": {
+      "types": "./dist/v4.d.ts",
+      "import": "./dist/v4.js",
+      "require": "./dist/v4.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ci-finder/core": "0.1.0",
+    "@ci-finder/react": "0.1.0"
+  },
+  "peerDependencies": {
+    "ckeditor5": ">=42",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "ckeditor5": {
+      "optional": true
+    }
+  }
+}
