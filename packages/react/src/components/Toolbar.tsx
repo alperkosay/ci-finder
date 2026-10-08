@@ -48,7 +48,7 @@ function MenuButton({
         aria-expanded={!!pos}
         aria-label={label}
         title={label}
-        disabled={!items.some((e) => e.type !== "separator")}
+        disabled={!items.some((e) => (e.type === "action" ? e.action.enabled : e.type === "submenu"))}
         onClick={() => (pos ? setPos(null) : open())}
         onKeyDown={(e) => {
           if (e.key === "ArrowDown") {
