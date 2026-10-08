@@ -185,6 +185,11 @@ volumes: [
 - Yerel disk ile S3 arasında kopyalama ve taşıma desteklenir.
 - Yüklemeler S3 multipart olarak yapılır ve sunucu istekler arasında durum tutmaz, bu yüzden serverless ortamda da çalışır. S3 kullanılıyorsa `chunkSize` en az 5 MiB olmalı (varsayılan 5 MiB).
 - Görsel editörü S3'teki görselleri düzenleyebilsin diye bucket'ta CORS ayarı gerekir (`GET`, uygulamanızın origin'i).
+- Gerçek bir S3 uyumlu sunucuya karşı entegrasyon testi:
+  ```bash
+  CI_FINDER_S3_ENDPOINT=http://127.0.0.1:7070 CI_FINDER_S3_KEY=... CI_FINDER_S3_SECRET=... npm run test:s3 -w @ci-finder/core
+  ```
+  Bu testler [Versity Gateway](https://github.com/versity/versitygw) 1.8 üzerinde çalıştırıldı ve hepsi geçti. İmza doğrulaması, Türkçe ve özel karakterli anahtarlar, multipart yükleme, 1.000'den fazla nesnenin sayfalı listelenmesi, presigned URL, çöp kutusu ve küçük resimler kontrol edildi.
 
 ## Küçük resimler
 

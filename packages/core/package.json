@@ -48,7 +48,8 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:bun": "bun test ./test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:s3": "vitest run test/s3.integration.test.ts"
   },
   "engines": {
     "node": ">=18.17"
