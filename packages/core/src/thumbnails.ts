@@ -1,4 +1,5 @@
 import { CiFinderError } from "./errors";
+import { sha1Hex } from "./id";
 import { dirname, extname } from "./path";
 import { readAll } from "./stream";
 import type { DriverStat, ThumbnailOptions, VolumePath } from "./types";
@@ -17,11 +18,6 @@ export function isThumbsPath(path: VolumePath): boolean {
 }
 
 const DEFAULT_SIZES = [128, 256, 512];
-
-async function sha1(text: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
-}
 
 export class ThumbnailService {
   readonly sizes: number[];
@@ -49,7 +45,7 @@ export class ThumbnailService {
   }
 
   private async pathFor(vol: Volume, source: VolumePath, size: number): Promise<VolumePath> {
-    return `${THUMBS_ROOT}/${size}/${await sha1(`${vol.id}:${source}`)}.${this.options.generator.extension ?? "webp"}`;
+    return `${THUMBS_ROOT}/${size}/${await sha1Hex(`${vol.id}:${source}`)}.${this.options.generator.extension ?? "webp"}`;
   }
 
   /** Runs `fn` once a generation slot is free; protects the CPU when a folder of photos opens. */

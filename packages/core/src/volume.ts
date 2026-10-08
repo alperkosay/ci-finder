@@ -13,6 +13,7 @@ export class Volume {
   readonly driver: StorageDriver;
   private readonly baseUrl: string | null;
   readonly trash: { enabled: boolean; retentionDays: number };
+  readonly versions: { enabled: boolean; maxPerFile: number; retentionDays: number };
 
   constructor(readonly options: VolumeOptions) {
     if (!VOLUME_ID.test(options.id)) {
@@ -28,6 +29,12 @@ export class Volume {
       enabled: trash !== false && !options.readOnly,
       retentionDays: typeof trash === "object" ? (trash.retentionDays ?? 30) : 30,
     };
+    const versions = options.versions ?? true;
+    this.versions = {
+      enabled: versions !== false && !options.readOnly,
+      maxPerFile: Math.max(1, typeof versions === "object" ? (versions.maxPerFile ?? 20) : 20),
+      retentionDays: Math.max(0, typeof versions === "object" ? (versions.retentionDays ?? 0) : 0),
+    };
   }
 
   get readOnly(): boolean {
@@ -40,7 +47,7 @@ export class Volume {
 
   /** True when any segment of the path is hidden. Hidden paths behave as if they did not exist. */
   isHiddenPath(path: VolumePath): boolean {
-    if (isReservedPath(path)) return true; // trash and thumbnail cache are never reachable directly
+    if (isReservedPath(path)) return true; // trash, thumbnail cache and versions are never reachable directly
     if (this.options.showHidden) return false;
     return path.split("/").some((s) => s.startsWith("."));
   }
@@ -89,7 +96,7 @@ export class Volume {
     return items.filter((s) => !this.isHiddenName(s.name) && !(path === "/" && RESERVED_NAMES.has(s.name)));
   }
 
-  /** Rejects creating anything at a reserved location (the trash folder). */
+  /** Rejects creating anything at a reserved location (trash, thumbnails, versions). */
   assertCreatable(path: VolumePath): void {
     if (isReservedPath(path)) throw new CiFinderError("INVALID_NAME", "This name is reserved");
   }
@@ -165,6 +172,7 @@ export class Volume {
       allowExtensions: this.options.allowExtensions?.length ? this.options.allowExtensions : null,
       denyExtensions: this.options.denyExtensions ?? [],
       trash: this.trash.enabled ? { retentionDays: this.trash.retentionDays, count: await countTrash(this).catch(() => 0) } : null,
+      versions: this.versions.enabled ? { maxPerFile: this.versions.maxPerFile, retentionDays: this.versions.retentionDays } : null,
     };
   }
 }

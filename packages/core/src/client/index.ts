@@ -1,6 +1,6 @@
-import type { Entry, InitResult } from "../types";
+import type { Entry, FileVersion, ImageFormat, InitResult, StorageStats, TransformResult } from "../types";
 
-export type { Entry, InitResult, VolumeInfo, EntryKind } from "../types";
+export type { Entry, InitResult, VolumeInfo, EntryKind, FileVersion, ImageFormat, StorageStats, TransformResult, UsageCategory, VersionedFile } from "../types";
 export { encodeId } from "../id";
 
 export type ConflictMode = "rename" | "overwrite" | "skip";
@@ -38,6 +38,29 @@ export interface UploadOptions {
   onProgress?: (p: UploadProgress) => void;
   signal?: AbortSignal;
 }
+
+export interface TransformOptions {
+  /** Target format, or "keep" to stay in the source format. */
+  format?: ImageFormat | "keep";
+  /** Fit inside this box (aspect ratio kept, never upscaled). */
+  width?: number;
+  height?: number;
+  quality?: number;
+  /** Same-format results: overwrite the source (old content goes to the history) or save a copy. */
+  output?: "overwrite" | "copy";
+  /** Leave a file alone when the result is not smaller. Default: true. */
+  skipLarger?: boolean;
+  /** What to do when the output name (e.g. "photo.webp") is taken. Default: "rename". */
+  conflict?: "rename" | "overwrite";
+  /** Name suffix of same-format copies. Default: "optimized". */
+  suffix?: string;
+}
+
+export type CleanupRequest =
+  | { target: "cache" }
+  | { target: "versions"; mode: "all" | "orphaned" }
+  | { target: "versions"; mode: "older"; days: number }
+  | { target: "versions"; mode: "keep"; keep: number };
 
 export interface SizeResult {
   size: number;
@@ -163,10 +186,11 @@ export class CiFinderClient {
   putContent(id: string, content: string) {
     return this.post<{ entry: Entry }>("put", { id, content });
   }
-  /** Overwrites a file with binary content (e.g. an edited image). */
-  putBlob(id: string, blob: Blob) {
+  /** Overwrites a file with binary content (e.g. an edited image). The old content goes to the history. */
+  putBlob(id: string, blob: Blob, reason?: string) {
     const form = new FormData();
     form.set("id", id);
+    if (reason) form.set("reason", reason);
     form.set("file", blob, "blob");
     return this.post<{ entry: Entry }>("put", form);
   }
@@ -177,6 +201,29 @@ export class CiFinderClient {
     form.set("name", name);
     form.set("file", blob, name);
     return this.post<{ entry: Entry }>("put", form);
+  }
+  /** Version history of a file, newest first (`entry` is null when the file was deleted). */
+  versions(id: string) {
+    return this.get<{ versions: FileVersion[]; entry: Entry | null }>("versions", { id });
+  }
+  /** Replaces a file with one of its versions (recreates it when deleted). */
+  revert(id: string, vid: string) {
+    return this.post<{ entry: Entry; created: boolean }>("revert", { id, vid });
+  }
+  /** Deletes some versions of a file, or its whole history when `vids` is omitted. */
+  rmVersions(id: string, vids?: string[]) {
+    return this.post<{ removed: number; freed: number }>("rmVersions", vids ? { id, vids } : { id });
+  }
+  /** Storage dashboard numbers of one volume (scans the whole volume). */
+  stats(volume: string, signal?: AbortSignal) {
+    return this.get<StorageStats>("stats", { volume }, signal);
+  }
+  cleanup(volume: string, request: CleanupRequest) {
+    return this.post<{ removed: number; freed: number }>("cleanup", { volume, ...request });
+  }
+  /** Bulk resize / recompress / convert images on the server. */
+  transform(ids: string[], options: TransformOptions = {}, signal?: AbortSignal) {
+    return this.post<{ results: TransformResult[] }>("transform", { ids, ...options }, signal);
   }
   archive(ids: string[], name?: string) {
     return this.post<{ entry: Entry }>("archive", { ids, name });
@@ -193,6 +240,11 @@ export class CiFinderClient {
   /** URL of a server-generated thumbnail (falls back to the original on the server when unavailable). */
   thumbUrl(entry: Pick<Entry, "id" | "mtime">, size: number): string {
     return this.url({ cmd: "thumb", id: entry.id, size: String(size), v: String(entry.mtime) });
+  }
+
+  /** URL of a stored version of a file (inline, or as a download). */
+  versionUrl(id: string, vid: string, download = false): string {
+    return this.url({ cmd: "version", id, vid, ...(download ? { download: "1" } : {}) });
   }
 
   /** URL that downloads one file, or a ZIP of several files / folders. */

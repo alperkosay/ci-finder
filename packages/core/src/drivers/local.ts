@@ -281,6 +281,13 @@ export class LocalDriver implements StorageDriver {
     const dir = nodePath.dirname(await this.safe(path));
     await fs.rm(nodePath.join(dir, session), { force: true });
   }
+
+  /** Size and free space of the disk holding the root (Node >= 18.15 and Bun). */
+  async capacity(): Promise<{ total: number; free: number } | null> {
+    if (typeof fs.statfs !== "function") return null;
+    const s = await fs.statfs(await this.getRealRoot());
+    return { total: s.blocks * s.bsize, free: s.bavail * s.bsize };
+  }
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

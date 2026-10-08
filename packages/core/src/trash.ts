@@ -30,12 +30,12 @@ export function isTrashPath(path: VolumePath): boolean {
   return path === TRASH_ROOT || path.startsWith(TRASH_ROOT + "/");
 }
 
-/** Internal folders (trash, thumbnail cache) that are never reachable through normal commands. */
+/** Internal folders (trash, thumbnail cache, version history) that are never reachable through normal commands. */
 export function isReservedPath(path: VolumePath): boolean {
-  return isTrashPath(path) || path === "/.cf-thumbs" || path.startsWith("/.cf-thumbs/");
+  return [TRASH_ROOT, "/.cf-thumbs", "/.cf-versions"].some((root) => path === root || path.startsWith(root + "/"));
 }
 
-export const RESERVED_NAMES = new Set([".cf-trash", ".cf-thumbs"]);
+export const RESERVED_NAMES = new Set([".cf-trash", ".cf-thumbs", ".cf-versions"]);
 
 const metaPath = (tid: string) => `${TRASH_ROOT}/${tid}.json`;
 const itemDir = (tid: string) => `${TRASH_ROOT}/${tid}`;
@@ -48,6 +48,12 @@ function newTid(): string {
 export function parseTrashPath(path: VolumePath): string | null {
   const tid = path.startsWith(TRASH_ROOT + "/") ? path.slice(TRASH_ROOT.length + 1) : "";
   return TID.test(tid) ? tid : null;
+}
+
+/** Where a trashed item came from; null when its sidecar is gone. */
+export async function trashOrigin(vol: Volume, tid: string): Promise<{ path: VolumePath; kind: EntryKind } | null> {
+  const meta = await readMeta(vol, tid);
+  return meta ? { path: meta.originalPath, kind: meta.kind } : null;
 }
 
 async function readMeta(vol: Volume, tid: string): Promise<TrashMeta | null> {

@@ -10,4 +10,5 @@ export { readZipEntries, openZipEntry, type ZipEntry } from "./zip/reader";
 export { Volume } from "./volume";
 export { isTrashPath, isReservedPath, TRASH_ROOT } from "./trash";
 export { ThumbnailService, THUMBS_ROOT } from "./thumbnails";
+export { VERSIONS_ROOT, isVersionsPath } from "./versions";
 export type * from "./types";

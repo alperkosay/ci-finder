@@ -15,6 +15,7 @@ export type ErrorCode =
   | "MOVE_INTO_ITSELF"
   | "UNSUPPORTED"
   | "INVALID_ARCHIVE"
+  | "INVALID_IMAGE"
   | "STORAGE"
   | "INTERNAL";
 
@@ -35,6 +36,7 @@ const STATUS: Record<ErrorCode, number> = {
   MOVE_INTO_ITSELF: 400,
   UNSUPPORTED: 400,
   INVALID_ARCHIVE: 400,
+  INVALID_IMAGE: 400,
   STORAGE: 502,
   INTERNAL: 500,
 };

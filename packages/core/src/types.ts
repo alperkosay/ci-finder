@@ -75,6 +75,8 @@ export interface StorageDriver {
    * engine redirects instead of streaming the file through the server.
    */
   signedUrl?(path: VolumePath, options: { download?: boolean; filename?: string; expiresIn?: number }): Promise<string | null>;
+  /** Optional size of the underlying disk, shown on the storage dashboard. Null when unknown. */
+  capacity?(): Promise<{ total: number; free: number } | null>;
 }
 
 export interface VolumeOptions {
@@ -104,6 +106,13 @@ export interface VolumeOptions {
    * restored. No database involved. `false` deletes permanently. Default: enabled, kept 30 days.
    */
   trash?: boolean | { retentionDays?: number };
+  /**
+   * Version history: before a file is overwritten (editor save, image optimization, upload with
+   * "replace") its previous content is kept in a hidden `.cf-versions` folder of the volume and can
+   * be restored. No database involved. `false` disables. Default: enabled, 20 versions per file,
+   * kept until removed from the storage dashboard.
+   */
+  versions?: boolean | { maxPerFile?: number; retentionDays?: number };
 }
 
 export type Action = "read" | "write" | "delete";
@@ -143,6 +152,8 @@ export interface VolumeInfo {
   denyExtensions: string[];
   /** null when the trash is disabled for this volume. */
   trash: { retentionDays: number; count: number } | null;
+  /** null when version history is disabled for this volume. `retentionDays` 0 keeps versions forever. */
+  versions: { maxPerFile: number; retentionDays: number } | null;
 }
 
 export interface InitResult {
@@ -151,6 +162,97 @@ export interface InitResult {
   version: string;
   /** Present when server-side thumbnails are enabled. */
   thumbnails: { sizes: number[]; extensions: string[] } | null;
+  /** Present when server-side image processing (bulk resize / compress / convert) is enabled. */
+  images: { extensions: string[]; formats: ImageFormat[] } | null;
+}
+
+/** A previous state of a file, kept by the version history. */
+export interface FileVersion {
+  /** Version id, unique per file. */
+  id: string;
+  size: number;
+  /** When the version was taken, i.e. when the file was overwritten (ms since epoch). */
+  createdAt: number;
+  /** What replaced this content: "edit", "optimize", "upload", "revert"... */
+  reason: string;
+}
+
+export type UsageCategory = "image" | "video" | "audio" | "document" | "archive" | "code" | "other";
+
+/** A file with a version history, as listed on the storage dashboard. */
+export interface VersionedFile {
+  /** Entry id of the file (also valid when the file no longer exists). */
+  id: string;
+  path: VolumePath;
+  name: string;
+  /** False when the file was deleted or moved outside ciFinder; its versions are "orphaned". */
+  exists: boolean;
+  count: number;
+  size: number;
+  /** Time of the newest version. */
+  latest: number;
+}
+
+/** Storage dashboard numbers of one volume. */
+export interface StorageStats {
+  volume: string;
+  /** User files only (trash, versions and thumbnail cache are reported separately). */
+  files: number;
+  dirs: number;
+  size: number;
+  categories: Record<UsageCategory, { files: number; size: number }>;
+  /** Biggest user files, largest first. */
+  largest: Entry[];
+  versions: { files: number; count: number; size: number; orphaned: number; items: VersionedFile[] };
+  trash: { count: number; size: number };
+  cache: { files: number; size: number };
+  /** Disk size when the driver can tell (local disk). */
+  capacity: { total: number; free: number } | null;
+  /** True when the volume was too big to scan completely. */
+  truncated: boolean;
+  scannedAt: number;
+}
+
+export type ImageFormat = "jpeg" | "png" | "webp" | "avif" | "gif";
+
+export interface ImageTransformOptions {
+  /** Output format. */
+  format: ImageFormat;
+  /** Fit inside this box (keeps the aspect ratio, never upscales). */
+  width?: number;
+  height?: number;
+  /** 1–100. For PNG a value below 100 enables palette quantization. Default: 80. */
+  quality?: number;
+}
+
+/** Outcome of one file in a `transform` (bulk image) request. */
+export interface TransformResult {
+  /** Id of the source file. */
+  id: string;
+  name: string;
+  /** Size of the source in bytes. */
+  before: number;
+  /** Size of the produced image. */
+  after?: number;
+  width?: number;
+  height?: number;
+  /** The written file: the source itself when overwritten, or the new copy. */
+  entry?: Entry;
+  /** True when a new file was created next to the source. */
+  created?: boolean;
+  /** "larger": the result was not smaller; "unsupported": the format cannot be processed. */
+  skipped?: "larger" | "unsupported";
+  /** Error code when this file failed. */
+  error?: string;
+}
+
+/** Resizes, recompresses and converts images. See `sharpImages` in `@ci-finder/core/sharp`. */
+export interface ImageProcessor {
+  /** Lowercase file extensions it can read. */
+  extensions: string[];
+  /** Formats it can write. */
+  formats: ImageFormat[];
+  transform(input: Uint8Array, options: ImageTransformOptions): Promise<{ data: Uint8Array; width: number; height: number }>;
 }
 
 /** Turns image bytes into a small preview. See `sharpThumbnailer` in `@ci-finder/core/sharp`. */
@@ -203,6 +305,10 @@ export interface CiFinderOptions {
   searchLimit?: number;
   /** Server-side thumbnails, cached in a hidden `.cf-thumbs` folder of each volume. */
   thumbnails?: ThumbnailOptions;
+  /** Server-side image processing for the bulk resize / compress / convert dialog. */
+  images?: ImageProcessor;
+  /** Larger images are refused by the image processor. Default: 60 MiB. */
+  maxImageSize?: number;
   /** Max total uncompressed size when extracting an archive (zip bomb guard). Default: 4 GiB. */
   maxExtractSize?: number;
   /**

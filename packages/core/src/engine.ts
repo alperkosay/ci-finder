@@ -4,10 +4,23 @@ import { mimeOf } from "./mime";
 import { basename, dirname, extname, isInside, joinPath, normalizePath } from "./path";
 import { contentDisposition, serveFile } from "./serve";
 import { mapLimit, readAll, toUint8 } from "./stream";
-import type { CiFinderOptions, CommandContext, DriverStat, Entry, InitResult, VolumePath } from "./types";
-import { ThumbnailService } from "./thumbnails";
-import { emptyTrash, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash } from "./trash";
+import { collectStats } from "./stats";
+import type { CiFinderOptions, CommandContext, DriverStat, Entry, ImageFormat, ImageProcessor, InitResult, TransformResult, VolumePath } from "./types";
+import { THUMBS_ROOT, ThumbnailService } from "./thumbnails";
+import { emptyTrash, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash, trashOrigin } from "./trash";
+import {
+  deleteVersions,
+  forgetVersions,
+  listVersions,
+  pruneVersions,
+  relocateVersions,
+  restoreVersion,
+  snapshot,
+  versionStat,
+  type PruneMode,
+} from "./versions";
 import { Volume } from "./volume";
+import { walkAll } from "./walk";
 import { openZipEntry, readZipEntries } from "./zip/reader";
 import { createZipStream, type ZipSource } from "./zip/writer";
 
@@ -19,7 +32,43 @@ type Target = { vol: Volume; path: VolumePath };
 type Command = (engine: CiFinder, p: Params, ctx: CommandContext) => Promise<unknown>;
 
 /** Commands that never change anything; they are the only ones accepted over GET. */
-const READ_COMMANDS = new Set(["init", "ls", "tree", "parents", "info", "size", "search", "file", "thumb", "download", "get", "trash"]);
+const READ_COMMANDS = new Set([
+  "init",
+  "ls",
+  "tree",
+  "parents",
+  "info",
+  "size",
+  "search",
+  "file",
+  "thumb",
+  "download",
+  "get",
+  "trash",
+  "versions",
+  "version",
+  "stats",
+]);
+
+/** Extension written for each output format of the image processor. */
+const FORMAT_EXT: Record<ImageFormat, string> = { jpeg: "jpg", png: "png", webp: "webp", avif: "avif", gif: "gif" };
+
+function formatOfExt(ext: string): ImageFormat | null {
+  if (ext === "jpg" || ext === "jpeg" || ext === "jfif") return "jpeg";
+  return ext === "png" || ext === "webp" || ext === "avif" || ext === "gif" ? ext : null;
+}
+
+/** Short lowercase word stored with a version ("edit", "optimize"...). */
+function reasonOf(p: Params, fallback: string): string {
+  const v =
+    typeof p.reason === "string"
+      ? p.reason
+          .toLowerCase()
+          .replace(/[^a-z]/g, "")
+          .slice(0, 16)
+      : "";
+  return v || fallback;
+}
 
 /** Header every state-changing request must carry. Browsers cannot add it to cross-site form posts. */
 export const CSRF_HEADER = "x-ci-finder";
@@ -105,6 +154,9 @@ export class CiFinder {
   private readonly volumes = new Map<string, Volume>();
   private readonly commands: Record<string, Command>;
   private readonly thumbs: ThumbnailService | null;
+  private readonly images: ImageProcessor | null;
+  private imageJobs = 0;
+  private readonly imageQueue: (() => void)[] = [];
   private readOnlyView: CiFinder | null = null;
 
   constructor(options: CiFinderOptions) {
@@ -120,6 +172,7 @@ export class CiFinder {
       this.volumes.set(v.id, new Volume(v));
     }
     this.thumbs = options.thumbnails ? new ThumbnailService(options.thumbnails) : null;
+    this.images = options.images ?? null;
     if (options.volumes.some((v) => v.driver.kind === "s3") && this.options.chunkSize < 5 * MiB) {
       throw new Error("ciFinder: chunkSize must be at least 5 MiB when an S3 volume is configured");
     }
@@ -151,6 +204,13 @@ export class CiFinder {
       file: (e, p, ctx) => e.file(p, ctx.request),
       thumb: (e, p, ctx) => e.thumb(p, ctx.request),
       download: (e, p, ctx) => e.download(p, ctx.request),
+      versions: (e, p) => e.versions(p),
+      version: (e, p, ctx) => e.version(p, ctx.request),
+      revert: (e, p) => e.revert(p),
+      rmVersions: (e, p) => e.rmVersions(p),
+      stats: (e, p) => e.stats(p),
+      cleanup: (e, p) => e.cleanup(p),
+      transform: (e, p) => e.transform(p),
     };
   }
 
@@ -235,7 +295,8 @@ export class CiFinder {
   private async init(): Promise<InitResult> {
     const volumes = await Promise.all([...this.volumes.values()].map((v) => v.info()));
     const thumbnails = this.thumbs ? { sizes: this.thumbs.sizes, extensions: [...this.thumbs.extensions] } : null;
-    return { volumes, chunkSize: this.options.chunkSize, version: VERSION, thumbnails };
+    const images = this.images ? { extensions: [...this.images.extensions], formats: [...this.images.formats] } : null;
+    return { volumes, chunkSize: this.options.chunkSize, version: VERSION, thumbnails, images };
   }
 
   private async ls(p: Params) {
@@ -365,6 +426,7 @@ export class CiFinder {
     if (!caseOnly && (await vol.driver.stat(target))) throw new CiFinderError("EXISTS", `"${name}" already exists`);
     await vol.driver.move(path, target);
     if (stat.kind === "file") await this.thumbs?.forget(vol, path);
+    await relocateVersions(vol, path, target, stat.kind);
     return { entry: await this.entryAt(vol, target), removed: [p.id] };
   }
 
@@ -393,8 +455,12 @@ export class CiFinder {
       vol.assertNotRoot(path);
       vol.assertCan("delete", path);
       const stat = await vol.stat(path);
-      if (!permanent && vol.trash.enabled) trashed.push(await moveToTrash(vol, stat));
-      else await vol.driver.remove(path);
+      if (!permanent && vol.trash.enabled) {
+        trashed.push(await moveToTrash(vol, stat));
+      } else {
+        await vol.driver.remove(path);
+        await forgetVersions(vol, path, stat.kind);
+      }
       if (stat.kind === "file") await this.thumbs?.forget(vol, path);
       removed.push(id);
     }
@@ -435,7 +501,9 @@ export class CiFinder {
       for (const vol of this.volumes.values()) {
         if (!vol.trash.enabled || (only && vol.id !== only)) continue;
         vol.assertCan("delete", "/");
+        const items = await listTrash(vol);
         await emptyTrash(vol);
+        for (const e of items) await this.forgetIfGone(vol, e.trash!.originalPath, e.kind);
       }
       return { removed: [], all: true };
     }
@@ -443,10 +511,17 @@ export class CiFinder {
     for (const id of list(p, "ids")) {
       const { vol, tid } = this.trashTarget(id);
       vol.assertCan("delete", "/");
+      const origin = await trashOrigin(vol, tid);
       await purgeOne(vol, tid);
+      if (origin) await this.forgetIfGone(vol, origin.path, origin.kind);
       removed.push(id);
     }
     return { removed, all: false };
+  }
+
+  /** A history follows its file into the trash; it is dropped once the item is gone for good. */
+  private async forgetIfGone(vol: Volume, path: VolumePath, kind: DriverStat["kind"]): Promise<void> {
+    if (!(await vol.driver.stat(path).catch(() => null))) await forgetVersions(vol, path, kind);
   }
 
   private async paste(p: Params) {
@@ -485,6 +560,8 @@ export class CiFinder {
           continue;
         } else if (conflict === "overwrite") {
           dst.vol.assertCan("delete", existing.path);
+          // The replaced file stays in the history of its path.
+          if (existing.kind === "file" && stat.kind === "file") await snapshot(dst.vol, existing, "replace");
           await dst.vol.driver.remove(existing.path);
           removed.push(dst.vol.entry(existing).id);
         } else {
@@ -503,6 +580,8 @@ export class CiFinder {
       if (cut) {
         removed.push(id);
         if (stat.kind === "file") await this.thumbs?.forget(src.vol, src.path);
+        if (sameVolume) await relocateVersions(src.vol, src.path, target, stat.kind);
+        else await forgetVersions(src.vol, src.path, stat.kind);
       }
       added.push(await this.entryAt(dst.vol, target));
     }
@@ -561,8 +640,12 @@ export class CiFinder {
       vol.assertCreatable(target);
       const existing = await vol.driver.stat(target);
       if (existing) {
-        if (str(p, "conflict", false) === "overwrite" && existing.kind === "file") vol.assertCan("write", target);
-        else target = joinPath(dir, await vol.uniqueName(dir, name, false));
+        if (str(p, "conflict", false) === "overwrite" && existing.kind === "file") {
+          vol.assertCan("write", target);
+          await snapshot(vol, existing, "upload");
+        } else {
+          target = joinPath(dir, await vol.uniqueName(dir, name, false));
+        }
       }
     } else {
       let session: { p?: unknown; s?: unknown };
@@ -738,7 +821,9 @@ export class CiFinder {
     if (!blob && data.byteLength > this.options.maxEditSize) throw new CiFinderError("TOO_LARGE", "Content is too large");
     const max = vol.options.maxUploadSize;
     if (max != null && data.byteLength > max) throw new CiFinderError("TOO_LARGE", "Content is too large");
+    await snapshot(vol, stat, reasonOf(p, "edit"));
     await vol.driver.write(path, data);
+    if (blob) await this.thumbs?.forget(vol, path);
     return { entry: await this.entryAt(vol, path), created: false };
   }
 
@@ -831,6 +916,220 @@ export class CiFinder {
       await vol.driver.write(out, (await openZipEntry(read, e)).pipeThrough(counter));
     }
     return { entry: await this.entryAt(vol, root), skipped };
+  }
+
+  // --- version history -----------------------------------------------------------------------
+
+  /** History of a file, newest first. Also answers for a deleted file, so it can be brought back. */
+  private async versions(p: Params) {
+    const { vol, path } = this.target(p.id);
+    vol.assertNotRoot(path);
+    vol.assertCan("read", path);
+    const current = await vol.driver.stat(path);
+    if (current?.kind === "dir") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    return { versions: await listVersions(vol, path), entry: current ? vol.entry(current) : null };
+  }
+
+  /** Streams one stored version (inline for previews, or `download: 1`). */
+  private async version(p: Params, request: Request): Promise<Response> {
+    const { vol, path } = this.target(p.id);
+    vol.assertCan("read", path);
+    const stat = await versionStat(vol, path, p.vid);
+    const name = basename(path);
+    return serveFile({
+      request,
+      stat,
+      mime: mimeOf(name),
+      filename: name,
+      download: bool(p, "download"),
+      // A version never changes once written.
+      cacheControl: "private, max-age=31536000, immutable",
+      open: (range) => vol.driver.read(stat.path, range),
+    });
+  }
+
+  /** Replaces a file with one of its versions; the replaced content becomes a version too. */
+  private async revert(p: Params) {
+    const { vol, path } = this.target(p.id);
+    vol.assertNotRoot(path);
+    vol.assertCan("write", path);
+    const existing = await vol.driver.stat(path);
+    if (!existing) {
+      vol.assertCan("write", dirname(path));
+      vol.assertExtensionAllowed(basename(path));
+    }
+    await restoreVersion(vol, path, p.vid);
+    await this.thumbs?.forget(vol, path);
+    return { entry: await this.entryAt(vol, path), created: !existing };
+  }
+
+  /** Deletes some versions of a file (`vids`), or its whole history. */
+  private async rmVersions(p: Params) {
+    const { vol, path } = this.target(p.id);
+    vol.assertNotRoot(path);
+    vol.assertCan("delete", path);
+    return deleteVersions(vol, path, p.vids === undefined ? undefined : list(p, "vids"));
+  }
+
+  // --- storage dashboard ---------------------------------------------------------------------
+
+  private volumeParam(p: Params): Volume {
+    const vol = this.volumes.get(str(p, "volume"));
+    if (!vol) throw new CiFinderError("NOT_FOUND", "Volume not found");
+    return vol;
+  }
+
+  private async stats(p: Params) {
+    const vol = this.volumeParam(p);
+    vol.assertCan("read", "/");
+    return collectStats(vol);
+  }
+
+  /**
+   * Dashboard cleanup.
+   * - `{ volume, target: "versions", mode: "all" | "orphaned" }`
+   * - `{ volume, target: "versions", mode: "older", days }` / `{ ..., mode: "keep", keep }`
+   * - `{ volume, target: "cache" }` drops the thumbnail cache (regenerated on demand).
+   */
+  private async cleanup(p: Params) {
+    const vol = this.volumeParam(p);
+    vol.assertCan("delete", "/");
+    const target = str(p, "target");
+    if (target === "cache") {
+      const files = (await walkAll(vol.driver, THUMBS_ROOT)).items.filter((s) => s.kind === "file");
+      if (await vol.driver.stat(THUMBS_ROOT)) await vol.driver.remove(THUMBS_ROOT);
+      return { removed: files.length, freed: files.reduce((n, s) => n + s.size, 0) };
+    }
+    if (target !== "versions") throw new CiFinderError("BAD_REQUEST", `Unknown cleanup target "${target}"`);
+    const mode = str(p, "mode");
+    let prune: PruneMode;
+    if (mode === "all" || mode === "orphaned") prune = { mode };
+    else if (mode === "older") prune = { mode, days: int(p, "days") };
+    else if (mode === "keep") prune = { mode, keep: int(p, "keep") };
+    else throw new CiFinderError("BAD_REQUEST", `Unknown cleanup mode "${mode}"`);
+    return pruneVersions(vol, prune);
+  }
+
+  // --- images --------------------------------------------------------------------------------
+
+  /** Image encoding is CPU heavy: at most two run at the same time, the rest wait in line. */
+  private async imageSlot<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.imageJobs >= 2) await new Promise<void>((resolve) => this.imageQueue.push(resolve));
+    this.imageJobs++;
+    try {
+      return await fn();
+    } finally {
+      this.imageJobs--;
+      this.imageQueue.shift()?.();
+    }
+  }
+
+  /**
+   * Bulk resize / recompress / convert:
+   * `{ ids, format?: "keep" | "webp" | ..., width?, height?, quality?, output?: "overwrite" | "copy",
+   *    skipLarger?, conflict?: "rename" | "overwrite", suffix? }`.
+   * Converting to another format always writes a new file next to the original, which is kept.
+   * Overwritten files keep their previous content in the version history. Each file reports its own
+   * outcome, so one broken image does not fail the batch.
+   */
+  private async transform(p: Params) {
+    const images = this.images;
+    if (!images) throw new CiFinderError("UNSUPPORTED", "Image processing is not enabled on the server");
+    const requested = str(p, "format", false) || "keep";
+    if (requested !== "keep" && !images.formats.includes(requested as ImageFormat)) {
+      throw new CiFinderError("BAD_REQUEST", `Unsupported format "${requested}"`);
+    }
+    const width = int(p, "width", 0);
+    const height = int(p, "height", 0);
+    if (width > 20_000 || height > 20_000) throw new CiFinderError("BAD_REQUEST", "Size is too large");
+    const options = {
+      requested: requested as ImageFormat | "keep",
+      width,
+      height,
+      quality: Math.min(100, Math.max(1, int(p, "quality", 80))),
+      overwrite: str(p, "output", false) !== "copy",
+      skipLarger: p.skipLarger === undefined ? true : bool(p, "skipLarger"),
+      replaceExisting: str(p, "conflict", false) === "overwrite",
+      suffix: str(p, "suffix", false) || "optimized",
+    };
+    const results: TransformResult[] = [];
+    for (const id of list(p, "ids")) {
+      try {
+        results.push(await this.transformOne(images, id, options));
+      } catch (e) {
+        const err = mapNativeError(e);
+        if (err.code === "INTERNAL") console.error("[ci-finder] transform", e);
+        let name = "";
+        try {
+          name = basename(decodeId(id).path);
+        } catch {
+          // invalid id: report it without a name
+        }
+        results.push({ id, name, before: 0, error: err.code });
+      }
+    }
+    return { results };
+  }
+
+  private async transformOne(
+    images: ImageProcessor,
+    id: string,
+    o: {
+      requested: ImageFormat | "keep";
+      width: number;
+      height: number;
+      quality: number;
+      overwrite: boolean;
+      skipLarger: boolean;
+      replaceExisting: boolean;
+      suffix: string;
+    },
+  ): Promise<TransformResult> {
+    const { vol, path } = this.target(id);
+    vol.assertCan("read", path);
+    const stat = await vol.stat(path);
+    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    const result: TransformResult = { id, name: stat.name, before: stat.size };
+    const ext = extname(stat.name);
+    const source = formatOfExt(ext);
+    const format = o.requested === "keep" ? source : o.requested;
+    if (!images.extensions.includes(ext) || !format || !images.formats.includes(format)) return { ...result, skipped: "unsupported" };
+
+    const dir = dirname(path);
+    const inPlace = format === source && o.overwrite;
+    vol.assertCan("write", inPlace ? path : dir);
+    const maxSize = this.options.maxImageSize ?? 60 * MiB;
+    if (stat.size > maxSize) throw new CiFinderError("TOO_LARGE", "Image is too large to process");
+
+    const input = await readAll(await vol.driver.read(path), maxSize);
+    const out = await this.imageSlot(() => images.transform(input, { format, width: o.width, height: o.height, quality: o.quality }));
+    Object.assign(result, { after: out.data.byteLength, width: out.width, height: out.height });
+    if (o.skipLarger && out.data.byteLength >= stat.size) return { ...result, skipped: "larger" };
+
+    if (inPlace) {
+      await snapshot(vol, stat, "optimize");
+      await vol.driver.write(path, out.data);
+      await this.thumbs?.forget(vol, path);
+      return { ...result, entry: await this.entryAt(vol, path), created: false };
+    }
+
+    const base = stat.name.slice(0, stat.name.length - ext.length - 1);
+    const wanted = vol.validateName(format === source ? `${base}-${o.suffix}.${ext}` : `${base}.${FORMAT_EXT[format]}`);
+    vol.assertExtensionAllowed(wanted);
+    let target = joinPath(dir, wanted);
+    const existing = await vol.driver.stat(target);
+    let replaced = false;
+    if (existing && o.replaceExisting && existing.kind === "file") {
+      vol.assertCan("write", target);
+      await snapshot(vol, existing, "optimize");
+      replaced = true;
+    } else if (existing) {
+      target = joinPath(dir, await vol.uniqueName(dir, wanted, false));
+    }
+    vol.assertCreatable(target);
+    await vol.driver.write(target, out.data);
+    if (replaced) await this.thumbs?.forget(vol, target);
+    return { ...result, entry: await this.entryAt(vol, target), created: !replaced };
   }
 }
 

@@ -38,3 +38,9 @@ export function decodeId(id: unknown): { volume: string; path: VolumePath } {
   }
   return { volume: id.slice(0, i), path: normalizePath(raw) };
 }
+
+/** Hex SHA-1 of a string (Web Crypto, works on Node, Bun and edge runtimes). Used for cache keys, not security. */
+export async function sha1Hex(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-1", encoder.encode(text));
+  return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, "0")).join("");
+}
