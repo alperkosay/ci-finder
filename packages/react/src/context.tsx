@@ -26,8 +26,12 @@ export interface FinderContextValue {
   editors: CustomEditor[];
   pickMode: boolean;
   pickLabel?: string;
+  /** In picker mode: whether a file may be chosen (the `accept` prop). */
+  canPick: (entry: Entry) => boolean;
   multiple: boolean;
   onPick?: (entries: Entry[]) => void;
+  /** Picker mode: dismisses the picker without a choice. */
+  onPickCancel?: () => void;
   /** Opens the hidden file input (files or a whole folder). */
   pickUpload: (folder: boolean) => void;
   rootRef: React.RefObject<HTMLDivElement | null>;

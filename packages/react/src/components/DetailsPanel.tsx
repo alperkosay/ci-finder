@@ -149,6 +149,11 @@ function RegularItem({ entry }: { entry: Entry }) {
             <span>{t("edit")}</span>
           </button>
         )}
+        {actions.versions.enabled && (
+          <button type="button" className="cf-btn is-icon" onClick={actions.versions.run} title={t("versions")} aria-label={t("versions")}>
+            <Icon name="history" />
+          </button>
+        )}
         <button type="button" className="cf-btn is-icon" onClick={actions.download.run} title={t("download")} aria-label={t("download")}>
           <Icon name="download" />
         </button>
@@ -188,6 +193,7 @@ function RegularItem({ entry }: { entry: Entry }) {
 
 function Multiple({ entries }: { entries: Entry[] }) {
   const { t, locale } = useFinder();
+  const actions = useActions();
   const files = entries.filter((e) => e.kind === "file");
   const dirs = entries.filter((e) => e.kind === "dir");
   const size = files.reduce((n, e) => n + e.size, 0);
@@ -201,6 +207,14 @@ function Multiple({ entries }: { entries: Entry[] }) {
         ))}
       </div>
       <h3 className="cf-details-name">{t("multiSelection", { n: entries.length })}</h3>
+      {actions.optimizeImages.enabled && (
+        <div className="cf-details-actions">
+          <button type="button" className="cf-btn" onClick={actions.optimizeImages.run}>
+            <Icon name="sliders" />
+            <span>{t("optimizeImages")}</span>
+          </button>
+        </div>
+      )}
       <dl className="cf-meta">
         <Meta label={t("contents")}>{t("filesAndFolders", { files: files.length, dirs: dirs.length })}</Meta>
         <Meta label={t("size")}>{dirs.length ? <FolderSize ids={entries.map((e) => e.id)} /> : formatSize(size, locale)}</Meta>

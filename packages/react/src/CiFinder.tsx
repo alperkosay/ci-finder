@@ -2,11 +2,15 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import { createClient, type CiFinderClient, type Entry } from "@ci-finder/core/client";
 import { getActions } from "./actions";
 import { cx, FinderContext, isMac, modKey, useElementSize, useFinder, useStore, type CustomEditor, type FinderContextValue } from "./context";
+import { matchesAccept, type Accept } from "./format";
 import { createTranslator, type Messages } from "./i18n";
 import { FinderStore, type Prefs } from "./store";
 import { ContextMenu } from "./components/ContextMenu";
 import { DetailsPanel } from "./components/DetailsPanel";
+import { Dashboard } from "./components/Dashboard";
 import { Dialogs } from "./components/Dialogs";
+import { ImageBatch } from "./components/ImageBatch";
+import { VersionsDialog } from "./components/Versions";
 import { Toasts, UploadPanel } from "./components/Feedback";
 import { FileView, type Density } from "./components/FileView";
 import { Header } from "./components/Header";
@@ -58,8 +62,15 @@ export interface CiFinderProps {
   onSelect?: (entries: Entry[]) => void;
   /** Label of the picker button. */
   selectLabel?: string;
+  /** Picker mode: shows a "Cancel" button next to "Select" and calls this. */
+  onCancel?: () => void;
   /** Allow choosing several files in picker mode. Default: false. */
   multiple?: boolean;
+  /**
+   * Picker mode: which files can be chosen, like `<input type="file" accept>` ("image/*", ".pdf",
+   * a list) or a predicate. Other files stay visible but cannot be selected for the pick.
+   */
+  accept?: Accept;
 
   /** Intercept opening a file. Return true to prevent the default (preview / editor / download). */
   onOpen?: (entry: Entry) => boolean | void;
@@ -216,6 +227,9 @@ function Shell({ density, theme, height, className, style }: Pick<CiFinderProps,
           <ContextMenu />
           <QuickLook />
           <EditorHost />
+          <Dashboard />
+          <VersionsDialog />
+          <ImageBatch />
           <Dialogs />
           <Toasts />
         </>
@@ -255,6 +269,7 @@ export function CiFinder(props: CiFinderProps) {
       persistKey,
       initialPrefs: props.defaultView,
       pickMode: !!props.onSelect,
+      canPick: (entry) => matchesAccept(entry, latest.current.accept),
       onOpen: (entry) => latest.current.onOpen?.(entry),
       onChange: (event) => latest.current.onChange?.(event),
       onPick: (entries) => latest.current.onSelect?.(entries),
@@ -269,6 +284,7 @@ export function CiFinder(props: CiFinderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [store]);
 
+  const cancellable = !!props.onCancel;
   const value: FinderContextValue = useMemo(
     () => ({
       store,
@@ -278,12 +294,14 @@ export function CiFinder(props: CiFinderProps) {
       editors: props.editors ?? [],
       pickMode: !!props.onSelect,
       pickLabel: props.selectLabel,
+      canPick: (entry) => matchesAccept(entry, props.accept),
       multiple: !!props.multiple,
       onPick: (entries) => latest.current.onSelect?.(entries),
+      onPickCancel: cancellable ? () => latest.current.onCancel?.() : undefined,
       pickUpload: (folder) => (folder ? folderInput : fileInput).current?.click(),
       rootRef,
     }),
-    [store, t, locale, props.thumbnails, props.editors, props.onSelect, props.selectLabel, props.multiple],
+    [store, t, locale, props.thumbnails, props.editors, props.onSelect, props.selectLabel, props.multiple, props.accept, cancellable],
   );
 
   const onFiles = (list: FileList | null) => {

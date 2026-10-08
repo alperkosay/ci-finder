@@ -37,6 +37,8 @@ export function ContextMenu() {
       item(actions.archive),
       item(actions.extract),
       sep,
+      item(actions.optimizeImages),
+      item(actions.versions),
       item(actions.info),
       sep,
       item(actions.delete),

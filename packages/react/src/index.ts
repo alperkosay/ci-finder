@@ -1,4 +1,6 @@
 export { CiFinder, type CiFinderProps } from "./CiFinder";
+export { openFilePicker, useFilePicker, pickedUrl, type FilePickerOptions, type PickedFile } from "./picker";
+export { matchesAccept, type Accept } from "./format";
 export { useFinder, useStore, type CustomEditor, type EditorProps } from "./context";
 export { FinderStore, type State as FinderState, type Prefs as FinderPrefs } from "./store";
 export { createTranslator, locales, type Messages, type MessageKey } from "./i18n";

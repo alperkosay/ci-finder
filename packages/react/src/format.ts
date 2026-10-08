@@ -131,6 +131,31 @@ export function isEditableImage(entry: Pick<Entry, "kind" | "name">): boolean {
   return entry.kind === "file" && ["png", "jpg", "jpeg", "webp", "gif", "bmp", "avif"].includes(extOf(entry.name));
 }
 
+/**
+ * Raster images the bulk optimizer can take: whatever the server's image processor reads, or what
+ * the browser can re-encode through a canvas when there is no server support.
+ */
+export function isBatchImage(entry: Pick<Entry, "kind" | "name">, serverExtensions?: string[] | null): boolean {
+  if (entry.kind !== "file") return false;
+  const ext = extOf(entry.name);
+  return serverExtensions ? serverExtensions.includes(ext) : ["png", "jpg", "jpeg", "webp"].includes(ext);
+}
+
+/** What a picker accepts: "image/*", ".pdf", "application/pdf", a list of those, or a predicate. */
+export type Accept = string | string[] | ((entry: Entry) => boolean);
+
+/** Whether a file matches an `accept` filter (same syntax as `<input type="file" accept>`). */
+export function matchesAccept(entry: Entry, accept: Accept | undefined): boolean {
+  if (entry.kind !== "file") return false;
+  if (!accept) return true;
+  if (typeof accept === "function") return accept(entry);
+  const rules = (Array.isArray(accept) ? accept : accept.split(",")).map((r) => r.trim().toLowerCase()).filter(Boolean);
+  if (!rules.length) return true;
+  const ext = extOf(entry.name);
+  const mime = entry.mime.toLowerCase();
+  return rules.some((r) => (r.startsWith(".") ? r.slice(1) === ext : r.endsWith("/*") ? mime.startsWith(r.slice(0, -1)) : r === mime));
+}
+
 export function kindLabel(entry: Pick<Entry, "kind" | "name">, t: Translate): string {
   if (entry.kind === "dir") return t("folder");
   const ext = extOf(entry.name);

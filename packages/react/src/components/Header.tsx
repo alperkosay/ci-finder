@@ -193,6 +193,16 @@ export function Header() {
         <Icon name="refresh" />
       </button>
       <SearchBox />
+      <button
+        type="button"
+        className="cf-btn is-icon cf-storage-btn"
+        aria-label={t("storage")}
+        title={t("storage")}
+        aria-haspopup="dialog"
+        onClick={() => store.set({ dashboard: true })}
+      >
+        <Icon name="gauge" />
+      </button>
     </div>
   );
 }

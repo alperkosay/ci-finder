@@ -112,9 +112,12 @@ export function Toolbar() {
     sep,
     item(actions.edit),
     item(actions.editImage),
+    item(actions.optimizeImages),
+    item(actions.versions),
     item(actions.copyLink),
     sep,
     item(actions.selectAll),
+    item(actions.dashboard),
     sep,
     item(actions.deletePermanently),
   ];

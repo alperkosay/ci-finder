@@ -28,7 +28,8 @@ export default function Files() {
 - Quick look for images, video, audio, PDF, code and Markdown
 - Built-in code editor, Markdown editor with preview, image editor (crop, rotate, flip, resize)
 - Touch support, light/dark themes, two densities, Turkish and English
-- Picker mode (`onSelect`) for "choose a file" fields
+- Picker mode (`onSelect`, `accept`) and `useFilePicker()` / `openFilePicker()` for "choose a file" fields
+- Version history, bulk image optimization (resize, quality, WebP/AVIF) and a storage dashboard
 
 ## Theming
 

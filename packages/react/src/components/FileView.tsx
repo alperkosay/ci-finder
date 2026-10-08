@@ -119,7 +119,7 @@ interface ItemProps {
 }
 
 const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renaming, view, iconSize, showLocation }: ItemProps) {
-  const { store, t, locale, rootRef } = useFinder();
+  const { store, t, locale, rootRef, pickMode, canPick } = useFinder();
   const [dropOver, setDropOver] = useState(false);
   const isDir = entry.kind === "dir" && !entry.trash;
   const touch = useTouch(({ x, y }) => {
@@ -182,7 +182,14 @@ const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renam
     "aria-selected": selected,
     "data-id": entry.id,
     draggable: !renaming && !entry.locked && !entry.trash,
-    className: cx("cf-item", selected && "is-selected", focused && "is-focused", cut && "is-cut", dropOver && "is-drop"),
+    className: cx(
+      "cf-item",
+      selected && "is-selected",
+      focused && "is-focused",
+      cut && "is-cut",
+      dropOver && "is-drop",
+      pickMode && entry.kind === "file" && !canPick(entry) && "is-unpickable",
+    ),
     ...touch.handlers,
     onMouseDown,
     onClick,

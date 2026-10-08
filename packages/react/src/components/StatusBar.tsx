@@ -5,7 +5,7 @@ import { TRASH_ID } from "../store";
 import { Icon, Spinner } from "../icons";
 
 export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: () => void; uploadsOpen: boolean }) {
-  const { t, locale, pickMode, pickLabel, onPick, multiple } = useFinder();
+  const { t, locale, pickMode, pickLabel, onPick, onPickCancel, multiple, canPick: accepts } = useFinder();
   const ids = useVisible();
   const selection = useStore((s) => s.selection);
   const entries = useStore((s) => s.entries);
@@ -22,7 +22,7 @@ export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: (
   const progress = totalBytes ? loadedBytes / totalBytes : 0;
 
   const picked = selection.map((id) => entries[id]).filter((e): e is Entry => e?.kind === "file");
-  const canPick = pickMode && picked.length > 0 && (multiple || picked.length === 1);
+  const canPick = pickMode && picked.length > 0 && (multiple || picked.length === 1) && picked.every(accepts);
 
   return (
     <footer className="cf-statusbar">
@@ -54,6 +54,11 @@ export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: (
               <span style={{ transform: `scaleX(${progress})` }} />
             </span>
           )}
+        </button>
+      )}
+      {pickMode && onPickCancel && (
+        <button type="button" className="cf-btn is-outline" onClick={onPickCancel}>
+          {t("cancel")}
         </button>
       )}
       {pickMode && (

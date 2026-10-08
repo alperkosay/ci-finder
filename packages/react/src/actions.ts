@@ -1,6 +1,6 @@
 import type { Entry } from "@ci-finder/core/client";
 import type { CustomEditor } from "./context";
-import { extOf, isEditableImage, isEditableText } from "./format";
+import { extOf, isBatchImage, isEditableImage, isEditableText } from "./format";
 import type { MessageKey, Translate } from "./i18n";
 import type { IconName } from "./icons";
 import { TRASH_ID, type FinderStore } from "./store";
@@ -49,7 +49,10 @@ export type ActionId =
   | "deletePermanently"
   | "restore"
   | "emptyTrash"
-  | "openTrash";
+  | "openTrash"
+  | "versions"
+  | "optimizeImages"
+  | "dashboard";
 
 export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWith: Action[] } {
   const { store, t } = env;
@@ -112,6 +115,8 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
           "uploadFolder",
           "deletePermanently",
           "openTrash",
+          "versions",
+          "optimizeImages",
         ] as const
       ).map((id) => [id, off(id, id === "deletePermanently" ? "deletePermanently" : id === "openTrash" ? "trash" : (id as MessageKey))]),
     ) as Record<ActionId, Action>;
@@ -124,8 +129,11 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
       refresh: a("refresh", "refresh", "refresh", true, () => store.refresh(), "Ctrl+R"),
       selectAll: a("selectAll", "selectAll", undefined, true, () => store.selectAll(), "Ctrl+A"),
       info: a("info", "info", "info", true, env.openDetails, "Ctrl+I"),
+      dashboard: a("dashboard", "storage", "gauge", true, () => store.set({ dashboard: true })),
     };
   }
+
+  const images = sel.filter((e) => isBatchImage(e, s.images?.extensions));
 
   return {
     openWith,
@@ -167,5 +175,10 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
     refresh: a("refresh", "refresh", "refresh", !!cwd, () => store.refresh(), "Ctrl+R"),
     selectAll: a("selectAll", "selectAll", undefined, true, () => store.selectAll(), "Ctrl+A"),
     info: a("info", "info", "info", true, env.openDetails, "Ctrl+I"),
+    versions: a("versions", "versions", "history", !!one && store.hasVersions(one), () => one && store.openVersions(one)),
+    optimizeImages: a("optimizeImages", "optimizeImages", "sliders", images.length > 0 && images.every((e) => e.write), () =>
+      store.set({ imageBatch: images.map((e) => e.id), menu: null }),
+    ),
+    dashboard: a("dashboard", "storage", "gauge", true, () => store.set({ dashboard: true })),
   };
 }

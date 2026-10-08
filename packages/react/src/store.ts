@@ -84,6 +84,14 @@ export interface State extends Prefs {
   trashCount: number;
   /** Server-side thumbnail support announced by `init`. */
   thumbs: InitResult["thumbnails"];
+  /** Server-side image processing announced by `init` (null: the browser does it). */
+  images: InitResult["images"];
+  /** Storage dashboard is open. */
+  dashboard: boolean;
+  /** File whose version history is open. */
+  versionsOf: { id: string; name: string } | null;
+  /** Images selected for the bulk optimize dialog. */
+  imageBatch: string[] | null;
   /** Touch: a long press started a multi-selection; taps toggle until it ends. */
   touchSelecting: boolean;
 }
@@ -97,6 +105,8 @@ export interface StoreOptions {
   onOpen?: (entry: Entry) => boolean | void;
   onChange?: (event: { type: string; entries?: Entry[]; ids?: string[] }) => void;
   pickMode?: boolean;
+  /** Picker mode: whether a file may be chosen; others open normally on double click. */
+  canPick?: (entry: Entry) => boolean;
   onPick?: (entries: Entry[]) => void;
   /** Called when the API answers 401 (session expired / not signed in). */
   onUnauthorized?: () => void;
@@ -178,6 +188,10 @@ export class FinderStore {
       sidebarOpen: true,
       trashCount: 0,
       thumbs: null,
+      images: null,
+      dashboard: false,
+      versionsOf: null,
+      imageBatch: null,
       touchSelecting: false,
     };
   }
@@ -411,13 +425,14 @@ export class FinderStore {
 
   async init(initialId?: string) {
     try {
-      const { volumes, thumbnails } = await this.client.init();
+      const { volumes, thumbnails, images } = await this.client.init();
       const roots = volumes.map((v) => v.root);
       const trashCount = volumes.reduce((n, v) => n + (v.trash?.count ?? 0), 0);
       this.set({
         volumes,
         trashCount,
         thumbs: thumbnails ?? null,
+        images: images ?? null,
         entries: this.merge(roots),
         expanded: Object.fromEntries(roots.map((r) => [r.id, true])),
         ready: true,
@@ -574,7 +589,7 @@ export class FinderStore {
     if (entry.trash) return this.set({ detailsOpen: true, selection: [entry.id], focus: entry.id });
     if (entry.kind === "dir") return void this.open(entry.id);
     if (this.options.onOpen?.(entry) === true) return;
-    if (this.options.pickMode && this.options.onPick) return this.options.onPick([entry]);
+    if (this.options.pickMode && this.options.onPick && (this.options.canPick?.(entry) ?? true)) return this.options.onPick([entry]);
     const category = categoryOf(entry);
     if (["image", "video", "audio", "pdf"].includes(category)) return this.set({ preview: entry.id });
     if (isEditableText(entry)) return this.set({ editor: { id: entry.id, type: "code" } });
@@ -932,6 +947,21 @@ export class FinderStore {
     } catch (e) {
       this.fail(e);
     }
+  }
+
+  /** Opens the folder containing `entry` and selects it. */
+  async reveal(entry: Entry) {
+    if (!entry.parent) return this.open(entry.id);
+    await this.open(entry.parent, { select: [entry.id] });
+  }
+
+  /** Whether the volume of `entry` keeps a version history. */
+  hasVersions(entry: Entry | undefined): boolean {
+    return !!entry && entry.kind === "file" && !entry.trash && !!this.volumeOf(entry)?.versions;
+  }
+
+  openVersions(entry: Pick<Entry, "id" | "name">) {
+    this.set({ versionsOf: { id: entry.id, name: entry.name }, menu: null });
   }
 
   /** Called by editors after saving so listings show the new size / date. */

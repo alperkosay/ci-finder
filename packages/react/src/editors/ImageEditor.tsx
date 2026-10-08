@@ -213,7 +213,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
     try {
       const blob = await exportBlob();
       if (mode === "overwrite") {
-        const { entry: next } = await store.client.putBlob(entry.id, blob);
+        const { entry: next } = await store.client.putBlob(entry.id, blob, "edit");
         store.updateEntry(next);
       } else {
         const name = `${baseOf(entry.name)}-${t("editedSuffix")}.${FORMATS[format]!.ext}`;
@@ -254,6 +254,24 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
             <span>{img ? `${img.naturalWidth} × ${img.naturalHeight}` : entry.path}</span>
           </div>
           <div className="cf-editor-tools">
+            {store.hasVersions(entry) && (
+              <>
+                <button
+                  type="button"
+                  className="cf-btn is-icon"
+                  title={t("versions")}
+                  aria-label={t("versions")}
+                  disabled={!!saving}
+                  onClick={() => {
+                    onClose();
+                    store.openVersions(entry);
+                  }}
+                >
+                  <Icon name="history" />
+                </button>
+                <span className="cf-tool-sep" />
+              </>
+            )}
             <button type="button" className="cf-btn" disabled={!changed || !!saving || !entry.parent} onClick={() => void save("copy")}>
               {saving === "copy" ? <Spinner size={14} /> : <Icon name="duplicate" />}
               <span>{t("saveAs")}</span>

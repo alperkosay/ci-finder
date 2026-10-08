@@ -194,6 +194,26 @@ const PATHS = {
   ),
   replace: <path d="M2.5 5.5h8.25M8.5 3l2.5 2.5L8.5 8M13.5 10.5H5.25M7.5 8 5 10.5 7.5 13" />,
   restore: <path d="M5.25 3.75 2.5 6.5l2.75 2.75M2.75 6.5h6.5a3.75 3.75 0 0 1 0 7.5H6.5" />,
+  history: (
+    <>
+      <path d="M2.9 9.4A5.25 5.25 0 1 0 3.6 5" />
+      <path d="M2.75 2.25V5.1H5.6M8 5.25V8l2 1.5" />
+    </>
+  ),
+  gauge: (
+    <>
+      <path d="M2.4 12.25a6 6 0 1 1 11.2 0" />
+      <path d="M8 10.25 10.6 6.4M4.6 5.6l.7.6M8 3.75v.9M11.4 5.6l-.7.6" />
+      <circle cx="8" cy="10.75" r=".9" fill="currentColor" stroke="none" />
+    </>
+  ),
+  sliders: (
+    <>
+      <path d="M2.5 4.75h6M11.75 4.75h1.75M2.5 11.25h1.75M7.5 11.25h6" />
+      <circle cx="10.1" cy="4.75" r="1.6" />
+      <circle cx="5.9" cy="11.25" r="1.6" />
+    </>
+  ),
 } satisfies Record<string, ReactNode>;
 
 export type IconName = keyof typeof PATHS;
