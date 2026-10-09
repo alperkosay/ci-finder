@@ -1,6 +1,6 @@
 {
   "name": "@thefinder/next",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "theFinder for Next.js: App Router API route, uploads route and standalone-aware project paths for a drop-in file manager.",
   "license": "MIT",
   "author": "Alper Koşay",
@@ -43,7 +43,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@thefinder/core": "0.3.1"
+    "@thefinder/core": "0.4.0"
   },
   "peerDependencies": {
     "next": ">=14"
