@@ -3,8 +3,8 @@
 //   node site/build.mjs           build
 //   node site/build.mjs --serve   build and serve on http://localhost:4173
 //
-// The docs pages are generated from README.md and docs/api/*.md, so the markdown stays the
-// single source. The live demo bundles the real @ci-finder/core and @ci-finder/react packages,
+// The docs pages are generated from README.md / README.tr.md and docs/api/**/*.md, so the markdown
+// stays the single source. English docs go to /docs/, Turkish ones to /docs/tr/. The live demo bundles the real @ci-finder/core and @ci-finder/react packages,
 // so run `npm run build` first.
 
 import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
@@ -31,25 +31,87 @@ const { tokenize, toLines, escapeHtml } = await import(`data:text/javascript;bas
 // ---------------------------------------------------------------------------------------------
 // Docs: which markdown file becomes which page
 
-const pages = [
-  { file: "README.md", out: "index.html", group: "Kılavuz", title: "Başlarken", from: "## Kurulum" },
-  { file: "docs/api/README.md", out: "api.html", group: "API referansı", title: "Genel bakış" },
-  { file: "docs/api/protocol.md", out: "protocol.html", group: "API referansı", title: "HTTP protokolü" },
-  { file: "docs/api/core.md", out: "core.html", group: "API referansı", title: "core" },
-  { file: "docs/api/client.md", out: "client.html", group: "API referansı", title: "core/client" },
-  { file: "docs/api/next.md", out: "next.html", group: "API referansı", title: "next" },
-  { file: "docs/api/react.md", out: "react.html", group: "API referansı", title: "react" },
-  { file: "docs/api/ckeditor.md", out: "ckeditor.html", group: "API referansı", title: "ckeditor" },
+const LANGS = [
+  {
+    code: "en",
+    dir: "docs",
+    readme: "README.md",
+    api: "docs/api",
+    from: "## Installation",
+    t: {
+      guide: "Guide",
+      api: "API reference",
+      start: "Getting started",
+      overview: "Overview",
+      protocol: "HTTP protocol",
+      prev: "Previous",
+      next: "Next",
+      generated: (link) => `This page is generated from ${link}.`,
+      docs: "ciFinder docs",
+      anchor: "Link to this heading",
+      home: "ciFinder home",
+      navOverview: "Overview",
+      navCompare: "Compared to elFinder",
+      navDocs: "Docs",
+      navDemo: "Open demo",
+      docsNav: "Documentation",
+      switchTo: "Türkçe",
+    },
+  },
+  {
+    code: "tr",
+    dir: "docs/tr",
+    readme: "README.tr.md",
+    api: "docs/api/tr",
+    from: "## Kurulum",
+    t: {
+      guide: "Kılavuz",
+      api: "API referansı",
+      start: "Başlarken",
+      overview: "Genel bakış",
+      protocol: "HTTP protokolü",
+      prev: "Önceki",
+      next: "Sonraki",
+      generated: (link) => `Bu sayfa ${link} dosyasından üretildi.`,
+      docs: "ciFinder belgeleri",
+      anchor: "Bu başlığa bağlantı",
+      home: "ciFinder ana sayfa",
+      navOverview: "Genel bakış",
+      navCompare: "elFinder ile karşılaştırma",
+      navDocs: "Belgeler",
+      navDemo: "Demoyu aç",
+      docsNav: "Belgeler",
+      switchTo: "English",
+    },
+  },
 ];
+
+const pages = LANGS.flatMap((lang) => {
+  const { t } = lang;
+  const api = (name, title, code = false) => ({ file: `${lang.api}/${name}.md`, out: `${name === "README" ? "api" : name}.html`, group: t.api, title, code });
+  return [
+    { file: lang.readme, out: "index.html", group: t.guide, title: t.start, from: lang.from },
+    api("README", t.overview),
+    api("protocol", t.protocol),
+    api("core", "core", true),
+    api("client", "core/client", true),
+    api("next", "next", true),
+    api("react", "react", true),
+    api("ckeditor", "ckeditor", true),
+  ].map((page) => ({ ...page, lang }));
+});
 const pageOf = new Map(pages.map((p) => [p.file, p]));
 
+/** Href of `to` as seen from the page `from`; the two may be in different languages. */
+const pageHref = (from, to) => (from.lang === to.lang ? to.out : posix.join(posix.relative(from.lang.dir, to.lang.dir), to.out));
+
 /** Rewrites a markdown link: other docs become site pages, everything else in the repo goes to GitHub. */
-function resolveHref(href, fromFile) {
+function resolveHref(href, from) {
   if (/^([a-z]+:|#)/i.test(href)) return href;
   const [path, hash] = href.split("#");
-  const target = posix.normalize(posix.join(posix.dirname(fromFile), path));
+  const target = posix.normalize(posix.join(posix.dirname(from.file), path));
   const page = pageOf.get(target);
-  if (page) return page.out + (hash ? `#${hash}` : "");
+  if (page) return pageHref(from, page) + (hash ? `#${hash}` : "");
   const kind = extname(target) ? "blob" : "tree";
   return `${GITHUB}/${kind}/main/${target}${hash ? `#${hash}` : ""}`;
 }
@@ -81,9 +143,9 @@ function inline(text, ctx) {
   let s = text.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_, _t, code) => park(`<code>${escapeHtml(code.trim())}</code>`));
   s = s.replace(/\\\|/g, "|");
   s = escapeHtml(s);
-  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, alt, src) => park(`<img src="${resolveHref(src, ctx.file)}" alt="${alt}" loading="lazy">`));
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, (_, alt, src) => park(`<img src="${resolveHref(src, ctx.page)}" alt="${alt}" loading="lazy">`));
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, label, href) => {
-    const url = resolveHref(href.replace(/&amp;/g, "&"), ctx.file);
+    const url = resolveHref(href.replace(/&amp;/g, "&"), ctx.page);
     const external = /^https?:/.test(url) ? ' rel="noopener"' : "";
     return park(`<a href="${escapeHtml(url)}"${external}>`) + label + park("</a>");
   });
@@ -158,7 +220,7 @@ function blocks(src, ctx) {
         const id = ctx.slug(plainText(text));
         if (level === 2) ctx.toc.push({ id, text: plainText(text) });
         html.push(
-          `<h${level} id="${escapeHtml(id)}">${inline(text, ctx)}<a class="anchor" href="#${escapeHtml(id)}" aria-label="Bu başlığa bağlantı">#</a></h${level}>`,
+          `<h${level} id="${escapeHtml(id)}">${inline(text, ctx)}<a class="anchor" href="#${escapeHtml(id)}" aria-label="${ctx.page.lang.t.anchor}">#</a></h${level}>`,
         );
       }
       i++;
@@ -242,8 +304,8 @@ function blocks(src, ctx) {
   return html.join("\n");
 }
 
-function renderMarkdown(src, file) {
-  const ctx = { file, slug: slugger(), toc: [], title: undefined };
+function renderMarkdown(src, page) {
+  const ctx = { page, slug: slugger(), toc: [], title: undefined };
   const html = blocks(src.replace(/\r\n/g, "\n"), ctx);
   return { html, toc: ctx.toc, title: ctx.title };
 }
@@ -251,27 +313,32 @@ function renderMarkdown(src, file) {
 // ---------------------------------------------------------------------------------------------
 // Docs template
 
-const nav = (prefix, current) => `<nav class="localnav" aria-label="Site">
+const nav = (prefix, page, twin) => {
+  const { t } = page.lang;
+  return `<nav class="localnav" aria-label="Site">
       <div class="localnav-in">
-        <a class="wordmark" href="${prefix}" aria-label="ciFinder ana sayfa"><span>ci</span>Finder</a>
+        <a class="wordmark" href="${prefix}" aria-label="${t.home}"><span>ci</span>Finder</a>
         <div class="localnav-links">
-          <a href="${prefix}#genel-bakis">Genel bakış</a>
-          <a href="${prefix}#elfinder">elFinder ile karşılaştırma</a>
-          <a href="${prefix}docs/"${current === "docs" ? ' aria-current="page"' : ""}>Belgeler</a>
+          <a href="${prefix}#genel-bakis">${t.navOverview}</a>
+          <a href="${prefix}#elfinder">${t.navCompare}</a>
+          <a href="${prefix}${page.lang.dir}/" aria-current="page">${t.navDocs}</a>
           <a href="${GITHUB}">GitHub</a>
-          <a class="pill pill-sm" href="${prefix}demo/">Demoyu aç</a>
+          <a class="lang" href="${pageHref(page, twin)}" hreflang="${twin.lang.code}" lang="${twin.lang.code}">${t.switchTo}</a>
+          <a class="pill pill-sm" href="${prefix}demo/">${t.navDemo}</a>
         </div>
       </div>
     </nav>`;
+};
 
 function sidebar(current, toc) {
-  const groups = [...new Set(pages.map((p) => p.group))];
+  const own = pages.filter((p) => p.lang === current.lang);
+  const groups = [...new Set(own.map((p) => p.group))];
   return groups
     .map((group) => {
-      const items = pages
+      const items = own
         .filter((p) => p.group === group)
         .map((p) => {
-          const label = p.group === "API referansı" && p.out !== "api.html" && p.out !== "protocol.html" ? `<code>${p.title}</code>` : p.title;
+          const label = p.code ? `<code>${p.title}</code>` : p.title;
           const here = p === current;
           const sub =
             here && toc.length ? `<ul class="toc">${toc.map((t) => `<li><a href="#${escapeHtml(t.id)}">${escapeHtml(t.text)}</a></li>`).join("")}</ul>` : "";
@@ -283,37 +350,43 @@ function sidebar(current, toc) {
     .join("");
 }
 
-function docPage(page, { html, toc, title }, index) {
-  const prev = pages[index - 1];
-  const next = pages[index + 1];
+function docPage(page, { html, toc, title }) {
+  const { lang } = page;
+  const own = pages.filter((p) => p.lang === lang);
+  const index = own.indexOf(page);
+  const prev = own[index - 1];
+  const next = own[index + 1];
+  const twin = pages.find((p) => p.lang !== lang && p.out === page.out);
+  const root = posix.relative(lang.dir, ".") + "/";
   const plainTitle = plainText(title ?? page.title);
   return `<!doctype html>
-<html lang="tr">
+<html lang="${lang.code}">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(plainTitle)} · ciFinder belgeleri</title>
-    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css" />
+    <title>${escapeHtml(plainTitle)} · ${lang.t.docs}</title>
+    <link rel="alternate" hreflang="${twin.lang.code}" href="${pageHref(page, twin)}" />
+    <link rel="icon" href="${root}icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="${root}assets/site.css" />
   </head>
   <body>
-    ${nav("../", "docs")}
+    ${nav(root, page, twin)}
     <div class="docs">
       <aside class="docs-side">
         <button type="button" class="docs-menu" aria-expanded="false">${escapeHtml(page.title)}</button>
-        <nav aria-label="Belgeler">${sidebar(page, toc)}</nav>
+        <nav aria-label="${lang.t.docsNav}">${sidebar(page, toc)}</nav>
       </aside>
       <main class="doc">
         <p class="doc-kicker">${page.group}</p>
         ${html}
         <div class="doc-pager">
-          ${prev ? `<a class="prev" href="${prev.out}"><span>Önceki</span>${escapeHtml(prev.title)}</a>` : ""}
-          ${next ? `<a class="next" href="${next.out}"><span>Sonraki</span>${escapeHtml(next.title)}</a>` : ""}
+          ${prev ? `<a class="prev" href="${prev.out}"><span>${lang.t.prev}</span>${escapeHtml(prev.title)}</a>` : ""}
+          ${next ? `<a class="next" href="${next.out}"><span>${lang.t.next}</span>${escapeHtml(next.title)}</a>` : ""}
         </div>
-        <p class="doc-edit">Bu sayfa <a href="${GITHUB}/blob/main/${page.file}">${page.file}</a> dosyasından üretildi.</p>
+        <p class="doc-edit">${lang.t.generated(`<a href="${GITHUB}/blob/main/${page.file}">${page.file}</a>`)}</p>
       </main>
     </div>
-    <script src="../assets/site.js" defer></script>
+    <script src="${root}assets/site.js" defer></script>
   </body>
 </html>
 `;
@@ -325,7 +398,7 @@ function docPage(page, { html, toc, title }, index) {
 async function build() {
   const started = Date.now();
   await rm(out, { recursive: true, force: true });
-  await mkdir(join(out, "docs"), { recursive: true });
+  for (const lang of LANGS) await mkdir(join(out, lang.dir), { recursive: true });
 
   await cp(join(site, "pages"), out, { recursive: true });
   await cp(join(site, "assets"), join(out, "assets"), { recursive: true });
@@ -333,11 +406,16 @@ async function build() {
   await cp(join(repo, "examples/next/app/icon.svg"), join(out, "icon.svg"));
   await writeFile(join(out, ".nojekyll"), "");
 
-  for (const [index, page] of pages.entries()) {
-    let src = await readFile(join(repo, page.file), "utf8");
-    if (page.from) src = `# ${page.title}\n\n${src.slice(src.indexOf(page.from))}`;
-    const doc = renderMarkdown(src, page.file);
-    await writeFile(join(out, "docs", page.out), docPage(page, doc, index));
+  for (const page of pages) {
+    // The "🌐 English · Türkçe" line is for GitHub readers; the site has its own language switch.
+    let src = (await readFile(join(repo, page.file), "utf8")).replace(/^🌐 .*\r?\n/mu, "");
+    if (page.from) {
+      const start = src.indexOf(page.from);
+      if (start < 0) throw new Error(`${page.file}: "${page.from}" not found`);
+      src = `# ${page.title}\n\n${src.slice(start)}`;
+    }
+    const doc = renderMarkdown(src, page);
+    await writeFile(join(out, page.lang.dir, page.out), docPage(page, doc));
   }
 
   await mkdir(join(out, "demo"), { recursive: true });

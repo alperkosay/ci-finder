@@ -183,6 +183,15 @@ pre {
 .localnav-links a[aria-current="page"] {
   color: var(--text-3);
 }
+.localnav-links a.lang {
+  padding: 3px 9px;
+  border: 1px solid currentColor;
+  border-radius: 980px;
+  opacity: 0.65;
+}
+.localnav-links a.lang:hover {
+  opacity: 1;
+}
 
 .wordmark {
   color: var(--text);
@@ -1378,7 +1387,7 @@ kbd {
 }
 
 @media (max-width: 834px) {
-  .localnav-links a:not(.pill) {
+  .localnav-links a:not(.pill, .lang) {
     display: none;
   }
   .section {

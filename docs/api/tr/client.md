@@ -1,5 +1,7 @@
 # `@ci-finder/core/client`
 
+🌐 [English](../client.md) · **Türkçe**
+
 [HTTP protokolünü](protocol.md) saran, bağımlılıksız API istemcisi. Arayüz bunu kullanır; tarayıcıda, Node.js'te, Bun'da ya da başka bir framework'te (Vue, Svelte, vanilla JS) kendi arayüzünüzü yazmak için de kullanılabilir. `createClient`, `CiFinderClient`, `ApiError` ve `encodeId` `@ci-finder/react`'tan da alınabilir.
 
 ```ts

@@ -1,6 +1,8 @@
 # ciFinder API referansı
 
-Bu klasör her paketin dışa açtığı API'yi tek tek anlatır. Kurulum ve genel kullanım için kök [README](../../README.md)'ye bakın.
+🌐 [English](../README.md) · **Türkçe**
+
+Bu klasör her paketin dışa açtığı API'yi tek tek anlatır. Kurulum ve genel kullanım için kök [README](../../../README.tr.md)'ye bakın.
 
 | Belge | İçerik |
 |---|---|

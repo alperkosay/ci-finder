@@ -1,5 +1,7 @@
 # HTTP protokolü
 
+🌐 [English](../protocol.md) · **Türkçe**
+
 ciFinder tek bir endpoint üzerinden RPC tarzında çalışır (örneğin `/api/files`). Arayüz bu protokolü [`CiFinderClient`](client.md) ile kullanır. Kendi istemcinizi yazacaksanız ya da API'yi başka bir dilden çağıracaksanız bu belge yeterlidir.
 
 ## İstek biçimi

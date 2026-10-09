@@ -1,7 +1,7 @@
 {
   "name": "@ci-finder/next",
   "version": "0.1.0",
-  "description": "ciFinder for Next.js: API route, uploads serving route and standalone-aware project paths.",
+  "description": "ciFinder for Next.js: App Router API route, uploads route and standalone-aware project paths for a drop-in file manager.",
   "license": "MIT",
   "author": "Alper Koşay",
   "repository": {
@@ -9,14 +9,18 @@
     "url": "git+https://github.com/alperkosay/ci-finder.git",
     "directory": "packages/next"
   },
-  "homepage": "https://github.com/alperkosay/ci-finder#readme",
+  "homepage": "https://alperkosay.github.io/ci-finder/docs/next.html",
   "bugs": "https://github.com/alperkosay/ci-finder/issues",
   "keywords": [
     "file-manager",
+    "file-browser",
     "nextjs",
+    "next",
+    "app-router",
     "standalone",
     "uploads",
-    "elfinder"
+    "elfinder",
+    "s3"
   ],
   "type": "module",
   "sideEffects": false,

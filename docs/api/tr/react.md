@@ -1,5 +1,7 @@
 # `@ci-finder/react`
 
+🌐 [English](../react.md) · **Türkçe**
+
 Dosya yöneticisi arayüzü. Tek bağımlılığı `react` ve `react-dom`'dur (≥ 18, peer); stiller saf CSS'tir.
 
 ```tsx
@@ -221,7 +223,7 @@ Store metotları (`open`, `select`, `upload`, `paste`, `remove`…) arayüzün k
 |---|---|
 | `locales` | `{ en, tr }`: hazır mesaj paketleri |
 | `Messages`, `MessageKey` | Mesaj tipi ve anahtarları |
-| `createTranslator(locale, overrides?)` | `(key, vars?) => string`. `{ad}` gibi yer tutucuları `vars` ile doldurur. |
+| `createTranslator(locale, overrides?)` | `(key, vars?) => string`. `{name}` gibi yer tutucuları `vars` ile doldurur. |
 
 Yeni bir dil eklemek için tüm anahtarları çevirip verin; eksik kalanlar İngilizce görünür:
 

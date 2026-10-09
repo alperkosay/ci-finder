@@ -1,5 +1,7 @@
 # `@ci-finder/ckeditor`
 
+🌐 [English](../ckeditor.md) · **Türkçe**
+
 CKEditor 5 ve CKEditor 4 için connector; CKFinder'ın yaptığı işi yapar:
 
 - araç çubuğuna dosya yöneticisi düğmesi ekler. Seçilen görseller görsel olarak, diğer dosyalar bağlantı olarak eklenir;

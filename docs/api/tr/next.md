@@ -1,6 +1,8 @@
 # `@ci-finder/next`
 
-Next.js App Router entegrasyonu. `output: "standalone"` dahil her modda çalışır. Kurulum adımları için kök [README › Next.js](../../README.md#nextjs) bölümüne bakın.
+🌐 [English](../next.md) · **Türkçe**
+
+Next.js App Router entegrasyonu. `output: "standalone"` dahil her modda çalışır. Kurulum adımları için kök [README › Next.js](../../../README.tr.md#nextjs) bölümüne bakın.
 
 ## Yeniden dışa aktarımlar
 
@@ -77,5 +79,5 @@ Range (video ileri sarma), ETag/`304`, doğru `Content-Type` ve `?download` dest
 ## Standalone kontrol listesi
 
 - `next.config` içinde `output: "standalone"`. Monorepo'daysanız `outputFileTracingRoot` da ekleyin.
-- `.next/static` ve `public` klasörlerini standalone çıktısına kopyalayın. Örnek: [examples/next/scripts/copy-standalone-assets.mjs](../../examples/next/scripts/copy-standalone-assets.mjs).
+- `.next/static` ve `public` klasörlerini standalone çıktısına kopyalayın. Örnek: [examples/next/scripts/copy-standalone-assets.mjs](../../../examples/next/scripts/copy-standalone-assets.mjs).
 - Küçük resimler için sharp'ın yerel kütüphanelerini pakete ekleyin: `outputFileTracingIncludes: { "/api/files": ["./node_modules/@img/**/*"] }`.

@@ -1,7 +1,7 @@
 {
   "name": "@ci-finder/core",
   "version": "0.1.0",
-  "description": "ciFinder backend: framework-agnostic file manager engine with local and S3 storage.",
+  "description": "ciFinder server engine: a framework-agnostic file manager backend with local disk and S3 storage, chunked uploads, zip, trash and version history. Zero dependencies.",
   "license": "MIT",
   "author": "Alper Koşay",
   "repository": {
@@ -9,17 +9,29 @@
     "url": "git+https://github.com/alperkosay/ci-finder.git",
     "directory": "packages/core"
   },
-  "homepage": "https://github.com/alperkosay/ci-finder#readme",
+  "homepage": "https://alperkosay.github.io/ci-finder/docs/core.html",
   "bugs": "https://github.com/alperkosay/ci-finder/issues",
   "keywords": [
     "file-manager",
+    "file-browser",
     "elfinder",
+    "ckfinder",
     "s3",
+    "r2",
+    "minio",
     "upload",
+    "chunked-upload",
     "zip",
     "thumbnails",
+    "trash",
+    "version-history",
+    "express",
+    "fastify",
+    "koa",
+    "hono",
     "bun",
-    "nodejs"
+    "nodejs",
+    "edge"
   ],
   "type": "module",
   "sideEffects": false,

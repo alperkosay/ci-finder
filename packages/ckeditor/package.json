@@ -1,7 +1,7 @@
 {
   "name": "@ci-finder/ckeditor",
   "version": "0.1.0",
-  "description": "ciFinder connector for CKEditor 5: browse the file manager from the toolbar and upload pasted images.",
+  "description": "ciFinder connector for CKEditor 5 and CKEditor 4: a CKFinder replacement to browse files from the toolbar and upload pasted images.",
   "license": "MIT",
   "author": "Alper Koşay",
   "repository": {
@@ -9,14 +9,18 @@
     "url": "git+https://github.com/alperkosay/ci-finder.git",
     "directory": "packages/ckeditor"
   },
-  "homepage": "https://github.com/alperkosay/ci-finder#readme",
+  "homepage": "https://alperkosay.github.io/ci-finder/docs/ckeditor.html",
   "bugs": "https://github.com/alperkosay/ci-finder/issues",
   "keywords": [
     "ckeditor",
     "ckeditor5",
+    "ckeditor4",
     "ckfinder",
+    "ckfinder-alternative",
     "file-manager",
-    "image-upload"
+    "file-browser",
+    "image-upload",
+    "rich-text-editor"
   ],
   "type": "module",
   "sideEffects": false,

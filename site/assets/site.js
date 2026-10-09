@@ -55,14 +55,18 @@ for (const film of document.querySelectorAll("[data-film]")) {
 }
 
 // Copy buttons: the install command and every code block in the docs.
+const label =
+  document.documentElement.lang === "en"
+    ? { copy: "Copy", copied: "Copied", failed: "Copy failed" }
+    : { copy: "Kopyala", copied: "Kopyalandı", failed: "Kopyalanamadı" };
 async function copy(button, text) {
   try {
     await navigator.clipboard.writeText(text);
-    const label = button.textContent;
-    button.textContent = "Kopyalandı";
-    setTimeout(() => (button.textContent = label), 1400);
+    const before = button.textContent;
+    button.textContent = label.copied;
+    setTimeout(() => (button.textContent = before), 1400);
   } catch {
-    button.textContent = "Kopyalanamadı";
+    button.textContent = label.failed;
   }
 }
 for (const button of document.querySelectorAll("[data-copy]")) {
@@ -72,7 +76,7 @@ for (const pre of document.querySelectorAll(".doc pre")) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "copy";
-  button.textContent = "Kopyala";
+  button.textContent = label.copy;
   button.addEventListener("click", () => copy(button, pre.querySelector("code").textContent));
   pre.append(button);
 }

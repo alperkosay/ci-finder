@@ -1,7 +1,7 @@
 {
   "name": "@ci-finder/react",
   "version": "0.1.0",
-  "description": "ciFinder React UI: a fast, keyboard-friendly file manager written with native CSS.",
+  "description": "ciFinder React UI: a fast, keyboard-friendly file manager and file picker, written in plain CSS. Code, Markdown and image editors built in.",
   "license": "MIT",
   "author": "Alper Koşay",
   "repository": {
@@ -9,15 +9,22 @@
     "url": "git+https://github.com/alperkosay/ci-finder.git",
     "directory": "packages/react"
   },
-  "homepage": "https://github.com/alperkosay/ci-finder#readme",
+  "homepage": "https://alperkosay.github.io/ci-finder/",
   "bugs": "https://github.com/alperkosay/ci-finder/issues",
   "keywords": [
     "file-manager",
-    "react",
-    "elfinder",
     "file-browser",
+    "file-picker",
+    "file-explorer",
+    "react",
+    "react-component",
+    "elfinder",
+    "ckfinder",
+    "finder",
+    "upload",
     "code-editor",
-    "image-editor"
+    "image-editor",
+    "media-library"
   ],
   "type": "module",
   "sideEffects": [

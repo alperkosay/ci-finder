@@ -1,5 +1,7 @@
 # `@ci-finder/core`
 
+🌐 [English](../core.md) · **Türkçe**
+
 Sunucu motoru. Çalışma zamanı bağımlılığı yoktur; Web standardı `Request → Response` imzasıyla Node.js (≥ 18.17), Bun, Deno ve edge ortamlarında çalışır.
 
 ## Giriş noktaları

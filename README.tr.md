@@ -1,17 +1,55 @@
-# ciFinder
+<div align="center">
+
+<a href="https://alperkosay.github.io/ci-finder/"><img src="examples/next/app/icon.svg" width="84" height="84" alt="ciFinder logo" /></a>
+
+<h1>ciFinder</h1>
+
+<p><strong>Web için bir Finder.</strong><br />
+React için hızlı ve klavye dostu bir dosya yöneticisi. Saf CSS, bağımlılıksız bir çekirdek ve tek bir API ucu.</p>
+
+<p>
+  <a href="https://www.npmjs.com/package/@ci-finder/react"><img alt="npm version" src="https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
+  <a href="https://github.com/alperkosay/ci-finder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/ci-finder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4c9a6a?style=flat-square&labelColor=33302b" /></a>
+  <a href="packages/core/package.json"><img alt="Çalışma zamanı bağımlılığı yok" src="https://img.shields.io/badge/core%20dependencies-0-4c9a6a?style=flat-square&labelColor=33302b" /></a>
+  <img alt="TypeScript ile yazıldı" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white&labelColor=33302b" />
+  <a href="https://alperkosay.github.io/ci-finder/demo/"><img alt="Canlı demo" src="https://img.shields.io/badge/demo-canl%C4%B1-d6a03d?style=flat-square&labelColor=33302b" /></a>
+</p>
+
+<p>
+  <img alt="React 18 and 19" src="https://img.shields.io/badge/React-18%20%7C%2019-61dafb?style=flat-square&logo=react&logoColor=61dafb&labelColor=20232a" />
+  <img alt="Next.js 14+, standalone" src="https://img.shields.io/badge/Next.js-14%2B%20%C2%B7%20standalone-000000?style=flat-square&logo=nextdotjs&logoColor=white" />
+  <img alt="Node.js 18.17+" src="https://img.shields.io/badge/Node.js-%E2%89%A518.17-5fa04e?style=flat-square&logo=nodedotjs&logoColor=white" />
+  <img alt="Bun" src="https://img.shields.io/badge/Bun-supported-fbf0df?style=flat-square&logo=bun&logoColor=fbf0df&labelColor=14151a" />
+  <img alt="Express, Fastify, Koa, Hono" src="https://img.shields.io/badge/Express%20%C2%B7%20Fastify%20%C2%B7%20Koa%20%C2%B7%20Hono-adapters-555555?style=flat-square" />
+  <img alt="S3, R2, MinIO" src="https://img.shields.io/badge/S3%20%C2%B7%20R2%20%C2%B7%20MinIO-no%20AWS%20SDK-f38020?style=flat-square&logo=cloudflare&logoColor=white" />
+  <img alt="CKEditor 4 and 5" src="https://img.shields.io/badge/CKEditor-4%20%26%205-0287d0?style=flat-square" />
+</p>
+
+<p>
+  <a href="https://alperkosay.github.io/ci-finder/demo/"><b>Canlı demo</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://alperkosay.github.io/ci-finder/docs/tr/"><b>Belgeler</b></a>
+  &nbsp;·&nbsp;
+  <a href="docs/api/tr/README.md"><b>API referansı</b></a>
+  &nbsp;·&nbsp;
+  <a href="README.md">English</a>
+</p>
+
+</div>
 
 ![ciFinder](docs/media/cifinder-hero.png)
 
 React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüphanesine bağlı değil. Backend Web standardı `Request → Response` üzerine kurulu; Next.js (standalone dahil), Node.js, Bun, Express, Fastify, Koa ve Hono ile çalışır. Dosyalar yerel diskte, S3'te ya da ikisinde birden tutulabilir.
 
-| Paket | İçerik |
-|---|---|
-| `@ci-finder/core` | Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok. |
-| `@ci-finder/next` | Next.js route'ları ve standalone uyumlu proje kökü tespiti. |
-| `@ci-finder/react` | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
-| `@ci-finder/ckeditor` | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
+| Paket | Sürüm | İçerik |
+|---|---|---|
+| [`@ci-finder/core`](packages/core) | [![npm](https://img.shields.io/npm/v/@ci-finder/core?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/core) | Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok. |
+| [`@ci-finder/next`](packages/next) | [![npm](https://img.shields.io/npm/v/@ci-finder/next?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/next) | Next.js route'ları ve standalone uyumlu proje kökü tespiti. |
+| [`@ci-finder/react`](packages/react) | [![npm](https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/react) | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
+| [`@ci-finder/ckeditor`](packages/ckeditor) | [![npm](https://img.shields.io/npm/v/@ci-finder/ckeditor?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/ckeditor) | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
-Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/README.md). Canlı demo, belgeler ve elFinder karşılaştırması: [alperkosay.github.io/ci-finder](https://alperkosay.github.io/ci-finder/).
+Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/tr/README.md). Canlı demo, belgeler ve elFinder karşılaştırması: [alperkosay.github.io/ci-finder](https://alperkosay.github.io/ci-finder/).
 
 ![ciFinder özellikleri](docs/media/cifinder-features.png)
 
@@ -409,7 +447,7 @@ npm run site:dev   # GitHub Pages sitesini derler ve sunar (http://localhost:417
 
 Örnekler: [examples/next](examples/next), [examples/bun](examples/bun), [examples/express](examples/express).
 
-Site kaynağı [site/](site) klasöründedir. Belgeler sayfaları `README.md` ve `docs/api/*.md` dosyalarından üretilir; canlı demo gerçek `@ci-finder/core` motorunu tarayıcıda, bellek içi bir sürücüyle çalıştırır. `main`'e gelen her push'ta [Pages](.github/workflows/pages.yml) iş akışı siteyi yayımlar.
+Site kaynağı [site/](site) klasöründedir. Belgeler sayfaları `README.md`, `README.tr.md` ve `docs/api/**/*.md` dosyalarından üretilir; canlı demo gerçek `@ci-finder/core` motorunu tarayıcıda, bellek içi bir sürücüyle çalıştırır. `main`'e gelen her push'ta [Pages](.github/workflows/pages.yml) iş akışı siteyi yayımlar.
 
 ## Sürüm ve yayın
 
@@ -425,3 +463,7 @@ Gereksinimler:
 - Repo ayarlarında *Settings › Actions › General › Allow GitHub Actions to create and approve pull requests* açık olmalı.
 
 Elle yayın da mümkündür: `npm run version-packages`, ardından `npm login` ve `npm run release`.
+
+## Lisans
+
+[MIT](LICENSE) © Alper Koşay
