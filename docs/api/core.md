@@ -54,11 +54,11 @@ const finder = createCiFinder({
 | `driver` | `StorageDriver` | — | Zorunlu |
 | `url` | `string` | — | Dosyaların herkese açık temel adresi (`"/uploads"`, `"https://cdn.example.com"`). Verilirse her dosyada `url` alanı olur; arayüz önizlemede ve seçicide bunu kullanır. |
 | `readOnly` | `boolean` | `false` | Tüm yazma işlemlerini `READ_ONLY` ile reddeder. Çöp kutusu ve sürüm geçmişi de kapanır. |
-| `showHidden` | `boolean` | `false` | Nokta ile başlayan dosyaları gösterir. İç klasörler (`.cf-*`) yine gizli kalır. |
+| `showHidden` | `boolean` | `false` | Nokta ile başlayan dosyaları gösterir. Kapalıyken nokta ile başlayan isimler (`.htaccess`, `.env`...) oluşturulamaz, yüklenemez ve zip'ten çıkarılmaz. İç klasörler (`.cf-*`) her durumda gizli kalır. |
 | `allowExtensions` | `string[]` | — | Yalnızca bu uzantılar (küçük harf, noktasız). Boş ya da yoksa hepsi. |
 | `denyExtensions` | `string[]` | — | Yükleme, oluşturma, yeniden adlandırma, yapıştırma ve arşiv açmada reddedilen uzantılar |
 | `maxUploadSize` | `number` | — | Tek dosya için bayt sınırı (yükleme ve ikili `put`) |
-| `permission` | `(action, path) => boolean` | — | `action`: `"read" \| "write" \| "delete"`. `false` döndürmek o yoldaki işlemi `FORBIDDEN` ile reddeder ve arayüzdeki `read`/`write` bayraklarını belirler. |
+| `permission` | `(action, path) => boolean` | — | `action`: `"read" \| "write" \| "delete"`. `false` döndürmek o yoldaki işlemi `FORBIDDEN` ile reddeder ve arayüzdeki `read`/`write` bayraklarını belirler. Klasör işlemleri içeriğe de uygulanır: içinde silinemeyen bir öğe olan klasör silinemez, okunamayan alt klasörler arama, boyut, zip indirme ve arşive girmez. |
 | `trash` | `boolean \| { retentionDays? }` | `true`, 30 gün | `false`: silinen öğeler doğrudan silinir |
 | `versions` | `boolean \| { maxPerFile?, retentionDays? }` | `true`, 20 sürüm, süresiz | `retentionDays: 0` süresiz saklar. `false`: sürüm alınmaz. |
 

@@ -30,9 +30,13 @@ export function isTrashPath(path: VolumePath): boolean {
   return path === TRASH_ROOT || path.startsWith(TRASH_ROOT + "/");
 }
 
-/** Internal folders (trash, thumbnail cache, version history) that are never reachable through normal commands. */
+/**
+ * Internal folders (trash, thumbnail cache, version history) that are never reachable through normal
+ * commands. Case-insensitive: on Windows and macOS "/.CF-TRASH" is the same folder.
+ */
 export function isReservedPath(path: VolumePath): boolean {
-  return [TRASH_ROOT, "/.cf-thumbs", "/.cf-versions"].some((root) => path === root || path.startsWith(root + "/"));
+  const p = path.toLowerCase();
+  return [TRASH_ROOT, "/.cf-thumbs", "/.cf-versions"].some((root) => p === root || p.startsWith(root + "/"));
 }
 
 export const RESERVED_NAMES = new Set([".cf-trash", ".cf-thumbs", ".cf-versions"]);
@@ -61,7 +65,7 @@ async function readMeta(vol: Volume, tid: string): Promise<TrashMeta | null> {
     const raw = JSON.parse(new TextDecoder().decode(await readAll(await vol.driver.read(metaPath(tid)), 64 * 1024))) as Partial<TrashMeta>;
     if (typeof raw.name !== "string" || typeof raw.originalPath !== "string" || typeof raw.deletedAt !== "number") return null;
     const originalPath = normalizePath(raw.originalPath);
-    if (originalPath === "/" || isTrashPath(originalPath)) return null;
+    if (originalPath === "/" || isReservedPath(originalPath)) return null;
     return { v: 1, name: raw.name, originalPath, deletedAt: raw.deletedAt, kind: raw.kind === "dir" ? "dir" : "file", size: Number(raw.size) || 0 };
   } catch {
     return null;

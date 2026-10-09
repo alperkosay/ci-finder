@@ -12,28 +12,32 @@ function safeUrl(url: string): string {
   return "#";
 }
 
+/** Strips the placeholders `inline` uses, so attribute values only ever hold escaped text. */
+const plain = (s: string) => s.replace(/\u0000\d+\u0000/g, "");
+
 function inline(text: string): string {
+  // Finished HTML (code spans, images, link tags) is parked behind \0n\0 placeholders, so the later
+  // passes (autolinks, emphasis) only ever see text and can never rewrite inside an attribute.
+  const parked: string[] = [];
+  const park = (html: string) => `\u0000${parked.push(html) - 1}\u0000`;
+  let s = text.replace(/\u0000/g, "");
   // Protect code spans first so their content is not formatted.
-  const codes: string[] = [];
-  let s = text.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_, _t, code: string) => {
-    codes.push(`<code>${escapeHtml(code.trim())}</code>`);
-    return `\u0000${codes.length - 1}\u0000`;
-  });
+  s = s.replace(/(`+)([\s\S]*?[^`])\1(?!`)/g, (_, _t, code: string) => park(`<code>${escapeHtml(code.trim())}</code>`));
   s = escapeHtml(s);
-  s = s.replace(
-    /!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g,
-    (_, alt, src, title) => `<img src="${safeUrl(src)}" alt="${alt}"${title ? ` title="${title}"` : ""} loading="lazy">`,
+  s = s.replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g, (_, alt: string, src: string, title?: string) =>
+    park(`<img src="${safeUrl(plain(src))}" alt="${plain(alt)}"${title ? ` title="${plain(title)}"` : ""} loading="lazy">`),
   );
   s = s.replace(
     /\[([^\]]+)\]\(([^)\s]+)(?:\s+&quot;([^&]*)&quot;)?\)/g,
-    (_, label, href, title) => `<a href="${safeUrl(href)}" target="_blank" rel="noopener noreferrer"${title ? ` title="${title}"` : ""}>${label}</a>`,
+    (_, label: string, href: string, title?: string) =>
+      park(`<a href="${safeUrl(plain(href))}" target="_blank" rel="noopener noreferrer"${title ? ` title="${plain(title)}"` : ""}>`) + label + park("</a>"),
   );
-  s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, (_, pre, url) => `${pre}<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`);
+  s = s.replace(/(^|[\s(])(https?:\/\/[^\s<)\u0000]+)/g, (_, pre, url) => pre + park(`<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`));
   s = s.replace(/\*\*([^*]+)\*\*|__([^_]+)__/g, (_, a, b) => `<strong>${a ?? b}</strong>`);
   s = s.replace(/(^|[^*\w])\*([^*\s][^*]*?)\*(?!\*)|(^|[^_\w])_([^_\s][^_]*?)_(?!\w)/g, (_, p1, a, p3, b) => `${p1 ?? p3 ?? ""}<em>${a ?? b}</em>`);
   s = s.replace(/~~([^~]+)~~/g, "<del>$1</del>");
   s = s.replace(/ {2,}$/gm, "<br>");
-  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => codes[Number(i)]!);
+  return s.replace(/\u0000(\d+)\u0000/g, (_, i) => parked[Number(i)]!);
 }
 
 function table(lines: string[]): string {

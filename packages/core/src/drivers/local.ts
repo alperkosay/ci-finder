@@ -22,7 +22,16 @@ const TEMP_SUFFIX = ".cf-tmp";
 const READ_CHUNK = 64 * 1024;
 
 const isInternal = (name: string) => name.endsWith(UPLOAD_SUFFIX) || name.endsWith(TEMP_SUFFIX);
-const random = () => Math.random().toString(36).slice(2, 10);
+/** Unguessable, so nobody can write into another user's upload in progress. */
+const random = () => Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => b.toString(16).padStart(2, "0")).join("");
+
+const WINDOWS = process.platform === "win32";
+/**
+ * Names Windows does not store as written: "a.txt:x" is an alternate data stream of "a.txt",
+ * "shell.php." and "shell.php " both open "shell.php", and device names open devices in any folder.
+ * Such names cannot exist on an NTFS volume, so refusing them hides nothing.
+ */
+const WINDOWS_UNSAFE = /[:<>"|?*]|[. ]$|^(con|prn|aux|nul|com[0-9¹²³]|lpt[0-9¹²³])(\..*)?$/i;
 
 export class LocalDriver implements StorageDriver {
   readonly kind = "local";
@@ -63,11 +72,18 @@ export class LocalDriver implements StorageDriver {
     } catch {
       return true; // does not exist yet; its parent is checked by the caller
     }
-    return real === realRoot || real.startsWith(realRoot + nodePath.sep);
+    if (real !== realRoot && !real.startsWith(realRoot + nodePath.sep)) return false;
+    // Windows 8.3 short names ("CF-TRA~1") reach folders under another name, e.g. the hidden
+    // ".cf-trash". realpath returns the long name: anything but the requested name is refused.
+    const rel = abs.slice(this.root.length);
+    return !(WINDOWS && /~\d/.test(rel) && real.slice(realRoot.length).toLowerCase() !== rel.toLowerCase());
   }
 
   private async safe(path: VolumePath): Promise<string> {
     await this.getRealRoot();
+    if (WINDOWS && path.split("/").some((segment) => WINDOWS_UNSAFE.test(segment))) {
+      throw new CiFinderError("FORBIDDEN", "This path is not valid on this system");
+    }
     const abs = this.abs(path);
     const parentOk = path === "/" || (await this.contained(nodePath.dirname(abs)));
     if (!parentOk || !(await this.contained(abs))) {
@@ -267,7 +283,7 @@ export class LocalDriver implements StorageDriver {
     let session = chunk.session;
     if (!session) {
       session = `.${nodePath.basename(dst)}.${random()}${UPLOAD_SUFFIX}`;
-    } else if (session.includes("/") || session.includes("\\") || !session.startsWith(".") || !session.endsWith(UPLOAD_SUFFIX)) {
+    } else if (session.includes("/") || session.includes("\\") || session.includes(":") || !session.startsWith(".") || !session.endsWith(UPLOAD_SUFFIX)) {
       throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
     }
     const tmp = nodePath.join(dir, session);
@@ -294,7 +310,7 @@ export class LocalDriver implements StorageDriver {
   }
 
   async abortUpload(path: VolumePath, session: string): Promise<void> {
-    if (session.includes("/") || session.includes("\\") || !session.endsWith(UPLOAD_SUFFIX)) return;
+    if (session.includes("/") || session.includes("\\") || session.includes(":") || !session.endsWith(UPLOAD_SUFFIX)) return;
     const dir = nodePath.dirname(await this.safe(path));
     await fs.rm(nodePath.join(dir, session), { force: true });
   }

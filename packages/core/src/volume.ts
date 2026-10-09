@@ -93,12 +93,17 @@ export class Volume {
 
   async list(path: VolumePath): Promise<DriverStat[]> {
     const items = await this.driver.list(path);
-    return items.filter((s) => !this.isHiddenName(s.name) && !(path === "/" && RESERVED_NAMES.has(s.name)));
+    return items.filter((s) => !this.isHiddenName(s.name) && !(path === "/" && RESERVED_NAMES.has(s.name.toLowerCase())));
   }
 
-  /** Rejects creating anything at a reserved location (trash, thumbnails, versions). */
+  /**
+   * Rejects creating anything at a reserved location (trash, thumbnails, versions), and dot files
+   * unless the volume shows them: an invisible ".htaccess" or ".user.ini" could reconfigure the web
+   * server that serves the folder.
+   */
   assertCreatable(path: VolumePath): void {
     if (isReservedPath(path)) throw new CiFinderError("INVALID_NAME", "This name is reserved");
+    if (this.isHiddenPath(path)) throw new CiFinderError("INVALID_NAME", "Names starting with a dot are not allowed");
   }
 
   /** Picks "name", "name (2)", "name (3)"... whichever does not exist yet in `dir`. */

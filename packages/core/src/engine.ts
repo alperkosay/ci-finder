@@ -1,14 +1,14 @@
 import { version } from "../package.json";
 import { CiFinderError, isCiFinderError } from "./errors";
 import { base64UrlDecode, base64UrlEncode, decodeId } from "./id";
-import { mimeOf } from "./mime";
+import { isActiveContent, mimeOf } from "./mime";
 import { basename, dirname, extname, isInside, joinPath, normalizePath } from "./path";
 import { contentDisposition, serveFile } from "./serve";
 import { mapLimit, readAll, toUint8 } from "./stream";
 import { collectStats } from "./stats";
-import type { CiFinderOptions, CommandContext, DriverStat, Entry, ImageFormat, ImageProcessor, InitResult, TransformResult, VolumePath } from "./types";
+import type { Action, CiFinderOptions, CommandContext, DriverStat, Entry, ImageFormat, ImageProcessor, InitResult, TransformResult, VolumePath } from "./types";
 import { THUMBS_ROOT, ThumbnailService } from "./thumbnails";
-import { emptyTrash, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash, trashOrigin } from "./trash";
+import { emptyTrash, isReservedPath, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash, trashOrigin } from "./trash";
 import {
   deleteVersions,
   forgetVersions,
@@ -284,12 +284,34 @@ export class CiFinder {
     return vol.entry(await vol.stat(path));
   }
 
-  /** Depth-first walk below `path` (excluding `path` itself), skipping hidden items. */
+  /**
+   * Depth-first walk below `path` (excluding `path` itself), skipping hidden items, and items the
+   * `permission` callback does not let the user read (so a readable folder never exposes an
+   * unreadable one inside it through search, size, download or archive).
+   */
   private async *walk(vol: Volume, path: VolumePath): AsyncGenerator<DriverStat> {
     for (const s of await vol.list(path)) {
+      if (!vol.can("read", s.path)) continue;
       yield s;
       if (s.kind === "dir") yield* this.walk(vol, s.path);
     }
+  }
+
+  /**
+   * Permissions are per path, so an action on a folder also acts on everything inside it: deleting,
+   * moving or copying "/docs" must not reach "/docs/locked" when the callback protects it.
+   * Free when the volume has no `permission` callback.
+   */
+  private async assertTree(vol: Volume, path: VolumePath, action: Action): Promise<void> {
+    if (!vol.options.permission) return;
+    const visit = async (dir: VolumePath): Promise<void> => {
+      for (const s of await vol.driver.list(dir)) {
+        if (isReservedPath(s.path)) continue;
+        vol.assertCan(action, s.path);
+        if (s.kind === "dir") await visit(s.path);
+      }
+    };
+    if ((await vol.stat(path)).kind === "dir") await visit(path);
   }
 
   // --- navigation ----------------------------------------------------------------------------
@@ -336,6 +358,7 @@ export class CiFinder {
     return {
       entries: await mapLimit(ids, 8, (id) => {
         const { vol, path } = this.target(id);
+        if (!vol.can("read", path)) vol.assertCan("read", dirname(path));
         return this.entryAt(vol, path);
       }),
     };
@@ -347,6 +370,7 @@ export class CiFinder {
     let dirs = 0;
     for (const id of list(p, "ids")) {
       const { vol, path } = this.target(id);
+      vol.assertCan("read", path);
       const stat = await vol.stat(path);
       if (stat.kind === "file") {
         size += stat.size;
@@ -374,8 +398,12 @@ export class CiFinder {
     const results: Entry[] = [];
     if (vol.driver.search) {
       const match = (name: string) => fold(name).includes(q);
+      const readable = (p: VolumePath): boolean => {
+        for (let cur = p; cur !== path && cur !== "/"; cur = dirname(cur)) if (!vol.can("read", cur)) return false;
+        return true;
+      };
       for (const s of await vol.driver.search(path, match, limit * 2)) {
-        if (!vol.isHiddenPath(s.path)) results.push(vol.entry(s));
+        if (!vol.isHiddenPath(s.path) && readable(s.path)) results.push(vol.entry(s));
         if (results.length >= limit) break;
       }
     } else {
@@ -426,6 +454,7 @@ export class CiFinder {
     vol.assertCreatable(target);
     const caseOnly = name.toLowerCase() === stat.name.toLowerCase();
     if (!caseOnly && (await vol.driver.stat(target))) throw new CiFinderError("EXISTS", `"${name}" already exists`);
+    await this.assertTree(vol, path, "write");
     await vol.driver.move(path, target);
     if (stat.kind === "file") await this.thumbs?.forget(vol, path);
     await relocateVersions(vol, path, target, stat.kind);
@@ -437,8 +466,10 @@ export class CiFinder {
     for (const id of list(p, "ids")) {
       const { vol, path } = this.target(id);
       vol.assertNotRoot(path);
+      vol.assertCan("read", path);
       vol.assertCan("write", dirname(path));
       const stat = await vol.stat(path);
+      await this.assertTree(vol, path, "read");
       const name = await vol.uniqueName(dirname(path), stat.name, stat.kind === "dir");
       const target = joinPath(dirname(path), name);
       await vol.driver.copy(path, target);
@@ -457,6 +488,7 @@ export class CiFinder {
       vol.assertNotRoot(path);
       vol.assertCan("delete", path);
       const stat = await vol.stat(path);
+      await this.assertTree(vol, path, "delete");
       if (!permanent && vol.trash.enabled) {
         trashed.push(await moveToTrash(vol, stat));
       } else {
@@ -481,7 +513,7 @@ export class CiFinder {
   private async trashList(p: Params) {
     const only = str(p, "volume", false);
     const vols = [...this.volumes.values()].filter((v) => v.trash.enabled && (!only || v.id === only));
-    const lists = await Promise.all(vols.map((v) => listTrash(v)));
+    const lists = await Promise.all(vols.map(async (v) => (await listTrash(v)).filter((e) => v.can("read", dirname(e.trash!.originalPath)))));
     return { entries: lists.flat().sort((a, b) => b.mtime - a.mtime) };
   }
 
@@ -551,6 +583,14 @@ export class CiFinder {
         throw new CiFinderError("MOVE_INTO_ITSELF", `"${stat.name}" cannot be placed inside itself`);
       }
       if (stat.kind === "file") dst.vol.assertExtensionAllowed(stat.name);
+      await this.assertTree(src.vol, src.path, cut ? "delete" : "read");
+      if (!sameVolume && stat.kind === "dir") {
+        // Another volume may have stricter rules: check everything before copying anything.
+        for await (const s of this.walk(src.vol, src.path)) {
+          if (s.kind === "file") dst.vol.assertExtensionAllowed(s.name);
+          dst.vol.assertCreatable(joinPath(dst.path, `${stat.name}${s.path.slice(src.path.length)}`));
+        }
+      }
 
       let name = stat.name;
       const existing = await dst.vol.driver.stat(joinPath(dst.path, name));
@@ -598,6 +638,7 @@ export class CiFinder {
     }
     await to.driver.mkdir(target);
     for (const child of await from.list(path)) {
+      if (!from.can("read", child.path)) continue;
       await this.copyAcross(from, child.path, child, to, joinPath(target, child.name));
     }
   }
@@ -659,7 +700,9 @@ export class CiFinder {
       target = normalizePath(String(session.p ?? ""));
       driverSession = typeof session.s === "string" ? session.s : undefined;
       // The session is client-held: re-check everything a first chunk would have checked.
-      if (target === "/" || !isInside(dst.path, target) || !driverSession) throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
+      if (target === dst.path || !isInside(dst.path, target) || !driverSession) throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
+      for (const segment of target.slice(dst.path.length).split("/").filter(Boolean)) vol.validateName(segment);
+      vol.assertCreatable(target);
       vol.assertCan("write", target);
       vol.assertExtensionAllowed(basename(target));
     }
@@ -681,10 +724,13 @@ export class CiFinder {
   private async abort(p: Params) {
     const dst = this.target(p.dst);
     const token = str(p, "session");
+    dst.vol.assertCan("write", dst.path);
     try {
       const session = JSON.parse(new TextDecoder().decode(base64UrlDecode(token)));
       const target = normalizePath(String(session.p ?? ""));
-      if (isInside(dst.path, target) && typeof session.s === "string") await dst.vol.driver.abortUpload?.(target, session.s);
+      if (isInside(dst.path, target) && !dst.vol.isHiddenPath(target) && dst.vol.can("write", target) && typeof session.s === "string") {
+        await dst.vol.driver.abortUpload?.(target, session.s);
+      }
     } catch {
       // Aborting is best effort.
     }
@@ -699,7 +745,8 @@ export class CiFinder {
     const stat = await vol.stat(path);
     if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
     const download = bool(p, "download");
-    const signed = await vol.driver.signedUrl?.(path, { download, filename: stat.name });
+    // HTML/SVG go through serveFile, which adds a sandbox CSP; a storage URL could not carry it.
+    const signed = isActiveContent(mimeOf(stat.name)) ? null : await vol.driver.signedUrl?.(path, { download, filename: stat.name });
     if (signed) return Response.redirect(signed, 302);
     return serveFile({ request, stat, download, open: (range) => vol.driver.read(path, range) });
   }
@@ -840,6 +887,7 @@ export class CiFinder {
     }
     vol.assertCan("write", dir);
     vol.assertExtensionAllowed("a.zip");
+    for (const t of targets) vol.assertCan("read", t.path);
     const stats = await Promise.all(targets.map((t) => vol.stat(t.path)));
     const requested = str(p, "name", false) || (stats.length === 1 ? `${stats[0]!.name}.zip` : "Archive.zip");
     const name = await vol.uniqueName(dir, vol.validateName(requested.endsWith(".zip") ? requested : `${requested}.zip`), false);
@@ -867,6 +915,7 @@ export class CiFinder {
 
   private async extract(p: Params) {
     const { vol, path } = this.target(p.id);
+    vol.assertCan("read", path);
     const stat = await vol.stat(path);
     if (stat.kind !== "file" || extname(stat.name) !== "zip") throw new CiFinderError("UNSUPPORTED", "Only .zip archives can be extracted");
     const dir = dirname(path);
@@ -897,6 +946,10 @@ export class CiFinder {
       }
       if (rel === "/" || rel.startsWith("/__MACOSX") || rel.endsWith("/.DS_Store")) continue;
       const out = root + rel;
+      if (vol.isHiddenPath(out) || !vol.can("write", out)) {
+        skipped++;
+        continue;
+      }
       if (e.dir) {
         await vol.mkdirp(out);
         continue;
@@ -1138,7 +1191,11 @@ export class CiFinder {
 async function parseParams(request: Request): Promise<Params> {
   const url = new URL(request.url);
   const params: Params = {};
-  for (const [k, v] of url.searchParams) params[k] = v;
+  // `params.__proto__ = {...}` would swap the prototype and smuggle in parameters nobody sent.
+  const set = (k: string, v: unknown) => {
+    if (k !== "__proto__") params[k] = v;
+  };
+  for (const [k, v] of url.searchParams) set(k, v);
   if (url.searchParams.getAll("ids").length > 1) params.ids = url.searchParams.getAll("ids");
 
   if (request.method.toUpperCase() !== "POST") return params;
@@ -1150,10 +1207,10 @@ async function parseParams(request: Request): Promise<Params> {
     } catch {
       throw new CiFinderError("BAD_REQUEST", "Invalid JSON body");
     }
-    if (body && typeof body === "object" && !Array.isArray(body)) Object.assign(params, body);
+    if (body && typeof body === "object" && !Array.isArray(body)) for (const [k, v] of Object.entries(body)) set(k, v);
   } else if (type.includes("multipart/form-data") || type.includes("application/x-www-form-urlencoded")) {
     const form = await request.formData();
-    for (const [k, v] of form) params[k] = v;
+    for (const [k, v] of form) set(k, v);
   }
   return params;
 }
