@@ -31,6 +31,8 @@ A fast, keyboard-friendly file manager for React. Plain CSS, a zero-dependency c
   &nbsp;·&nbsp;
   <a href="https://alperkosay.github.io/ci-finder/docs/"><b>Documentation</b></a>
   &nbsp;·&nbsp;
+  <a href="https://alperkosay.github.io/ci-finder/media/cifinder-film.mp4"><b>Watch the film</b></a>
+  &nbsp;·&nbsp;
   <a href="docs/api/README.md"><b>API reference</b></a>
   &nbsp;·&nbsp;
   <a href="README.tr.md">Türkçe</a>
