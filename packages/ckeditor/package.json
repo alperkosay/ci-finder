@@ -1,6 +1,6 @@
 {
   "name": "@ci-finder/ckeditor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ciFinder connector for CKEditor 5 and CKEditor 4: a CKFinder replacement to browse files from the toolbar and upload pasted images.",
   "license": "MIT",
   "author": "Alper Koşay",
@@ -48,8 +48,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ci-finder/core": "0.1.0",
-    "@ci-finder/react": "0.1.0"
+    "@ci-finder/core": "0.1.1",
+    "@ci-finder/react": "0.1.1"
   },
   "peerDependencies": {
     "ckeditor5": ">=42",

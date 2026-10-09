@@ -1,6 +1,6 @@
 {
   "name": "@ci-finder/next",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ciFinder for Next.js: App Router API route, uploads route and standalone-aware project paths for a drop-in file manager.",
   "license": "MIT",
   "author": "Alper Koşay",
@@ -43,7 +43,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@ci-finder/core": "0.1.0"
+    "@ci-finder/core": "0.1.1"
   },
   "peerDependencies": {
     "next": ">=14"
