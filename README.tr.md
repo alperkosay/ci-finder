@@ -403,6 +403,7 @@ CKEDITOR.replace("body", {
 | `settings` | Başlıktaki ayarlar menüsü (tema, görünüm, yoğunluk). Kullanıcının seçimi `persistKey` altında saklanır. Varsayılan `true` |
 | `height`, `className`, `style` | Boyut ve stil. Varsayılan yükseklik ebeveynin %100'ü |
 | `initialFolder`, `defaultView`, `persistKey` | Başlangıç klasörü, varsayılan görünüm ve sıralama, tercihlerin saklanacağı localStorage anahtarı |
+| `rememberFolder` | Kullanıcının en son açtığı klasörü tekrar açar (varsayılan: true) |
 | `onSelect`, `selectLabel`, `multiple` | Seçici modu (örn. CMS'te "görsel seç" alanı) |
 | `accept`, `onCancel` | Seçici modunda seçilebilecek dosyalar (`"image/*"`, `".pdf"`…) ve "Vazgeç" düğmesi |
 | `onOpen` | Dosya açılışını yakalar; `true` döndürürseniz varsayılan davranış çalışmaz |

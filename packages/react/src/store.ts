@@ -109,6 +109,8 @@ export interface StoreOptions {
   locale: string;
   persistKey?: string | false;
   initialPrefs?: Partial<Prefs>;
+  /** Reopen the folder the user was last in (kept under `persistKey`). Default: true. */
+  rememberFolder?: boolean;
   onOpen?: (entry: Entry) => boolean | void;
   onChange?: (event: { type: string; entries?: Entry[]; ids?: string[] }) => void;
   pickMode?: boolean;
@@ -225,6 +227,33 @@ export class FinderStore {
     this.state = { ...this.state, ...next };
     if (PREF_KEYS.some((k) => k in next)) this.savePrefs();
     this.listeners.forEach((l) => l());
+  }
+
+  /** localStorage key of the folder the user was last in, next to the view preferences. */
+  private get folderKey(): string | null {
+    const { persistKey, rememberFolder = true } = this.options;
+    return persistKey && rememberFolder ? `${persistKey}:folder` : null;
+  }
+
+  private lastFolder(): string | null {
+    const key = this.folderKey;
+    if (!key) return null;
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private rememberFolder(id: string | null) {
+    const key = this.folderKey;
+    if (!key) return;
+    try {
+      if (id) localStorage.setItem(key, id);
+      else localStorage.removeItem(key);
+    } catch {
+      // storage unavailable: the next visit starts at the first volume's root
+    }
   }
 
   private savePrefs() {
@@ -449,7 +478,13 @@ export class FinderStore {
         initError: null,
       });
       roots.forEach((r) => this.loadTree(r.id));
-      await this.open(initialId ?? roots[0]!.id);
+      const last = initialId ? null : this.lastFolder();
+      await this.open(initialId ?? last ?? roots[0]!.id);
+      // The remembered folder was deleted, moved or is no longer allowed: start at the root instead.
+      if (last && this.state.listError) {
+        this.rememberFolder(null);
+        await this.open(roots[0]!.id);
+      }
     } catch (e) {
       this.set({ initError: this.errorMessage(e), ready: false });
     }
@@ -485,6 +520,7 @@ export class FinderStore {
           touchSelecting: false,
         };
       });
+      this.rememberFolder(cwd.id);
       void this.revealInTree(cwd);
     } catch (e) {
       if (controller.signal.aborted || (e as Error)?.name === "AbortError") return;

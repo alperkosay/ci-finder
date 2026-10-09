@@ -46,7 +46,8 @@ Import `styles.css` once, anywhere in your app. The component fills the height o
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `initialFolder` | `string` | root of the first volume | Id of the folder to open first |
+| `initialFolder` | `string` | last folder, else root of the first volume | Id of the folder to open first |
+| `rememberFolder` | `boolean` | `true` | Reopen the folder the user was last in (stored under `persistKey`) |
 | `defaultView` | `Partial<Prefs>` | — | Initial preferences. Whatever the user changes is stored under `persistKey` and takes precedence. |
 | `persistKey` | `string \| false` | `"thefinder"` | localStorage key for preferences. `false` stores nothing. |
 

@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type RefObject,
+} from "react";
 import { createRoot } from "react-dom/client";
 import { createClient, type TheFinderClient, type Entry } from "@thefinder/core/client";
 import { TheFinder, type TheFinderProps } from "./TheFinder";
@@ -22,9 +31,102 @@ export function pickedUrl(entry: Entry, client: TheFinderClient, absolute = fals
   return absolute && typeof location !== "undefined" ? new URL(url, location.href).toString() : url;
 }
 
+/** Parts of the header that keep their own pointer handling (typing, search). */
+const NOT_A_HANDLE = "input, textarea, select, [contenteditable], .tf-search";
+/** How much of the dialog stays on screen when it is dragged towards an edge. */
+const KEEP_VISIBLE = 96;
+
+function isHandle(target: EventTarget | null): boolean {
+  const el = target as Element | null;
+  return !!el?.closest?.(".tf-header") && !el.closest(NOT_A_HANDLE);
+}
+
+/**
+ * Lets the user move the picker by its header, like a window. The offset lives only as long as the
+ * dialog, so every picker opens centered. Small screens get a full-screen picker that stays put.
+ */
+function useMovable(ref: RefObject<HTMLDialogElement | null>) {
+  const offset = useRef({ x: 0, y: 0 });
+
+  const place = useCallback(
+    (x: number, y: number) => {
+      const el = ref.current;
+      if (!el) return;
+      // Keep the header reachable: clamp against where the dialog would sit without any offset.
+      const rect = el.getBoundingClientRect();
+      const left = rect.left - offset.current.x;
+      const top = rect.top - offset.current.y;
+      x = Math.min(Math.max(x, KEEP_VISIBLE - rect.width - left), window.innerWidth - KEEP_VISIBLE - left);
+      y = Math.min(Math.max(y, -top), window.innerHeight - KEEP_VISIBLE / 2 - top);
+      offset.current = { x, y };
+      el.style.translate = x || y ? `${x}px ${y}px` : "";
+    },
+    [ref],
+  );
+
+  useEffect(() => {
+    const onResize = () => place(offset.current.x, offset.current.y);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [place]);
+
+  const onPointerDown = (e: ReactPointerEvent<HTMLDialogElement>) => {
+    const el = ref.current;
+    if (!el || e.button !== 0 || !e.isPrimary || !isHandle(e.target)) return;
+    if (window.matchMedia("(max-width: 640px)").matches) return;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const from = offset.current;
+    let moving = false;
+
+    const move = (ev: PointerEvent) => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!moving) {
+        // Below this it is a click on the path bar or a button, not a drag.
+        if (Math.hypot(dx, dy) < 4) return;
+        moving = true;
+        el.classList.add("is-moving");
+        window.getSelection()?.removeAllRanges();
+        try {
+          el.setPointerCapture(ev.pointerId);
+        } catch {
+          // the pointer is already gone; the window listeners still end the drag
+        }
+      }
+      place(from.x + dx, from.y + dy);
+    };
+    const end = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      if (!moving) return;
+      el.classList.remove("is-moving");
+      // The drag may have started on a button or the path bar: swallow the click that ends it.
+      const swallow = (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+      };
+      window.addEventListener("click", swallow, { capture: true, once: true });
+      setTimeout(() => window.removeEventListener("click", swallow, { capture: true }));
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+  };
+
+  /** Double click on the header puts the dialog back in the middle. */
+  const onDoubleClick = (e: ReactMouseEvent) => {
+    if (isHandle(e.target) && !(e.target as Element).closest("button, .tf-pathbar")) place(0, 0);
+  };
+
+  return { onPointerDown, onDoubleClick };
+}
+
 function PickerDialog({ onDone, absoluteUrls, ...props }: FilePickerOptions & { onDone: (files: PickedFile[] | null) => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   const done = useRef(false);
+  const movable = useMovable(ref);
   // One client for the dialog's lifetime (props are fixed while it is open).
   const client = useMemo(
     () => props.client ?? createClient({ endpoint: props.endpoint, headers: props.headers, credentials: props.credentials }),
@@ -60,6 +162,8 @@ function PickerDialog({ onDone, absoluteUrls, ...props }: FilePickerOptions & { 
       onMouseDown={(e) => {
         if (e.target === ref.current) finish(null); // backdrop click
       }}
+      onPointerDown={movable.onPointerDown}
+      onDoubleClick={movable.onDoubleClick}
     >
       <TheFinder
         persistKey="thefinder-picker"

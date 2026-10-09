@@ -2739,6 +2739,21 @@
     box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.4);
   }
 
+  /* The header doubles as a title bar: drag it to move the picker. */
+  .tf-picker .tf-header {
+    cursor: grab;
+  }
+
+  .tf-picker .tf-search {
+    cursor: text;
+  }
+
+  .tf-picker.is-moving,
+  .tf-picker.is-moving * {
+    cursor: grabbing;
+    user-select: none;
+  }
+
   @media (max-width: 640px) {
     .tf-picker {
       width: 100vw;
@@ -2748,6 +2763,10 @@
 
     .tf-picker > .tf-root {
       border-radius: 0;
+    }
+
+    .tf-picker .tf-header {
+      cursor: inherit;
     }
   }
 

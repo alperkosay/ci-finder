@@ -403,6 +403,7 @@ CKEDITOR.replace("body", {
 | `settings` | Settings menu in the header (theme, view, density). The user's choice is stored under `persistKey`. Default `true` |
 | `height`, `className`, `style` | Size and style. Default height is 100% of the parent |
 | `initialFolder`, `defaultView`, `persistKey` | Start folder, default view and sorting, localStorage key for preferences |
+| `rememberFolder` | Reopen the folder the user was last in (default: true) |
 | `onSelect`, `selectLabel`, `multiple` | Picker mode (e.g. a "choose image" field in a CMS) |
 | `accept`, `onCancel` | Selectable files in picker mode (`"image/*"`, `".pdf"`…) and a "Cancel" button |
 | `onOpen` | Intercepts opening a file; return `true` to skip the default behavior |

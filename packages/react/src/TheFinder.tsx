@@ -53,8 +53,10 @@ export interface TheFinderProps {
   className?: string;
   style?: CSSProperties;
 
-  /** Id of the folder to open first (defaults to the first volume's root). */
+  /** Id of the folder to open first. Default: the folder the user was last in, else the first volume's root. */
   initialFolder?: string;
+  /** Reopen the folder the user was last in (remembered under `persistKey`). Default: true. */
+  rememberFolder?: boolean;
   /** Initial view preferences (user changes are remembered under `persistKey`). */
   defaultView?: Partial<Prefs>;
   /** localStorage key for remembering view/sort/panels. `false` disables. Default: "thefinder". */
@@ -276,6 +278,7 @@ export function TheFinder(props: TheFinderProps) {
       t,
       locale,
       persistKey,
+      rememberFolder: props.rememberFolder,
       initialPrefs: props.defaultView,
       pickMode: !!props.onSelect,
       canPick: (entry) => matchesAccept(entry, latest.current.accept),

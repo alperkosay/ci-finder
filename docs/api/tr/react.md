@@ -46,7 +46,8 @@ import "@thefinder/react/styles.css";
 
 | Prop | Tip | Varsayılan | Açıklama |
 |---|---|---|---|
-| `initialFolder` | `string` | ilk volume'ün kökü | İlk açılacak klasörün kimliği |
+| `initialFolder` | `string` | son klasör, yoksa ilk volume'ün kökü | İlk açılacak klasörün kimliği |
+| `rememberFolder` | `boolean` | `true` | Kullanıcının en son açtığı klasörü tekrar aç (`persistKey` altında saklanır) |
 | `defaultView` | `Partial<Prefs>` | — | Başlangıç tercihleri. Kullanıcının değiştirdikleri `persistKey` altında saklanır ve bunlardan önceliklidir. |
 | `persistKey` | `string \| false` | `"thefinder"` | Tercihlerin saklanacağı localStorage anahtarı. `false` saklamaz. |
 
