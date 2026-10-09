@@ -41,19 +41,24 @@ interface MenuProps {
   autoFocus?: boolean;
   /** Set on submenus: ← returns to the parent menu instead of closing everything. */
   onBack?: () => void;
+  /** Set on submenus: when there is no room right of x, the menu ends at flipX instead (left of its parent). */
+  flipX?: number;
 }
 
 /**
  * Accessible popup menu: arrow keys move, Enter/Space activate, → opens and ← closes submenus,
  * typing a letter jumps to the next item starting with it. Positions itself inside the viewport.
  */
-export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = true, onBack }: MenuProps) {
+export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = true, onBack, flipX }: MenuProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const layer = useRef<HTMLDivElement>(null);
   const [pos, setPos] = useState({ left: x, top: y, ready: false });
   const [active, setActive] = useState(-1);
   const [openSub, setOpenSub] = useState<number | null>(null);
-  // Submenus live inside their parent's DOM, so the parent's outside-click handling covers them.
-  useDismiss(ref, onClose, !onBack);
+  // A submenu is rendered next to its parent, not inside it: `backdrop-filter` (macOS skin) and the
+  // pop-in transform make the parent the containing block of fixed children, which would offset and
+  // clip it. Both share one layer, so the parent's outside-click handling still covers the submenu.
+  useDismiss(layer, onClose, !onBack);
 
   useIsoLayoutEffect(() => {
     const el = ref.current;
@@ -63,11 +68,12 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
     const h = el.offsetHeight;
     let left = alignRight ? x - w : x;
     let top = y;
-    if (left + w > vw - 8) left = Math.max(8, vw - w - 8);
+    if (left + w > vw - 8) left = flipX !== undefined && flipX - w >= 8 ? flipX - w : Math.max(8, vw - w - 8);
     if (left < 8) left = 8;
-    if (top + h > vh - 8) top = Math.max(8, y - h);
+    // A dropdown flips above its anchor; a submenu just slides up until it fits.
+    if (top + h > vh - 8) top = Math.max(8, flipX !== undefined ? vh - h - 8 : y - h);
     setPos({ left, top, ready: true });
-  }, [x, y, alignRight]);
+  }, [x, y, alignRight, flipX]);
 
   useEffect(() => {
     if (autoFocus && pos.ready) ref.current?.focus();
@@ -98,7 +104,6 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
   };
 
   const onKeyDown = (e: ReactKeyboardEvent) => {
-    if (openSub !== null && e.target !== ref.current) return; // a submenu handles its own keys
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
@@ -158,83 +163,87 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
     }
   };
 
+  const sub = openSub !== null ? entries[openSub] : undefined;
   return (
-    <div
-      ref={ref}
-      className="cf-menu"
-      role="menu"
-      aria-label={label}
-      tabIndex={-1}
-      style={{ left: pos.left, top: pos.top, visibility: pos.ready ? "visible" : "hidden" }}
-      onKeyDown={onKeyDown}
-      onPointerDown={() => {
-        armed.current = true;
-      }}
-      onContextMenu={(e) => e.preventDefault()}
-      aria-activedescendant={active >= 0 ? `cf-mi-${active}` : undefined}
-    >
-      {entries.map((e, i) => {
-        if (e.type === "separator") return <div key={`s${i}`} className="cf-menu-sep" role="separator" />;
-        if (e.type === "label")
-          return (
-            <div key={`l${i}`} className="cf-menu-label">
-              {e.label}
-            </div>
-          );
-        if (e.type === "submenu") {
+    <div ref={layer} className="cf-menu-layer">
+      <div
+        ref={ref}
+        className="cf-menu"
+        role="menu"
+        aria-label={label}
+        tabIndex={-1}
+        style={{ left: pos.left, top: pos.top, visibility: pos.ready ? "visible" : "hidden" }}
+        onKeyDown={onKeyDown}
+        onPointerDown={() => {
+          armed.current = true;
+        }}
+        onContextMenu={(e) => e.preventDefault()}
+        aria-activedescendant={active >= 0 ? `cf-mi-${active}` : undefined}
+      >
+        {entries.map((e, i) => {
+          if (e.type === "separator") return <div key={`s${i}`} className="cf-menu-sep" role="separator" />;
+          if (e.type === "label")
+            return (
+              <div key={`l${i}`} className="cf-menu-label">
+                {e.label}
+              </div>
+            );
+          if (e.type === "submenu") {
+            return (
+              <div
+                key={e.id}
+                id={`cf-mi-${i}`}
+                role="menuitem"
+                aria-haspopup="menu"
+                aria-expanded={openSub === i}
+                className={cx("cf-menu-item", active === i && "is-active")}
+                onPointerEnter={() => {
+                  setActive(i);
+                  setOpenSub(i);
+                }}
+                onClick={() => setOpenSub(i)}
+              >
+                <span className="cf-menu-icon">{e.icon && <Icon name={e.icon} />}</span>
+                <span className="cf-menu-text">{e.label}</span>
+                <Icon name="chevronRight" size={14} />
+              </div>
+            );
+          }
+          const { action, checked } = e;
           return (
             <div
-              key={e.id}
+              key={action.id}
               id={`cf-mi-${i}`}
-              role="menuitem"
-              aria-haspopup="menu"
-              aria-expanded={openSub === i}
-              className={cx("cf-menu-item", active === i && "is-active")}
+              role={checked === undefined ? "menuitem" : "menuitemradio"}
+              aria-checked={checked}
+              aria-disabled={!action.enabled || undefined}
+              className={cx("cf-menu-item", active === i && "is-active", action.danger && "is-danger", !action.enabled && "is-disabled")}
               onPointerEnter={() => {
-                setActive(i);
-                setOpenSub(i);
+                setActive(action.enabled ? i : -1);
+                setOpenSub(null);
               }}
-              onClick={() => setOpenSub(i)}
+              onClick={() => armed.current && activate(i)}
             >
-              <span className="cf-menu-icon">{e.icon && <Icon name={e.icon} />}</span>
-              <span className="cf-menu-text">{e.label}</span>
-              <Icon name="chevronRight" size={14} />
-              {openSub === i && (
-                <SubMenu
-                  parent={ref}
-                  index={i}
-                  entries={e.items}
-                  onClose={onClose}
-                  onBack={() => {
-                    setOpenSub(null);
-                    ref.current?.focus();
-                  }}
-                />
-              )}
+              <span className="cf-menu-icon">{checked ? <Icon name="check" /> : action.icon && <Icon name={action.icon} />}</span>
+              <span className="cf-menu-text">{action.label}</span>
+              {action.shortcut && <kbd className="cf-menu-kbd">{shortcut(action.shortcut)}</kbd>}
             </div>
           );
-        }
-        const { action, checked } = e;
-        return (
-          <div
-            key={action.id}
-            id={`cf-mi-${i}`}
-            role={checked === undefined ? "menuitem" : "menuitemradio"}
-            aria-checked={checked}
-            aria-disabled={!action.enabled || undefined}
-            className={cx("cf-menu-item", active === i && "is-active", action.danger && "is-danger", !action.enabled && "is-disabled")}
-            onPointerEnter={() => {
-              setActive(action.enabled ? i : -1);
-              setOpenSub(null);
-            }}
-            onClick={() => armed.current && activate(i)}
-          >
-            <span className="cf-menu-icon">{checked ? <Icon name="check" /> : action.icon && <Icon name={action.icon} />}</span>
-            <span className="cf-menu-text">{action.label}</span>
-            {action.shortcut && <kbd className="cf-menu-kbd">{shortcut(action.shortcut)}</kbd>}
-          </div>
-        );
-      })}
+        })}
+      </div>
+      {sub?.type === "submenu" && (
+        <SubMenu
+          key={openSub}
+          parent={ref}
+          index={openSub!}
+          entries={sub.items}
+          onClose={onClose}
+          onBack={() => {
+            setOpenSub(null);
+            ref.current?.focus();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -252,19 +261,15 @@ function SubMenu({
   onClose: () => void;
   onBack: () => void;
 }) {
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const [pos, setPos] = useState<{ x: number; y: number; flipX: number } | null>(null);
   useIsoLayoutEffect(() => {
     const row = parent.current?.querySelector<HTMLElement>(`#cf-mi-${index}`);
     if (!row) return;
     const r = row.getBoundingClientRect();
-    setPos({ x: r.right - 4, y: r.top - 5 });
+    setPos({ x: r.right - 4, y: r.top - 5, flipX: r.left + 4 });
   }, [parent, index]);
   if (!pos) return null;
-  return (
-    <div onClick={(e) => e.stopPropagation()}>
-      <Menu entries={entries} x={pos.x} y={pos.y} onClose={onClose} onBack={onBack} />
-    </div>
-  );
+  return <Menu entries={entries} x={pos.x} y={pos.y} flipX={pos.flipX} onClose={onClose} onBack={onBack} />;
 }
 
 /** A button that opens a dropdown menu below itself. */
