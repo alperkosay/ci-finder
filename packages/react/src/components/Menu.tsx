@@ -63,6 +63,15 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
   useIsoLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // In the top layer the menu is placed against the viewport whatever its ancestors do: a host
+    // page's `dialog { transform: ... }` would otherwise make the picker its containing block.
+    if (typeof el.showPopover === "function" && !el.matches(":popover-open")) {
+      try {
+        el.showPopover();
+      } catch {
+        // not connected yet; it then stays a plain fixed element
+      }
+    }
     const { innerWidth: vw, innerHeight: vh } = window;
     const w = el.offsetWidth;
     const h = el.offsetHeight;
@@ -170,6 +179,7 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
       <div
         ref={ref}
         className="tf-menu"
+        popover="manual"
         role="menu"
         aria-label={label}
         tabIndex={-1}

@@ -60,8 +60,7 @@ function useMovable(ref: RefObject<HTMLDialogElement | null>) {
       if (!el) return;
       if (!to) {
         at.current = null;
-        el.style.removeProperty("margin");
-        el.style.removeProperty("inset");
+        for (const prop of ["margin", "inset", "transform", "translate"]) el.style.removeProperty(prop);
         return;
       }
       // Keep the header reachable.
@@ -72,6 +71,9 @@ function useMovable(ref: RefObject<HTMLDialogElement | null>) {
       // the context menus and overlays inside it, which are positioned against the viewport.
       el.style.margin = "0";
       el.style.inset = `${top}px auto auto ${left}px`;
+      // A host page may center its dialogs with a transform; here the position alone counts.
+      el.style.transform = "none";
+      el.style.translate = "none";
     },
     [ref],
   );
