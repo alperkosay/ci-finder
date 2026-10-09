@@ -1117,6 +1117,7 @@ export class TheFinder {
       skipLarger: p.skipLarger === undefined ? true : bool(p, "skipLarger"),
       replaceExisting: str(p, "conflict", false) === "overwrite",
       suffix: str(p, "suffix", false) || "optimized",
+      dryRun: bool(p, "dryRun"),
     };
     const results: TransformResult[] = [];
     for (const id of list(p, "ids")) {
@@ -1149,6 +1150,7 @@ export class TheFinder {
       skipLarger: boolean;
       replaceExisting: boolean;
       suffix: string;
+      dryRun: boolean;
     },
   ): Promise<TransformResult> {
     const { vol, path } = this.target(id);
@@ -1171,6 +1173,8 @@ export class TheFinder {
     const out = await this.imageSlot(() => images.transform(input, { format, width: o.width, height: o.height, quality: o.quality }));
     Object.assign(result, { after: out.data.byteLength, width: out.width, height: out.height });
     if (o.skipLarger && out.data.byteLength >= stat.size) return { ...result, skipped: "larger" };
+    // A preview of the outcome (sizes for the bulk dialog): nothing is written.
+    if (o.dryRun) return result;
 
     if (inPlace) {
       await snapshot(vol, stat, "optimize");

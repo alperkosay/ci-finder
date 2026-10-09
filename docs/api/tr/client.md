@@ -96,6 +96,7 @@ interface TransformOptions {
   skipLarger?: boolean;           // varsayılan true
   conflict?: "rename" | "overwrite";
   suffix?: string;                // varsayılan "optimized"
+  dryRun?: boolean;               // sadece boyutları bildir, hiçbir şey yazma
 }
 ```
 

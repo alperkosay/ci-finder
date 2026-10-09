@@ -162,6 +162,7 @@ Zip-slip protection is built in; if the total extracted size exceeds `maxExtract
 | `skipLarger?` | Default `true`: the file is left alone if the result isn't smaller than the original |
 | `conflict?` | When the output name is taken: `"rename"` (default) or `"overwrite"` |
 | `suffix?` | Suffix for copies, default `optimized` |
+| `dryRun?` | `true`: encode only and report `after`, `width`, `height` (and `skipped`) without writing anything. Needs the same permissions as a real run. |
 
 Response: `{ results: TransformResult[] }`. Each file reports its own result; an error in one file doesn't stop the others. When the format changes the original is kept and a new file is written next to it. Overwritten files have their old content saved into version history.
 

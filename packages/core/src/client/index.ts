@@ -54,6 +54,8 @@ export interface TransformOptions {
   conflict?: "rename" | "overwrite";
   /** Name suffix of same-format copies. Default: "optimized". */
   suffix?: string;
+  /** Encode only and report the sizes the result would have; no file is written. */
+  dryRun?: boolean;
 }
 
 export type CleanupRequest =

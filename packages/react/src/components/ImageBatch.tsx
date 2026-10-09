@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Entry, ImageFormat, TransformResult } from "@thefinder/core/client";
 import type { TransformOptions } from "@thefinder/core/client";
 import { cx, useFinder, useStore } from "../context";
@@ -16,6 +16,12 @@ const FORMAT_EXT: Record<ImageFormat, string> = { jpeg: "jpg", png: "png", webp:
 /** Formats a browser canvas can encode, used when the server has no image processor. */
 const BROWSER_FORMATS: ImageFormat[] = ["webp", "jpeg", "png"];
 const PARALLEL = 2;
+
+/** Percentage a size changes by, as shown next to results: "−62%", "+8%". */
+function percent(before: number, after: number): { pct: number; label: string } {
+  const pct = before ? Math.round((1 - after / before) * 100) : 0;
+  return { pct, label: pct > 0 ? `−${pct}%` : pct < 0 ? `+${-pct}%` : "0%" };
+}
 
 export function ImageBatch() {
   const { store } = useFinder();
@@ -63,6 +69,52 @@ function BatchView({ ids, onClose }: { ids: string[]; onClose: () => void }) {
     conflict: replaceConverted ? "overwrite" : "rename",
   };
 
+  // Before running: what each image would become with the current settings. The server (or the
+  // canvas) encodes it without writing; a settings change cancels the pass and starts a new one.
+  const previewKey = JSON.stringify([format, box?.w, box?.h, quality]);
+  const [estimates, setEstimates] = useState<Record<string, { key: string; result: TransformResult }>>({});
+  useEffect(() => {
+    if (started || !entries.length) return;
+    const controller = new AbortController();
+    const preview: TransformOptions = { format, width: box?.w, height: box?.h, quality, skipLarger: false, dryRun: true };
+    const timer = setTimeout(() => {
+      const queue = [...entries];
+      const worker = async () => {
+        for (let entry = queue.shift(); entry && !controller.signal.aborted; entry = queue.shift()) {
+          let result: TransformResult;
+          try {
+            result = server
+              ? (await store.client.transform([entry.id], preview, controller.signal)).results[0]!
+              : await browserTransform(store, entry, preview);
+          } catch (e) {
+            if (controller.signal.aborted) return;
+            result = { id: entry.id, name: entry.name, before: entry.size, error: store.errorMessage(e) };
+          }
+          if (controller.signal.aborted) return;
+          setEstimates((s) => ({ ...s, [entry!.id]: { key: previewKey, result } }));
+        }
+      };
+      void Promise.all(Array.from({ length: Math.min(PARALLEL, entries.length) }, worker));
+    }, 350);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+    // previewKey stands for format, box and quality.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewKey, started, entries, server, store]);
+
+  /** Size an image would end up with; null when it would be left alone (unsupported, failed, not smaller). */
+  const outcome = (r: TransformResult): number | null => {
+    if (r.error || r.skipped || r.after === undefined) return null;
+    return skipLarger && r.after >= r.before ? null : r.after;
+  };
+  const current = entries.map((e) => estimates[e.id]).filter((x) => x?.key === previewKey);
+  const estimating = current.length < entries.length;
+  // Totals over the whole selection; images that would be left alone count with their size as is.
+  const estBefore = current.reduce((n, x) => n + x!.result.before, 0);
+  const estAfter = current.reduce((n, x) => n + (outcome(x!.result) ?? x!.result.before), 0);
+
   const run = async () => {
     stopped.current = false;
     setRunning(true);
@@ -94,7 +146,7 @@ function BatchView({ ids, onClose }: { ids: string[]; onClose: () => void }) {
 
   const status = (entry: Entry) => {
     const item = items[entry.id];
-    if (!item) return <span className="tf-dim">{formatSize(entry.size, locale)}</span>;
+    if (!item) return estimateOf(entry);
     if (item.status === "waiting") return <span className="tf-dim">{t("batchWaiting")}</span>;
     if (item.status === "running") return <Spinner size={14} />;
     const r = item.result!;
@@ -104,14 +156,41 @@ function BatchView({ ids, onClose }: { ids: string[]; onClose: () => void }) {
       return <span className="tf-batch-error">{message}</span>;
     }
     if (r.skipped) return <span className="tf-dim">{r.skipped === "larger" ? t("batchSkippedLarger") : t("batchSkippedUnsupported")}</span>;
-    const pct = r.before ? Math.round((1 - (r.after ?? r.before) / r.before) * 100) : 0;
+    const { pct, label } = percent(r.before, r.after ?? r.before);
     return (
       <span className="tf-batch-result">
         {r.entry && r.entry.id !== entry.id && <span className="tf-batch-new">{r.entry.name}</span>}
         <span>
           {formatSize(r.before, locale)} → <b>{formatSize(r.after ?? 0, locale)}</b>
         </span>
-        <span className={cx("tf-batch-pct", pct > 0 && "is-good")}>{pct > 0 ? `−${pct}%` : pct < 0 ? `+${-pct}%` : "0%"}</span>
+        <span className={cx("tf-batch-pct", pct > 0 && "is-good")}>{label}</span>
+      </span>
+    );
+  };
+
+  const estimateOf = (entry: Entry) => {
+    const est = estimates[entry.id];
+    if (!est) {
+      return (
+        <span className="tf-batch-result">
+          <span className="tf-dim">{formatSize(entry.size, locale)}</span>
+          <Spinner size={12} />
+        </span>
+      );
+    }
+    const r = est.result;
+    const stale = est.key !== previewKey;
+    if (r.error) return <span className="tf-dim">{formatSize(entry.size, locale)}</span>;
+    if (r.skipped || r.after === undefined) return <span className="tf-dim">{t("batchSkippedUnsupported")}</span>;
+    const { pct, label } = percent(r.before, r.after);
+    const skipped = skipLarger && r.after >= r.before;
+    return (
+      <span className={cx("tf-batch-result", "is-estimate", stale && "is-pending")} title={t("estimatedSize")}>
+        {skipped && <span className="tf-batch-new">{t("batchWouldSkip")}</span>}
+        <span>
+          {formatSize(r.before, locale)} → <b>≈ {formatSize(r.after, locale)}</b>
+        </span>
+        <span className={cx("tf-batch-pct", pct > 0 && !skipped && "is-good")}>{label}</span>
       </span>
     );
   };
@@ -259,6 +338,16 @@ function BatchView({ ids, onClose }: { ids: string[]; onClose: () => void }) {
 
         <footer className="tf-versions-foot">
           <span className="tf-dim">
+            {!started &&
+              entries.length > 0 &&
+              (estimating
+                ? t("batchEstimating", { done: current.length, n: entries.length })
+                : estAfter < estBefore
+                  ? `${formatSize(estBefore, locale)} → ≈ ${formatSize(estAfter, locale)} · ${t("batchWouldSave", {
+                      saved: formatSize(Math.max(0, estBefore - estAfter), locale),
+                      pct: percent(estBefore, estAfter).label,
+                    })}`
+                  : t("batchNothingSmaller"))}
             {changed.length > 0 &&
               `${formatSize(savedBefore, locale)} → ${formatSize(savedAfter, locale)} · ${t("batchSaved", {
                 saved: formatSize(Math.max(0, savedBefore - savedAfter), locale),
@@ -330,6 +419,7 @@ async function browserTransform(store: FinderStore, entry: Entry, o: TransformOp
   );
   Object.assign(result, { after: blob.size, width: canvas.width, height: canvas.height });
   if (o.skipLarger !== false && blob.size >= entry.size) return { ...result, skipped: "larger" };
+  if (o.dryRun) return result;
 
   if (format === source && o.output !== "copy") {
     const { entry: next } = await store.client.putBlob(entry.id, blob, "optimize");

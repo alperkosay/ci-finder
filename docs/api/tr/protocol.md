@@ -162,6 +162,7 @@ Zip-slip koruması vardır; açılan toplam boyut `maxExtractSize`'ı aşarsa i�
 | `skipLarger?` | Varsayılan `true`: sonuç orijinalden küçük değilse dosyaya dokunulmaz |
 | `conflict?` | Çıktı adı doluysa: `"rename"` (varsayılan) ya da `"overwrite"` |
 | `suffix?` | Kopya ad eki, varsayılan `optimized` |
+| `dryRun?` | `true`: sadece kodlar ve hiçbir şey yazmadan `after`, `width`, `height` (ve `skipped`) bildirir. Gerçek çalıştırmayla aynı yetkileri ister. |
 
 Yanıt: `{ results: TransformResult[] }`. Her dosya kendi sonucunu bildirir; bir dosyadaki hata diğerlerini durdurmaz. Biçim değiştiğinde orijinal korunur ve yanına yeni dosya yazılır. Üzerine yazılan dosyaların eski hali sürüm geçmişine girer.
 

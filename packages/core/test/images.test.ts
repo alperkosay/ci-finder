@@ -58,6 +58,17 @@ describe("bulk image processing", () => {
     expect((await meta("foto.png")).format).toBe("png");
   });
 
+  it("reports the outcome without writing anything on a dry run", async () => {
+    const before = await readdir(dir);
+    const { results } = await a.ok("transform", { ids: [id("local", "/foto.png"), id("local", "/foto.jpg")], format: "webp", width: 800, dryRun: true });
+    expect(results[0]).toMatchObject({ name: "foto.png", width: 800, height: 450 });
+    expect(results[0].after).toBeLessThan(results[0].before);
+    expect(results[0].entry).toBeUndefined();
+    expect(results[1]).toMatchObject({ name: "foto.jpg", width: 800 });
+    expect(await readdir(dir)).toEqual(before);
+    expect((await a.ok("versions", { id: id("local", "/foto.png") })).versions).toHaveLength(0);
+  });
+
   it("numbers or replaces an existing converted file", async () => {
     await a.ok("transform", { ids: [id("local", "/foto.png")], format: "webp" });
     const again = await a.ok("transform", { ids: [id("local", "/foto.png")], format: "webp" });

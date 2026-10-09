@@ -3200,6 +3200,10 @@
     font-weight: 600;
   }
 
+  .tf-batch-result.is-pending {
+    opacity: 0.5;
+  }
+
   .tf-batch-new {
     grid-column: 1 / -1;
     color: var(--tf-text-3);

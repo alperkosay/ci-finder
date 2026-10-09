@@ -96,6 +96,7 @@ interface TransformOptions {
   skipLarger?: boolean;           // default true
   conflict?: "rename" | "overwrite";
   suffix?: string;                // default "optimized"
+  dryRun?: boolean;               // only report the sizes, write nothing
 }
 ```
 
