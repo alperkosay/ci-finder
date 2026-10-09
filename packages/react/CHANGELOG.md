@@ -1,5 +1,16 @@
 # @thefinder/react
 
+## 0.3.0
+
+### Minor Changes
+
+- 0d26513: Move the picker by dragging its header, like a window, from `openFilePicker`, `useFilePicker` and the CKEditor plugins alike. It always opens centered, cannot be dragged off screen, and a double click on the header puts it back in the middle. Full-screen pickers on small screens stay put.
+- 0d26513: Reopen the folder the user was last in. The folder is kept in localStorage next to the view preferences (`persistKey`), so the file manager and the picker (CKEditor included) each come back where they were left. A deleted or no longer allowed folder falls back to the root. `initialFolder` still wins; `rememberFolder={false}` turns it off.
+
+### Patch Changes
+
+- @thefinder/core@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes
