@@ -9,6 +9,8 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 | `@ci-finder/react` | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
 | `@ci-finder/ckeditor` | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
+Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/README.md).
+
 ## Özellikler
 
 - **Gezinme:** Simge ve liste görünümü, sanal liste (10.000+ dosya akıcı), klasör ağacı, düzenlenebilir yol çubuğu, geçmiş (geri/ileri).
@@ -384,7 +386,7 @@ Tüm stiller `@layer ci-finder` içindedir, yani katman dışında yazdığını
 - **CSRF:** Tüm değişiklik isteklerinde `x-ci-finder` başlığı zorunludur; değişiklik yapan komutlar GET ile çalışmaz.
 - **Yetkilendirme:** Volume bazında `readOnly`, `permission(action, path)`, uzantı izin ve yasak listeleri, `maxUploadSize`; komut bazında `authorize` hook'u.
 - **Arşivler:** Zip-slip ve zip bombası koruması (`maxExtractSize`).
-- **İç klasörler:** `.cf-trash` ve `.cf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
+- **İç klasörler:** `.cf-trash`, `.cf-versions` ve `.cf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
 - **Aktif içerik:** Yüklenen HTML ve SVG dosyaları sandbox CSP ile sunulur, uygulamanızın origin'inde script çalıştıramaz.
 - **Kimlik doğrulama:** Kimlik doğrulama `authorize` hook'unda yapılır; varsayılan ayarlarla API'ye herkes erişebilir. Ayrıntılar için [Yetkilendirme](#yetkilendirme) bölümüne bakın.
 
@@ -392,10 +394,25 @@ Tüm stiller `@layer ci-finder` içindedir, yani katman dışında yazdığını
 
 ```bash
 npm install
-npm run build      # core → next → react
+npm run build      # core → next → react → ckeditor
 npm test           # core testleri (Node)
 npm run test:bun   # aynı testler Bun ile
 npm run dev        # paketleri derler ve Next örneğini başlatır (http://localhost:3000)
 ```
 
 Örnekler: [examples/next](examples/next), [examples/bun](examples/bun), [examples/express](examples/express).
+
+## Sürüm ve yayın
+
+Sürümler [Changesets](https://github.com/changesets/changesets) ile yönetilir. Dört paket her zaman aynı sürüm numarasıyla yayımlanır.
+
+1. Yayımlanacak bir değişiklik yaptığınızda `npx changeset` çalıştırın. Etkilenen paketleri ve `patch` / `minor` / `major` seçimini yapıp kısa bir açıklama yazın. Oluşan `.changeset/*.md` dosyasını değişiklikle birlikte commit'leyin.
+2. `main`'e gelen her push'ta [Release](.github/workflows/release.yml) iş akışı çalışır. Bekleyen changeset varsa sürümleri yükselten ve `CHANGELOG.md` dosyalarını yazan bir "chore: version packages" PR'ı açar ya da günceller.
+3. O PR birleştirildiğinde paketler derlenir ve npm'e yayımlanır. Yayınlar provenance bilgisiyle gider.
+
+Gereksinimler:
+- npm'de `ci-finder` organizasyonu (`@ci-finder/*` kapsamı için).
+- Repo secret'ı olarak `NPM_TOKEN`: yayın yetkili, granular ya da Automation türünde bir npm token'ı.
+- Repo ayarlarında *Settings › Actions › General › Allow GitHub Actions to create and approve pull requests* açık olmalı.
+
+Elle yayın da mümkündür: `npm run version-packages`, ardından `npm login` ve `npm run release`.

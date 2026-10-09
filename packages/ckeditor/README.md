@@ -48,4 +48,6 @@ The "Browse Server" buttons of the image and link dialogs open the ciFinder pick
 | `picker` | Options for the picker: `accept`, `theme`, `locale`, ... |
 | `openPicker` | Replace the built-in picker with your own |
 
+Documentation: https://github.com/alperkosay/ci-finder#readme · API reference: https://github.com/alperkosay/ci-finder/blob/main/docs/api/ckeditor.md
+
 License: MIT

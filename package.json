@@ -17,9 +17,13 @@
     "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react && npm run typecheck -w @ci-finder/ckeditor",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "changeset": "changeset",
+    "version-packages": "changeset version && npm install --package-lock-only",
+    "release": "npm run build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.0.0",
     "eslint": "^10.12.0",

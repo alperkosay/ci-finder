@@ -21,35 +21,39 @@ React tabanlı, backend'i Next.js / Node.js / Bun ve yaygın tüm framework'lerl
 ```
 elfinder-clone/
 ├─ packages/
-│  ├─ core/          # backend motoru (framework bağımsız)
-│  │  ├─ commands/   # open, ls, tree, mkdir, rename, rm, paste, upload...
-│  │  ├─ drivers/    # StorageDriver arayüzü + LocalDriver + S3Driver
-│  │  ├─ security/   # path traversal koruması, izinler, limitler
-│  │  ├─ serve/      # Range/ETag destekli dosya sunucu
-│  │  └─ zip/        # bağımlılıksız zip stream
-│  ├─ next/          # Next.js'e özel: API route, uploads serve route, kök tespiti
-│  ├─ adapters/      # node, express, fastify, koa
-│  ├─ client/        # framework bağımsız API istemcisi (fetch + chunk upload)
-│  └─ react/         # <CiFinder /> bileşeni + styles.css
-└─ examples/
-   ├─ nextjs/        # app/api/files/route.ts → export { GET, POST }
-   ├─ express/
-   ├─ bun/           # Bun.serve({ fetch: handler })
-   └─ vite-react/
+│  ├─ core/             # @ci-finder/core: backend motoru (framework bağımsız)
+│  │  └─ src/
+│  │     ├─ engine.ts   # komutlar, yetkilendirme, hook'lar
+│  │     ├─ drivers/    # LocalDriver, S3Driver, SigV4 (→ /local, /s3)
+│  │     ├─ adapters/   # node http, Express, Fastify, Koa (→ /node)
+│  │     ├─ client/     # tarayıcı istemcisi, chunk'lı yükleme (→ /client)
+│  │     ├─ zip/        # bağımlılıksız zip yazıcı/okuyucu
+│  │     ├─ trash.ts, versions.ts, thumbnails.ts, stats.ts
+│  │     ├─ serve.ts, file-server.ts   # Range/ETag destekli dosya sunumu
+│  │     └─ sharp.ts    # küçük resim ve görsel işleme (→ /sharp)
+│  ├─ next/             # @ci-finder/next: API route, uploads route, kök tespiti
+│  ├─ react/            # @ci-finder/react: <CiFinder />, dosya seçici, styles.css
+│  └─ ckeditor/         # @ci-finder/ckeditor: CKEditor 5 eklentisi, CKEditor 4 connector'ı (→ /v4)
+├─ examples/
+│  ├─ next/             # App Router, standalone, /playground sayfası
+│  ├─ bun/              # Bun.serve + Bun'ın kendi paketleyicisi
+│  └─ express/
+├─ docs/api/            # ayrıntılı API referansı
+└─ .changeset/, .github/workflows/   # sürüm yönetimi, CI ve npm yayını
 ```
 
 ### Kullanım örnekleri (hedeflenen API)
 
 ```ts
 // Bun
-const fm = createCiFinder({ volumes: [{ id: "files", root: "./storage" }] });
+const fm = createCiFinder({ volumes: [{ id: "files", driver: localDriver({ root: "./storage" }) }] });
 Bun.serve({ fetch: fm.handler });
 
 // Next.js — app/api/files/route.ts
 export const { GET, POST } = createNextRoutes(fm);
 
 // Next.js — app/uploads/[...path]/route.ts
-export const { GET, HEAD } = createUploadsRoute({ dir: "uploads" });
+export const { GET, HEAD } = createUploadsRoute(); // <proje kökü>/uploads
 
 // S3 volume (yerel disk ile birlikte)
 createCiFinder({
@@ -204,13 +208,15 @@ Hepsi kendi kodumuz; Monaco, CodeMirror ya da benzeri bir bağımlılık yok.
 - TypeScript
 - `tsup`: ESM + CJS çıktı (yalnızca geliştirme bağımlılığı)
 - Vitest: core testleri hem Node hem Bun üzerinde koşturulur
-- Vite: örnek React uygulaması
+- ESLint + Prettier
+- Changesets: sürüm yönetimi ve CHANGELOG
+- GitHub Actions: CI (lint, format, build, typecheck, Node + Bun testleri) ve npm yayını
 
 ---
 
 ## Aşamalar
 
-Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
+Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 
 ### Aşama 0 — İskelet
 - [x] Monorepo ve npm workspaces kurulumu
@@ -227,7 +233,7 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] `get` / `put` (metin ve binary)
 - [x] Bağımlılıksız zip (zip64 dahil); `archive` / `extract`
 - [x] Hook sistemi
-- [x] Testler: 61 test (+8 gerçek S3 testi), Node (Vitest) ve Bun'da geçiyor
+- [x] Testler: 88 test (+8 gerçek S3 testi), Node (Vitest) ve Bun'da geçiyor
 
 ### Aşama 1b — S3 sürücüsü
 - [x] Bağımlılıksız SigV4 imzalama (AWS'nin resmî test vektörleriyle doğrulandı)
@@ -290,10 +296,25 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] `authorize` hook'u: 401, 403 ve istek bazında salt-okunur mod
 - [x] Arayüzde `onUnauthorized`
 
+### Aşama 5e — Sürüm geçmişi, toplu görsel işleme, depolama paneli
+- [x] Veritabanısız sürüm geçmişi (`.cf-versions`, yerel + S3; S3'te sunucu tarafı kopya)
+- [x] Sürüm alınan durumlar: editörde kaydetme, "değiştir" ile yükleme/yapıştırma, optimizasyon, geri yükleme
+- [x] Geçmiş yeniden adlandırma ve taşımada dosyayla birlikte gider; çöpten dönünce yeniden bağlanır
+- [x] `versions`, `version`, `revert`, `rmVersions` komutları; arayüzde sürüm geçmişi penceresi
+- [x] Toplu görsel işleme (`transform`, `sharpImages`): boyutlandırma, sıkıştırma, WebP / AVIF / JPEG / PNG
+- [x] Sunucuda işleme yoksa tarayıcıda (canvas) yedek yol
+- [x] Depolama paneli (`stats`, `cleanup`): tür bazında kullanım, en büyük dosyalar, sürüm ve önbellek temizliği
+
+### Aşama 5f — Dosya seçici ve editör entegrasyonu
+- [x] Seçici modu: `accept`, `multiple`, `onCancel`
+- [x] `useFilePicker` / `openFilePicker` (React dışında da çalışır)
+- [x] `@ci-finder/ckeditor`: CKEditor 5 eklentisi (araç çubuğu düğmesi + upload adapter)
+- [x] CKEditor 4 connector'ı ("Sunucuyu Gözat" düğmeleri ve `uploadimage`)
+- [x] Next örneğinde `/playground` sayfası
+
 ### Aşama 6 — Cila
 - [x] Büyük klasörler için sanal liste (10.000 dosyada DOM'da ~100 öğe)
 - [x] Otomatik erişilebilirlik denetimi (axe-core, 0 ihlal)
-- [ ] Ekran okuyucuyla elle test (NVDA / VoiceOver)
 - [x] i18n (TR, EN)
 - [x] Yoğunluk seçenekleri ve tema özelleştirme
 - [x] Dar ekran uyumu (container query, açılır kenar çubuğu)
@@ -303,12 +324,15 @@ Durum: 8 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 ### Aşama 7 — Paketleme ve dokümantasyon
 - [x] README (kurulum, Next/Bun/Express, S3, prop'lar, tema, güvenlik)
 - [x] Paket başına README
-- [ ] Ayrıntılı API referansı
-- [x] Yayına hazır `package.json` (exports, types, sideEffects)
-- [ ] npm'e yayın ve sürüm yönetimi (changesets)
+- [x] Ayrıntılı API referansı ([docs/api](docs/api/README.md))
+- [x] Yayına hazır `package.json` (exports, types, sideEffects, publishConfig)
+- [x] Sürüm yönetimi (Changesets, tüm paketler aynı sürümde)
+- [x] CI ve yayın iş akışları (GitHub Actions, npm provenance)
+- [ ] İlk npm yayını: npm'de `ci-finder` organizasyonu ve `NPM_TOKEN` secret'ı gerekiyor
 
 ## Sonraya bırakılanlar
 
+- Ekran okuyucuyla elle test (NVDA / VoiceOver). Otomatik axe-core denetimi 0 ihlalle geçiyor.
 - Orijinal elFinder protokolü için uyumluluk katmanı
 - Vue / Svelte / vanilla JS bileşenleri (`client` paketi zaten hazır olacağı için)
 

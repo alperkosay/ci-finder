@@ -36,6 +36,6 @@ export const { GET, HEAD } = createUploadsRoute();
   `outputFileTracingIncludes: { "/api/files": ["./node_modules/@img/**/*"] }`.
   Without it the file manager still works and serves original images instead of thumbnails.
 
-Documentation: https://github.com/alperkosay/ci-finder#readme
+Documentation: https://github.com/alperkosay/ci-finder#readme · API reference: https://github.com/alperkosay/ci-finder/blob/main/docs/api/next.md
 
 License: MIT

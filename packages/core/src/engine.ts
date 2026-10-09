@@ -1,3 +1,4 @@
+import { version } from "../package.json";
 import { CiFinderError, isCiFinderError } from "./errors";
 import { base64UrlDecode, base64UrlEncode, decodeId } from "./id";
 import { mimeOf } from "./mime";
@@ -24,7 +25,8 @@ import { walkAll } from "./walk";
 import { openZipEntry, readZipEntries } from "./zip/reader";
 import { createZipStream, type ZipSource } from "./zip/writer";
 
-export const VERSION = "0.1.0";
+/** Package version, inlined at build time so it follows releases. */
+export const VERSION: string = version;
 const MiB = 1024 * 1024;
 
 type Params = Record<string, unknown>;

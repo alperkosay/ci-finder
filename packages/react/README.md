@@ -42,6 +42,6 @@ All styles live in `@layer ci-finder` and use CSS custom properties, so any rule
 }
 ```
 
-Documentation and all props: https://github.com/alperkosay/ci-finder#readme
+Documentation: https://github.com/alperkosay/ci-finder#readme · API reference: https://github.com/alperkosay/ci-finder/blob/main/docs/api/react.md
 
 License: MIT

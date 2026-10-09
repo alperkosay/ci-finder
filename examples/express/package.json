@@ -6,7 +6,7 @@
     "start": "node server.mjs"
   },
   "dependencies": {
-    "@ci-finder/core": "0.1.0",
+    "@ci-finder/core": "*",
     "express": "^5.2.1",
     "sharp": "^0.35.5"
   }

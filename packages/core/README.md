@@ -39,6 +39,6 @@ Bun.serve({ routes: { "/api/files": finder.handler, "/uploads/*": createFileServ
 - `authorize` hook: `false` → 403, throw `UNAUTHORIZED` → 401, `{ readOnly: true }` → read-only request.
 - Safety: no path traversal, symlinks kept inside the root, CSRF header on writes, zip-slip and zip-bomb guards, sandboxed HTML/SVG.
 
-Documentation: https://github.com/alperkosay/ci-finder#readme
+Documentation: https://github.com/alperkosay/ci-finder#readme · API reference: https://github.com/alperkosay/ci-finder/blob/main/docs/api/core.md
 
 License: MIT
