@@ -1,6 +1,6 @@
 import type { DragEvent } from "react";
 
-export const DND_TYPE = "application/x-ci-finder";
+export const DND_TYPE = "application/x-thefinder";
 
 type AnyDrag = DragEvent | globalThis.DragEvent;
 
@@ -29,7 +29,7 @@ export function startDrag(e: DragEvent, ids: string[], label: string, root: HTML
   e.dataTransfer.effectAllowed = "copyMove";
   if (!root) return;
   const ghost = document.createElement("div");
-  ghost.className = "cf-drag-ghost";
+  ghost.className = "tf-drag-ghost";
   const name = document.createElement("span");
   name.textContent = label;
   ghost.appendChild(name);

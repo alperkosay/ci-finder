@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import type { CleanupRequest, StorageStats, UsageCategory, VersionedFile } from "@ci-finder/core/client";
+import type { CleanupRequest, StorageStats, UsageCategory, VersionedFile } from "@thefinder/core/client";
 import { cx, useFinder, useStore } from "../context";
 import { formatDate, formatSize, locationOf } from "../format";
 import { FileIcon, Icon, Spinner } from "../icons";
@@ -99,24 +99,24 @@ function DashboardView({ onClose }: { onClose: () => void }) {
   const scanned = stats ? new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(stats.scannedAt) : "";
 
   return (
-    <Modal label={t("storage")} onCancel={onClose} className="cf-dash-dialog" wide>
-      <div className="cf-editor">
-        <header className="cf-editor-head">
+    <Modal label={t("storage")} onCancel={onClose} className="tf-dash-dialog" wide>
+      <div className="tf-editor">
+        <header className="tf-editor-head">
           <Icon name="gauge" size={18} />
-          <div className="cf-editor-title">
+          <div className="tf-editor-title">
             <strong>{t("storage")}</strong>
             <span>{loading ? t("scanning") : stats ? t("scannedAt", { time: scanned }) : volume.name}</span>
           </div>
-          <div className="cf-editor-tools">
+          <div className="tf-editor-tools">
             {volumes.length > 1 && (
-              <div className="cf-segmented" role="radiogroup" aria-label={t("volume")}>
+              <div className="tf-segmented" role="radiogroup" aria-label={t("volume")}>
                 {volumes.map((v) => (
                   <button
                     key={v.id}
                     type="button"
                     role="radio"
                     aria-checked={v.id === volumeId}
-                    className={cx("cf-btn is-small", v.id === volumeId && "is-on")}
+                    className={cx("tf-btn is-small", v.id === volumeId && "is-on")}
                     onClick={() => setVolumeId(v.id)}
                   >
                     <Icon name={v.kind === "s3" ? "cloud" : "drive"} size={14} />
@@ -125,40 +125,40 @@ function DashboardView({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             )}
-            <button type="button" className="cf-btn is-icon" aria-label={t("refresh")} title={t("refresh")} disabled={loading} onClick={() => void load()}>
+            <button type="button" className="tf-btn is-icon" aria-label={t("refresh")} title={t("refresh")} disabled={loading} onClick={() => void load()}>
               {loading ? <Spinner size={14} /> : <Icon name="refresh" />}
             </button>
-            <button type="button" className="cf-btn is-icon" aria-label={t("close")} onClick={onClose}>
+            <button type="button" className="tf-btn is-icon" aria-label={t("close")} onClick={onClose}>
               <Icon name="close" />
             </button>
           </div>
         </header>
 
         {error ? (
-          <div className="cf-editor-state is-error">
+          <div className="tf-editor-state is-error">
             <Icon name="alert" size={24} />
             <span>{error}</span>
-            <button type="button" className="cf-btn is-outline" onClick={() => void load()}>
+            <button type="button" className="tf-btn is-outline" onClick={() => void load()}>
               {t("retry")}
             </button>
           </div>
         ) : !stats ? (
-          <div className="cf-editor-state">
+          <div className="tf-editor-state">
             <Spinner size={20} />
             <span>{t("scanning")}</span>
           </div>
         ) : (
-          <div className={cx("cf-dash", loading && "is-stale")}>
-            {stats.truncated && <p className="cf-dash-note">{t("truncatedNote", { n: number(stats.files + stats.dirs) })}</p>}
+          <div className={cx("tf-dash", loading && "is-stale")}>
+            {stats.truncated && <p className="tf-dash-note">{t("truncatedNote", { n: number(stats.files + stats.dirs) })}</p>}
 
-            <section className="cf-dash-card cf-dash-overview">
-              <div className="cf-dash-hero">
-                <span className="cf-dash-big">{size(stats.size + stats.versions.size + stats.trash.size + stats.cache.size)}</span>
-                <span className="cf-dash-big-label">{t("used")}</span>
-                <span className="cf-dim">{t("filesCount", { files: number(stats.files), dirs: number(stats.dirs) })}</span>
+            <section className="tf-dash-card tf-dash-overview">
+              <div className="tf-dash-hero">
+                <span className="tf-dash-big">{size(stats.size + stats.versions.size + stats.trash.size + stats.cache.size)}</span>
+                <span className="tf-dash-big-label">{t("used")}</span>
+                <span className="tf-dim">{t("filesCount", { files: number(stats.files), dirs: number(stats.dirs) })}</span>
               </div>
               {stats.capacity && <DiskMeter stats={stats} />}
-              <div className="cf-dash-tiles">
+              <div className="tf-dash-tiles">
                 <Tile label={t("files")} value={size(stats.size)} detail={number(stats.files)} />
                 <Tile label={t("versions")} value={size(stats.versions.size)} detail={t("versionsCount", { n: number(stats.versions.count) })} />
                 <Tile label={t("trash")} value={size(stats.trash.size)} detail={t("items", { n: number(stats.trash.count) })} />
@@ -166,49 +166,49 @@ function DashboardView({ onClose }: { onClose: () => void }) {
               </div>
             </section>
 
-            <section className="cf-dash-card">
-              <h3 className="cf-dash-title">{t("fileTypes")}</h3>
+            <section className="tf-dash-card">
+              <h3 className="tf-dash-title">{t("fileTypes")}</h3>
               <CategoryChart stats={stats} />
             </section>
 
-            <section className="cf-dash-card">
-              <h3 className="cf-dash-title">{t("largestFiles")}</h3>
+            <section className="tf-dash-card">
+              <h3 className="tf-dash-title">{t("largestFiles")}</h3>
               {stats.largest.length ? (
-                <ul className="cf-dash-files">
+                <ul className="tf-dash-files">
                   {stats.largest.map((e) => (
                     <li key={e.id}>
-                      <button type="button" className="cf-dash-file" title={t("reveal")} onClick={() => reveal(e)}>
+                      <button type="button" className="tf-dash-file" title={t("reveal")} onClick={() => reveal(e)}>
                         <FileIcon entry={e} size={22} />
-                        <span className="cf-dash-file-name">
+                        <span className="tf-dash-file-name">
                           <strong>{e.name}</strong>
                           <span>{locationOf(e, volume.name)}</span>
                         </span>
-                        <span className="cf-dash-file-size">{size(e.size)}</span>
-                        <span className="cf-dash-file-bar" style={{ "--w": `${(e.size / stats.largest[0]!.size) * 100}%` } as React.CSSProperties} />
+                        <span className="tf-dash-file-size">{size(e.size)}</span>
+                        <span className="tf-dash-file-bar" style={{ "--w": `${(e.size / stats.largest[0]!.size) * 100}%` } as React.CSSProperties} />
                       </button>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="cf-dim">{t("emptyFolder")}</p>
+                <p className="tf-dim">{t("emptyFolder")}</p>
               )}
             </section>
 
-            <section className="cf-dash-card cf-dash-versions">
-              <div className="cf-dash-head">
-                <h3 className="cf-dash-title">
+            <section className="tf-dash-card tf-dash-versions">
+              <div className="tf-dash-head">
+                <h3 className="tf-dash-title">
                   <Icon name="history" size={15} /> {t("versions")}
                 </h3>
-                <span className="cf-dim">
+                <span className="tf-dim">
                   {volume.versions
                     ? `${t("versionsCount", { n: number(stats.versions.count) })} · ${size(stats.versions.size)} · ${t("versionsLimit", { n: volume.versions.maxPerFile })}`
                     : t("versionsOff")}
                 </span>
               </div>
 
-              <div className="cf-dash-cleanup">
+              <div className="tf-dash-cleanup">
                 <CleanupRow label={t("olderThan")}>
-                  <select className="cf-input is-small" aria-label={t("olderThan")} value={days} onChange={(e) => setDays(Number(e.target.value))}>
+                  <select className="tf-input is-small" aria-label={t("olderThan")} value={days} onChange={(e) => setDays(Number(e.target.value))}>
                     {OLDER_THAN.map((d) => (
                       <option key={d} value={d}>
                         {t("days", { n: d })}
@@ -224,7 +224,7 @@ function DashboardView({ onClose }: { onClose: () => void }) {
                   </ActionButton>
                 </CleanupRow>
                 <CleanupRow label={t("keepLast")}>
-                  <select className="cf-input is-small" aria-label={t("keepLast")} value={keep} onChange={(e) => setKeep(Number(e.target.value))}>
+                  <select className="tf-input is-small" aria-label={t("keepLast")} value={keep} onChange={(e) => setKeep(Number(e.target.value))}>
                     {KEEP_LAST.map((n) => (
                       <option key={n} value={n}>
                         {t("lastN", { n })}
@@ -270,8 +270,8 @@ function DashboardView({ onClose }: { onClose: () => void }) {
               </div>
 
               {stats.versions.items.length ? (
-                <div className="cf-dash-table" role="table" aria-label={t("versions")}>
-                  <div className="cf-dash-row is-head" role="row">
+                <div className="tf-dash-table" role="table" aria-label={t("versions")}>
+                  <div className="tf-dash-row is-head" role="row">
                     <span role="columnheader">{t("name")}</span>
                     <span role="columnheader">{t("versionsCol")}</span>
                     <span role="columnheader">{t("size")}</span>
@@ -279,29 +279,29 @@ function DashboardView({ onClose }: { onClose: () => void }) {
                     <span role="columnheader" aria-label={t("more")} />
                   </div>
                   {stats.versions.items.map((item) => (
-                    <div key={item.id} className={cx("cf-dash-row", !item.exists && "is-orphan")} role="row">
-                      <span role="cell" className="cf-dash-file-name">
+                    <div key={item.id} className={cx("tf-dash-row", !item.exists && "is-orphan")} role="row">
+                      <span role="cell" className="tf-dash-file-name">
                         <strong>
                           {item.name}
-                          {!item.exists && <em className="cf-badge">{t("fileDeleted")}</em>}
+                          {!item.exists && <em className="tf-badge">{t("fileDeleted")}</em>}
                         </strong>
                         <span>{locationOf(item, volume.name)}</span>
                       </span>
-                      <span role="cell" className="cf-num">
+                      <span role="cell" className="tf-num">
                         {number(item.count)}
                       </span>
-                      <span role="cell" className="cf-num">
+                      <span role="cell" className="tf-num">
                         {size(item.size)}
                       </span>
                       <span role="cell">{formatDate(item.latest, locale, t)}</span>
-                      <span role="cell" className="cf-dash-row-actions">
-                        <button type="button" className="cf-btn is-small" onClick={() => store.openVersions(item)}>
+                      <span role="cell" className="tf-dash-row-actions">
+                        <button type="button" className="tf-btn is-small" onClick={() => store.openVersions(item)}>
                           <Icon name="history" size={14} />
                           <span>{t("history")}</span>
                         </button>
                         <button
                           type="button"
-                          className="cf-btn is-icon is-small is-danger-text"
+                          className="tf-btn is-icon is-small is-danger-text"
                           disabled={!!busy}
                           title={t("deleteHistory")}
                           aria-label={t("deleteHistory")}
@@ -314,23 +314,23 @@ function DashboardView({ onClose }: { onClose: () => void }) {
                   ))}
                 </div>
               ) : (
-                <p className="cf-dim cf-dash-empty">{t("noVersionedFiles")}</p>
+                <p className="tf-dim tf-dash-empty">{t("noVersionedFiles")}</p>
               )}
             </section>
 
             {volume.trash && (
-              <section className="cf-dash-card cf-dash-side">
-                <h3 className="cf-dash-title">
+              <section className="tf-dash-card tf-dash-side">
+                <h3 className="tf-dash-title">
                   <Icon name="trash" size={15} /> {t("trash")}
                 </h3>
-                <p className="cf-dash-figure">
-                  <b>{size(stats.trash.size)}</b> <span className="cf-dim">· {t("items", { n: number(stats.trash.count) })}</span>
+                <p className="tf-dash-figure">
+                  <b>{size(stats.trash.size)}</b> <span className="tf-dim">· {t("items", { n: number(stats.trash.count) })}</span>
                 </p>
-                <p className="cf-dim cf-small">{t("trashHint", { days: volume.trash.retentionDays })}</p>
-                <div className="cf-dash-buttons">
+                <p className="tf-dim tf-small">{t("trashHint", { days: volume.trash.retentionDays })}</p>
+                <div className="tf-dash-buttons">
                   <button
                     type="button"
-                    className="cf-btn is-outline"
+                    className="tf-btn is-outline"
                     onClick={() => {
                       onClose();
                       void store.open(TRASH_ID);
@@ -353,15 +353,15 @@ function DashboardView({ onClose }: { onClose: () => void }) {
               </section>
             )}
 
-            <section className="cf-dash-card cf-dash-side">
-              <h3 className="cf-dash-title">
+            <section className="tf-dash-card tf-dash-side">
+              <h3 className="tf-dash-title">
                 <Icon name="image" size={15} /> {t("cache")}
               </h3>
-              <p className="cf-dash-figure">
-                <b>{size(stats.cache.size)}</b> <span className="cf-dim">· {number(stats.cache.files)}</span>
+              <p className="tf-dash-figure">
+                <b>{size(stats.cache.size)}</b> <span className="tf-dim">· {number(stats.cache.files)}</span>
               </p>
-              <p className="cf-dim cf-small">{t("cacheHint")}</p>
-              <div className="cf-dash-buttons">
+              <p className="tf-dim tf-small">{t("cacheHint")}</p>
+              <div className="tf-dash-buttons">
                 <ActionButton
                   busy={busy === "cache"}
                   disabled={!stats.cache.files || !!busy}
@@ -380,19 +380,19 @@ function DashboardView({ onClose }: { onClose: () => void }) {
 
 function Tile({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
-    <div className="cf-dash-tile">
-      <span className="cf-dash-tile-label">{label}</span>
-      <span className="cf-dash-tile-value">{value}</span>
-      <span className="cf-dim cf-small">{detail}</span>
+    <div className="tf-dash-tile">
+      <span className="tf-dash-tile-label">{label}</span>
+      <span className="tf-dash-tile-value">{value}</span>
+      <span className="tf-dim tf-small">{detail}</span>
     </div>
   );
 }
 
 function CleanupRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="cf-dash-cleanup-row">
+    <div className="tf-dash-cleanup-row">
       <span>{label}</span>
-      <span className="cf-dash-cleanup-controls">{children}</span>
+      <span className="tf-dash-cleanup-controls">{children}</span>
     </div>
   );
 }
@@ -411,7 +411,7 @@ function ActionButton({
   children: ReactNode;
 }) {
   return (
-    <button type="button" className={cx("cf-btn is-small is-outline", danger && "is-danger-text")} disabled={disabled} onClick={onClick}>
+    <button type="button" className={cx("tf-btn is-small is-outline", danger && "is-danger-text")} disabled={disabled} onClick={onClick}>
       {busy && <Spinner size={12} />}
       <span>{children}</span>
     </button>
@@ -426,12 +426,12 @@ function DiskMeter({ stats }: { stats: StorageStats }) {
   const others = Math.max(0, total - free - mine);
   const pct = (n: number) => `${Math.max(0, Math.min(100, (n / total) * 100))}%`;
   return (
-    <div className="cf-dash-disk">
-      <div className="cf-meter" role="img" aria-label={t("diskFree", { free: formatSize(free, locale), total: formatSize(total, locale) })}>
-        <span className="cf-meter-mine" style={{ width: pct(mine) }} />
-        <span className="cf-meter-others" style={{ width: pct(others) }} />
+    <div className="tf-dash-disk">
+      <div className="tf-meter" role="img" aria-label={t("diskFree", { free: formatSize(free, locale), total: formatSize(total, locale) })}>
+        <span className="tf-meter-mine" style={{ width: pct(mine) }} />
+        <span className="tf-meter-others" style={{ width: pct(others) }} />
       </div>
-      <span className="cf-dim cf-small">{t("diskFree", { free: formatSize(free, locale), total: formatSize(total, locale) })}</span>
+      <span className="tf-dim tf-small">{t("diskFree", { free: formatSize(free, locale), total: formatSize(total, locale) })}</span>
     </div>
   );
 }
@@ -450,10 +450,10 @@ function CategoryChart({ stats }: { stats: StorageStats }) {
   };
   const active = hover ? rows.find((r) => r.c === hover) : null;
 
-  if (!rows.length) return <p className="cf-dim">{t("emptyFolder")}</p>;
+  if (!rows.length) return <p className="tf-dim">{t("emptyFolder")}</p>;
   return (
-    <div className={cx("cf-cats", hover && "has-hover")}>
-      <div className="cf-cats-caption" aria-live="polite">
+    <div className={cx("tf-cats", hover && "has-hover")}>
+      <div className="tf-cats-caption" aria-live="polite">
         {active ? (
           <>
             <b>{t(`cat.${active.c}`)}</b> · {formatSize(active.size, locale)} · {percent(share(active.size))}
@@ -462,11 +462,11 @@ function CategoryChart({ stats }: { stats: StorageStats }) {
           formatSize(total, locale)
         )}
       </div>
-      <div className="cf-cats-bar" aria-hidden="true">
+      <div className="tf-cats-bar" aria-hidden="true">
         {rows.map((r) => (
           <span
             key={r.c}
-            className={cx("cf-cats-seg", hover === r.c && "is-hover")}
+            className={cx("tf-cats-seg", hover === r.c && "is-hover")}
             data-cat={r.c}
             style={{ flexGrow: Math.max(share(r.size), 0.004) }}
             onPointerEnter={() => setHover(r.c)}
@@ -474,7 +474,7 @@ function CategoryChart({ stats }: { stats: StorageStats }) {
           />
         ))}
       </div>
-      <table className="cf-cats-table">
+      <table className="tf-cats-table">
         <thead>
           <tr>
             <th scope="col">{t("kind")}</th>
@@ -487,7 +487,7 @@ function CategoryChart({ stats }: { stats: StorageStats }) {
           {rows.map((r) => (
             <tr key={r.c} className={cx(hover === r.c && "is-hover")} onPointerEnter={() => setHover(r.c)} onPointerLeave={() => setHover(null)}>
               <th scope="row">
-                <span className="cf-cats-swatch" data-cat={r.c} />
+                <span className="tf-cats-swatch" data-cat={r.c} />
                 {t(`cat.${r.c}`)}
               </th>
               <td>{r.files.toLocaleString(locale)}</td>

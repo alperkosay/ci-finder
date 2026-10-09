@@ -1,12 +1,12 @@
 import * as nodePath from "node:path";
-import { CiFinder, createCiFinder, isReservedPath, normalizePath, serveFile, type CiFinderOptions, type StorageDriver } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { TheFinder, createTheFinder, isReservedPath, normalizePath, serveFile, type TheFinderOptions, type StorageDriver } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 
-export { createCiFinder };
-export { CiFinderError } from "@ci-finder/core";
-export { localDriver } from "@ci-finder/core/local";
-export { s3Driver } from "@ci-finder/core/s3";
-export type * from "@ci-finder/core";
+export { createTheFinder };
+export { TheFinderError } from "@thefinder/core";
+export { localDriver } from "@thefinder/core/local";
+export { s3Driver } from "@thefinder/core/s3";
+export type * from "@thefinder/core";
 
 /**
  * Read through `globalThis` on purpose: Next's output file tracing statically follows
@@ -63,8 +63,8 @@ type RouteHandler = (request: Request) => Promise<Response>;
  * export const { GET, POST } = createNextRoutes(finder);
  * ```
  */
-export function createNextRoutes(finder: CiFinder | CiFinderOptions): { GET: RouteHandler; POST: RouteHandler; HEAD: RouteHandler } {
-  const instance = finder instanceof CiFinder ? finder : createCiFinder(finder);
+export function createNextRoutes(finder: TheFinder | TheFinderOptions): { GET: RouteHandler; POST: RouteHandler; HEAD: RouteHandler } {
+  const instance = finder instanceof TheFinder ? finder : createTheFinder(finder);
   const handle: RouteHandler = (request) => instance.handler(request);
   return { GET: handle, POST: handle, HEAD: handle };
 }

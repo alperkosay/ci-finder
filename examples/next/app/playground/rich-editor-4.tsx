@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { registerCiFinder, type CKEditorStatic } from "@ci-finder/ckeditor/v4";
+import { registerTheFinder, type CKEditorStatic } from "@thefinder/ckeditor/v4";
 
 /** 4.22.1 is the last open-source CKEditor 4 release; 4.23+ (LTS) needs a commercial license key. */
 const SRC = "https://cdn.ckeditor.com/4.22.1/standard-all/ckeditor.js";
@@ -33,8 +33,8 @@ function loadCKEditor4(): Promise<CKEditor4Global> {
 }
 
 /**
- * CKEditor 4 with the `@ci-finder/ckeditor/v4` connector: the folder button in the toolbar, the
- * "Browse Server" buttons of the image and link dialogs and pasted images all go through ciFinder.
+ * CKEditor 4 with the `@thefinder/ckeditor/v4` connector: the folder button in the toolbar, the
+ * "Browse Server" buttons of the image and link dialogs and pasted images all go through theFinder.
  */
 export function RichEditor4({ initialData, onChange }: { initialData: string; onChange: (html: string) => void }) {
   const area = useRef<HTMLTextAreaElement>(null);
@@ -47,15 +47,15 @@ export function RichEditor4({ initialData, onChange }: { initialData: string; on
     loadCKEditor4().then(
       (CKEDITOR) => {
         if (cancelled || !area.current) return;
-        registerCiFinder(CKEDITOR);
+        registerTheFinder(CKEDITOR);
         editor = CKEDITOR.replace(area.current, {
           language: "tr",
           height: 240,
           versionCheck: false,
-          extraPlugins: "cifinder,uploadimage",
+          extraPlugins: "thefinder,uploadimage",
           removePlugins: "exportpdf",
           removeButtons: "Subscript,Superscript,Anchor,SpecialChar,HorizontalRule,Scayt",
-          ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+          theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
         });
         const emit = () => latest.current(editor!.getData());
         editor.on("change", emit);

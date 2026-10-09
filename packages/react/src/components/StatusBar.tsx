@@ -1,4 +1,4 @@
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, useFinder, useStore, useVisible } from "../context";
 import { formatSize } from "../format";
 import { TRASH_ID } from "../store";
@@ -25,8 +25,8 @@ export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: (
   const canPick = pickMode && picked.length > 0 && (multiple || picked.length === 1) && picked.every(accepts);
 
   return (
-    <footer className="cf-statusbar">
-      <span className="cf-status-text" aria-live="polite">
+    <footer className="tf-statusbar">
+      <span className="tf-status-text" aria-live="polite">
         {selection.length
           ? t("selected", { n: selection.length, total: ids.length }) + (selectedSize ? ` · ${formatSize(selectedSize, locale)}` : "")
           : ids.length === 1
@@ -34,35 +34,35 @@ export function StatusBar({ onToggleUploads, uploadsOpen }: { onToggleUploads: (
             : t("items", { n: ids.length })}
       </span>
       {readOnly && (
-        <span className="cf-status-chip">
+        <span className="tf-status-chip">
           <Icon name="lock" size={12} />
           {t("readOnly")}
         </span>
       )}
-      <span className="cf-statusbar-spacer" />
+      <span className="tf-statusbar-spacer" />
       {uploads.length > 0 && (
         <button
           type="button"
-          className={cx("cf-upload-pill", uploadsOpen && "is-on", failed > 0 && "has-error")}
+          className={cx("tf-upload-pill", uploadsOpen && "is-on", failed > 0 && "has-error")}
           onClick={onToggleUploads}
           aria-expanded={uploadsOpen}
         >
           {active.length ? <Spinner size={12} /> : <Icon name={failed ? "alert" : "check"} size={12} />}
           <span>{active.length ? t("uploadsProgress", { done, total: done + active.length }) : t("uploadsComplete", { n: done })}</span>
           {active.length > 0 && (
-            <span className="cf-progress" aria-hidden="true">
+            <span className="tf-progress" aria-hidden="true">
               <span style={{ transform: `scaleX(${progress})` }} />
             </span>
           )}
         </button>
       )}
       {pickMode && onPickCancel && (
-        <button type="button" className="cf-btn is-outline" onClick={onPickCancel}>
+        <button type="button" className="tf-btn is-outline" onClick={onPickCancel}>
           {t("cancel")}
         </button>
       )}
       {pickMode && (
-        <button type="button" className="cf-btn is-primary" disabled={!canPick} onClick={() => onPick?.(picked)}>
+        <button type="button" className="tf-btn is-primary" disabled={!canPick} onClick={() => onPick?.(picked)}>
           {pickLabel ?? t("select")}
         </button>
       )}

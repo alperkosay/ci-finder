@@ -1,4 +1,4 @@
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import type { Translate } from "./i18n";
 
 export function formatSize(bytes: number, locale: string): string {

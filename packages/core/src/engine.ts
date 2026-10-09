@@ -1,12 +1,23 @@
 import { version } from "../package.json";
-import { CiFinderError, isCiFinderError } from "./errors";
+import { TheFinderError, isTheFinderError } from "./errors";
 import { base64UrlDecode, base64UrlEncode, decodeId } from "./id";
 import { isActiveContent, mimeOf } from "./mime";
 import { basename, dirname, extname, isInside, joinPath, normalizePath } from "./path";
 import { contentDisposition, serveFile } from "./serve";
 import { mapLimit, readAll, toUint8 } from "./stream";
 import { collectStats } from "./stats";
-import type { Action, CiFinderOptions, CommandContext, DriverStat, Entry, ImageFormat, ImageProcessor, InitResult, TransformResult, VolumePath } from "./types";
+import type {
+  Action,
+  TheFinderOptions,
+  CommandContext,
+  DriverStat,
+  Entry,
+  ImageFormat,
+  ImageProcessor,
+  InitResult,
+  TransformResult,
+  VolumePath,
+} from "./types";
 import { THUMBS_ROOT, ThumbnailService } from "./thumbnails";
 import { emptyTrash, isReservedPath, listTrash, moveToTrash, parseTrashPath, purgeOne, restoreFromTrash, trashOrigin } from "./trash";
 import {
@@ -31,7 +42,7 @@ const MiB = 1024 * 1024;
 
 type Params = Record<string, unknown>;
 type Target = { vol: Volume; path: VolumePath };
-type Command = (engine: CiFinder, p: Params, ctx: CommandContext) => Promise<unknown>;
+type Command = (engine: TheFinder, p: Params, ctx: CommandContext) => Promise<unknown>;
 
 /** Commands that never change anything; they are the only ones accepted over GET. */
 const READ_COMMANDS = new Set([
@@ -73,7 +84,7 @@ function reasonOf(p: Params, fallback: string): string {
 }
 
 /** Header every state-changing request must carry. Browsers cannot add it to cross-site form posts. */
-export const CSRF_HEADER = "x-ci-finder";
+export const CSRF_HEADER = "x-thefinder";
 
 const encoder = new TextEncoder();
 
@@ -85,7 +96,7 @@ function str(p: Params, key: string, required = true): string {
   const v = p[key];
   if (typeof v === "string" && v !== "") return v;
   if (typeof v === "number") return String(v);
-  if (required) throw new CiFinderError("BAD_REQUEST", `"${key}" is required`);
+  if (required) throw new TheFinderError("BAD_REQUEST", `"${key}" is required`);
   return "";
 }
 
@@ -94,7 +105,7 @@ function int(p: Params, key: string, fallback?: number): number {
   const n = typeof v === "number" ? v : typeof v === "string" && v !== "" ? Number(v) : NaN;
   if (Number.isSafeInteger(n) && n >= 0) return n;
   if (fallback !== undefined) return fallback;
-  throw new CiFinderError("BAD_REQUEST", `"${key}" must be a non-negative integer`);
+  throw new TheFinderError("BAD_REQUEST", `"${key}" must be a non-negative integer`);
 }
 
 function bool(p: Params, key: string): boolean {
@@ -106,8 +117,8 @@ function list(p: Params, key: string): string[] {
   const v = p[key];
   const items = Array.isArray(v) ? v : typeof v === "string" ? v.split(",") : [];
   const out = items.filter((x): x is string => typeof x === "string" && x !== "");
-  if (!out.length) throw new CiFinderError("BAD_REQUEST", `"${key}" is required`);
-  if (out.length > 10_000) throw new CiFinderError("BAD_REQUEST", "Too many items");
+  if (!out.length) throw new TheFinderError("BAD_REQUEST", `"${key}" is required`);
+  if (out.length > 10_000) throw new TheFinderError("BAD_REQUEST", "Too many items");
   return out;
 }
 
@@ -116,28 +127,28 @@ function fold(s: string): string {
   return s.replace(/İ/g, "i").replace(/I/g, "i").toLowerCase().replace(/ı/g, "i").normalize("NFD").replace(/\p{M}/gu, "");
 }
 
-function mapNativeError(e: unknown): CiFinderError {
-  if (isCiFinderError(e)) return e;
+function mapNativeError(e: unknown): TheFinderError {
+  if (isTheFinderError(e)) return e;
   const code = (e as { code?: unknown })?.code;
   switch (code) {
     case "ENOENT":
-      return new CiFinderError("NOT_FOUND", "File not found");
+      return new TheFinderError("NOT_FOUND", "File not found");
     case "EEXIST":
     case "ENOTEMPTY":
-      return new CiFinderError("EXISTS", "An item with this name already exists");
+      return new TheFinderError("EXISTS", "An item with this name already exists");
     case "EACCES":
     case "EPERM":
-      return new CiFinderError("FORBIDDEN", "Permission denied by the file system");
+      return new TheFinderError("FORBIDDEN", "Permission denied by the file system");
     case "ENOTDIR":
-      return new CiFinderError("NOT_A_DIRECTORY", "Not a folder");
+      return new TheFinderError("NOT_A_DIRECTORY", "Not a folder");
     case "EISDIR":
-      return new CiFinderError("NOT_A_FILE", "Not a file");
+      return new TheFinderError("NOT_A_FILE", "Not a file");
     case "ENOSPC":
-      return new CiFinderError("STORAGE", "No space left on the storage");
+      return new TheFinderError("STORAGE", "No space left on the storage");
     case "ENAMETOOLONG":
-      return new CiFinderError("INVALID_NAME", "Name is too long");
+      return new TheFinderError("INVALID_NAME", "Name is too long");
   }
-  return new CiFinderError("INTERNAL", "Internal error");
+  return new TheFinderError("INTERNAL", "Internal error");
 }
 
 function json(body: unknown, status = 200): Response {
@@ -151,18 +162,18 @@ function json(body: unknown, status = 200): Response {
 // Engine
 // ---------------------------------------------------------------------------------------------
 
-export class CiFinder {
-  readonly options: Required<Pick<CiFinderOptions, "chunkSize" | "maxEditSize" | "searchLimit">> & CiFinderOptions;
+export class TheFinder {
+  readonly options: Required<Pick<TheFinderOptions, "chunkSize" | "maxEditSize" | "searchLimit">> & TheFinderOptions;
   private readonly volumes = new Map<string, Volume>();
   private readonly commands: Record<string, Command>;
   private readonly thumbs: ThumbnailService | null;
   private readonly images: ImageProcessor | null;
   private imageJobs = 0;
   private readonly imageQueue: (() => void)[] = [];
-  private readOnlyView: CiFinder | null = null;
+  private readOnlyView: TheFinder | null = null;
 
-  constructor(options: CiFinderOptions) {
-    if (!options?.volumes?.length) throw new Error("ciFinder: at least one volume is required");
+  constructor(options: TheFinderOptions) {
+    if (!options?.volumes?.length) throw new Error("theFinder: at least one volume is required");
     this.options = {
       chunkSize: 5 * MiB,
       maxEditSize: 5 * MiB,
@@ -170,13 +181,13 @@ export class CiFinder {
       ...options,
     };
     for (const v of options.volumes) {
-      if (this.volumes.has(v.id)) throw new Error(`ciFinder: duplicate volume id "${v.id}"`);
+      if (this.volumes.has(v.id)) throw new Error(`theFinder: duplicate volume id "${v.id}"`);
       this.volumes.set(v.id, new Volume(v));
     }
     this.thumbs = options.thumbnails ? new ThumbnailService(options.thumbnails) : null;
     this.images = options.images ?? null;
     if (options.volumes.some((v) => v.driver.kind === "s3") && this.options.chunkSize < 5 * MiB) {
-      throw new Error("ciFinder: chunkSize must be at least 5 MiB when an S3 volume is configured");
+      throw new Error("theFinder: chunkSize must be at least 5 MiB when an S3 volume is configured");
     }
 
     // Commands receive the engine to run on: the instance itself, or a read-only view of it.
@@ -226,26 +237,26 @@ export class CiFinder {
       }
       const params = await parseParams(request);
       const cmd = typeof params.cmd === "string" ? params.cmd : "";
-      if (!Object.hasOwn(this.commands, cmd)) throw new CiFinderError("UNKNOWN_COMMAND", `Unknown command "${cmd}"`);
+      if (!Object.hasOwn(this.commands, cmd)) throw new TheFinderError("UNKNOWN_COMMAND", `Unknown command "${cmd}"`);
       if (method !== "POST" && !READ_COMMANDS.has(cmd)) {
-        throw new CiFinderError("BAD_REQUEST", `"${cmd}" requires POST`);
+        throw new TheFinderError("BAD_REQUEST", `"${cmd}" requires POST`);
       }
       if (method === "POST" && this.options.csrfProtection !== false && !request.headers.has(CSRF_HEADER)) {
-        throw new CiFinderError("FORBIDDEN", `Missing ${CSRF_HEADER} header`);
+        throw new TheFinderError("FORBIDDEN", `Missing ${CSRF_HEADER} header`);
       }
       ctx = { cmd, params, request };
       const result = await this.run(ctx);
       return result instanceof Response ? result : json({ ok: true, data: result });
     } catch (e) {
       const err = mapNativeError(e);
-      if (err.code === "INTERNAL") console.error("[ci-finder]", ctx?.cmd ?? "", e);
+      if (err.code === "INTERNAL") console.error("[thefinder]", ctx?.cmd ?? "", e);
       return json({ ok: false, error: { code: err.code, message: err.message } }, err.status);
     }
   };
 
   /** Runs a command programmatically (hooks included). */
   async execute<T = unknown>(cmd: string, params: Params = {}, request?: Request): Promise<T> {
-    if (!Object.hasOwn(this.commands, cmd)) throw new CiFinderError("UNKNOWN_COMMAND", `Unknown command "${cmd}"`);
+    if (!Object.hasOwn(this.commands, cmd)) throw new TheFinderError("UNKNOWN_COMMAND", `Unknown command "${cmd}"`);
     return (await this.run({ cmd, params, request: request ?? new Request("http://localhost/") })) as T;
   }
 
@@ -255,7 +266,7 @@ export class CiFinder {
 
   private async run(ctx: CommandContext): Promise<unknown> {
     const verdict = this.options.authorize ? await this.options.authorize(ctx) : true;
-    if (verdict === false) throw new CiFinderError("FORBIDDEN", "Not authorized");
+    if (verdict === false) throw new TheFinderError("FORBIDDEN", "Not authorized");
     const engine = typeof verdict === "object" && verdict?.readOnly ? this.readOnly() : this;
     await this.options.onBeforeCommand?.(ctx);
     const result = await this.commands[ctx.cmd]!(engine, ctx.params, ctx);
@@ -264,10 +275,10 @@ export class CiFinder {
   }
 
   /** Same engine and hooks, but every volume is read-only. Created once and reused. */
-  private readOnly(): CiFinder {
+  private readOnly(): TheFinder {
     if (!this.readOnlyView) {
       const volumes = new Map([...this.volumes].map(([id, v]) => [id, new Volume({ ...v.options, readOnly: true })]));
-      this.readOnlyView = Object.create(this, { volumes: { value: volumes } }) as CiFinder;
+      this.readOnlyView = Object.create(this, { volumes: { value: volumes } }) as TheFinder;
     }
     return this.readOnlyView;
   }
@@ -275,8 +286,8 @@ export class CiFinder {
   private target(id: unknown): Target {
     const { volume, path } = decodeId(id);
     const vol = this.volumes.get(volume);
-    if (!vol) throw new CiFinderError("NOT_FOUND", "Volume not found");
-    if (vol.isHiddenPath(path)) throw new CiFinderError("NOT_FOUND", "File not found");
+    if (!vol) throw new TheFinderError("NOT_FOUND", "Volume not found");
+    if (vol.isHiddenPath(path)) throw new TheFinderError("NOT_FOUND", "File not found");
     return { vol, path };
   }
 
@@ -424,7 +435,7 @@ export class CiFinder {
     const name = vol.validateName(p.name);
     const target = joinPath(path, name);
     vol.assertCreatable(target);
-    if (await vol.driver.stat(target)) throw new CiFinderError("EXISTS", `"${name}" already exists`);
+    if (await vol.driver.stat(target)) throw new TheFinderError("EXISTS", `"${name}" already exists`);
     await vol.driver.mkdir(target);
     return { entry: await this.entryAt(vol, target) };
   }
@@ -437,7 +448,7 @@ export class CiFinder {
     vol.assertExtensionAllowed(name);
     const target = joinPath(path, name);
     vol.assertCreatable(target);
-    if (await vol.driver.stat(target)) throw new CiFinderError("EXISTS", `"${name}" already exists`);
+    if (await vol.driver.stat(target)) throw new TheFinderError("EXISTS", `"${name}" already exists`);
     await vol.driver.write(target, typeof p.content === "string" ? p.content : "");
     return { entry: await this.entryAt(vol, target) };
   }
@@ -453,7 +464,7 @@ export class CiFinder {
     const target = joinPath(dirname(path), name);
     vol.assertCreatable(target);
     const caseOnly = name.toLowerCase() === stat.name.toLowerCase();
-    if (!caseOnly && (await vol.driver.stat(target))) throw new CiFinderError("EXISTS", `"${name}" already exists`);
+    if (!caseOnly && (await vol.driver.stat(target))) throw new TheFinderError("EXISTS", `"${name}" already exists`);
     await this.assertTree(vol, path, "write");
     await vol.driver.move(path, target);
     if (stat.kind === "file") await this.thumbs?.forget(vol, path);
@@ -501,12 +512,12 @@ export class CiFinder {
     return { removed, trashed };
   }
 
-  /** Resolves a trash item id ("<volume>_<base64 of /.cf-trash/<tid>>"). */
+  /** Resolves a trash item id ("<volume>_<base64 of /.tf-trash/<tid>>"). */
   private trashTarget(id: unknown): { vol: Volume; tid: string } {
     const { volume, path } = decodeId(id);
     const vol = this.volumes.get(volume);
     const tid = parseTrashPath(path);
-    if (!vol || !tid || !vol.trash.enabled) throw new CiFinderError("NOT_FOUND", "Item is not in the trash");
+    if (!vol || !tid || !vol.trash.enabled) throw new TheFinderError("NOT_FOUND", "Item is not in the trash");
     return { vol, tid };
   }
 
@@ -580,7 +591,7 @@ export class CiFinder {
       const sameFolder = sameVolume && dirname(src.path) === dst.path;
       if (cut && sameFolder) continue;
       if (stat.kind === "dir" && sameVolume && isInside(src.path, dst.path)) {
-        throw new CiFinderError("MOVE_INTO_ITSELF", `"${stat.name}" cannot be placed inside itself`);
+        throw new TheFinderError("MOVE_INTO_ITSELF", `"${stat.name}" cannot be placed inside itself`);
       }
       if (stat.kind === "file") dst.vol.assertExtensionAllowed(stat.name);
       await this.assertTree(src.vol, src.path, cut ? "delete" : "read");
@@ -607,7 +618,7 @@ export class CiFinder {
           await dst.vol.driver.remove(existing.path);
           removed.push(dst.vol.entry(existing).id);
         } else {
-          throw new CiFinderError("BAD_REQUEST", `Unknown conflict mode "${conflict}"`);
+          throw new TheFinderError("BAD_REQUEST", `Unknown conflict mode "${conflict}"`);
         }
       }
       const target = joinPath(dst.path, name);
@@ -650,24 +661,24 @@ export class CiFinder {
     dst.vol.assertCan("write", dst.path);
     const { vol } = dst;
     const chunk = p.chunk;
-    if (!(chunk instanceof Blob)) throw new CiFinderError("BAD_REQUEST", '"chunk" must be a file');
+    if (!(chunk instanceof Blob)) throw new TheFinderError("BAD_REQUEST", '"chunk" must be a file');
 
     const size = int(p, "size");
     const index = int(p, "index");
     const total = int(p, "total");
     const offset = int(p, "offset");
-    if (total < 1 || index >= total) throw new CiFinderError("BAD_REQUEST", "Invalid chunk index");
-    if (chunk.size > this.options.chunkSize) throw new CiFinderError("TOO_LARGE", "Chunk is larger than the configured chunk size");
-    if (offset + chunk.size > size) throw new CiFinderError("BAD_REQUEST", "Chunk exceeds the declared file size");
+    if (total < 1 || index >= total) throw new TheFinderError("BAD_REQUEST", "Invalid chunk index");
+    if (chunk.size > this.options.chunkSize) throw new TheFinderError("TOO_LARGE", "Chunk is larger than the configured chunk size");
+    if (offset + chunk.size > size) throw new TheFinderError("BAD_REQUEST", "Chunk exceeds the declared file size");
     const max = vol.options.maxUploadSize;
-    if (max != null && size > max) throw new CiFinderError("TOO_LARGE", "File exceeds the maximum upload size");
+    if (max != null && size > max) throw new TheFinderError("TOO_LARGE", "File exceeds the maximum upload size");
 
     let target: VolumePath;
     let driverSession: string | undefined;
     const token = str(p, "session", false);
 
     if (!token) {
-      if (index !== 0) throw new CiFinderError("BAD_REQUEST", "Missing upload session");
+      if (index !== 0) throw new TheFinderError("BAD_REQUEST", "Missing upload session");
       await vol.statDir(dst.path);
       const name = vol.validateName(p.name);
       vol.assertExtensionAllowed(name);
@@ -676,7 +687,7 @@ export class CiFinder {
       for (const segment of str(p, "relativePath", false).split("/").filter(Boolean)) {
         dir = joinPath(dir, vol.validateName(segment));
       }
-      if (vol.isHiddenPath(dir)) throw new CiFinderError("INVALID_NAME", "Hidden folders are not allowed");
+      if (vol.isHiddenPath(dir)) throw new TheFinderError("INVALID_NAME", "Hidden folders are not allowed");
       vol.assertCreatable(dir);
       await vol.mkdirp(dir);
       target = joinPath(dir, name);
@@ -695,12 +706,12 @@ export class CiFinder {
       try {
         session = JSON.parse(new TextDecoder().decode(base64UrlDecode(token)));
       } catch {
-        throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
+        throw new TheFinderError("BAD_REQUEST", "Invalid upload session");
       }
       target = normalizePath(String(session.p ?? ""));
       driverSession = typeof session.s === "string" ? session.s : undefined;
       // The session is client-held: re-check everything a first chunk would have checked.
-      if (target === dst.path || !isInside(dst.path, target) || !driverSession) throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
+      if (target === dst.path || !isInside(dst.path, target) || !driverSession) throw new TheFinderError("BAD_REQUEST", "Invalid upload session");
       for (const segment of target.slice(dst.path.length).split("/").filter(Boolean)) vol.validateName(segment);
       vol.assertCreatable(target);
       vol.assertCan("write", target);
@@ -743,7 +754,7 @@ export class CiFinder {
     const { vol, path } = this.target(p.id);
     vol.assertCan("read", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (stat.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
     const download = bool(p, "download");
     // HTML/SVG go through serveFile, which adds a sandbox CSP; a storage URL could not carry it.
     const signed = isActiveContent(mimeOf(stat.name)) ? null : await vol.driver.signedUrl?.(path, { download, filename: stat.name });
@@ -759,14 +770,14 @@ export class CiFinder {
     const { vol, path } = this.target(p.id);
     vol.assertCan("read", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (stat.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
     if (!this.thumbs?.supports(stat)) return this.file({ id: p.id }, request);
     const size = this.thumbs.pick(int(p, "size", 256));
     let thumb: DriverStat;
     try {
       thumb = await this.thumbs.get(vol, stat, size);
     } catch (e) {
-      if (!isCiFinderError(e)) console.warn("[ci-finder] thumbnail failed:", stat.path, (e as Error)?.message ?? e);
+      if (!isTheFinderError(e)) console.warn("[thefinder] thumbnail failed:", stat.path, (e as Error)?.message ?? e);
       return this.file({ id: p.id }, request);
     }
     return serveFile({
@@ -827,17 +838,17 @@ export class CiFinder {
     const { vol, path } = this.target(p.id);
     vol.assertCan("read", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
-    if (stat.size > this.options.maxEditSize) throw new CiFinderError("TOO_LARGE", "File is too large to edit");
+    if (stat.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
+    if (stat.size > this.options.maxEditSize) throw new TheFinderError("TOO_LARGE", "File is too large to edit");
     const bytes = await readAll(await vol.driver.read(path), this.options.maxEditSize);
     const bom = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf;
     let content: string;
     try {
       content = new TextDecoder("utf-8", { fatal: true }).decode(bom ? bytes.subarray(3) : bytes);
     } catch {
-      throw new CiFinderError("UNSUPPORTED", "This file is not a UTF-8 text file");
+      throw new TheFinderError("UNSUPPORTED", "This file is not a UTF-8 text file");
     }
-    if (content.includes("\0")) throw new CiFinderError("UNSUPPORTED", "This file is not a text file");
+    if (content.includes("\0")) throw new TheFinderError("UNSUPPORTED", "This file is not a text file");
     return { content, bom, entry: vol.entry(stat) };
   }
 
@@ -847,7 +858,7 @@ export class CiFinder {
    */
   private async put(p: Params) {
     const blob = p.file instanceof Blob ? p.file : null;
-    if (!blob && typeof p.content !== "string") throw new CiFinderError("BAD_REQUEST", '"content" or "file" is required');
+    if (!blob && typeof p.content !== "string") throw new TheFinderError("BAD_REQUEST", '"content" or "file" is required');
     const data = blob ? new Uint8Array(await blob.arrayBuffer()) : toUint8(p.content as string);
 
     if (!p.id) {
@@ -866,10 +877,10 @@ export class CiFinder {
     const { vol, path } = this.target(p.id);
     vol.assertCan("write", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
-    if (!blob && data.byteLength > this.options.maxEditSize) throw new CiFinderError("TOO_LARGE", "Content is too large");
+    if (stat.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
+    if (!blob && data.byteLength > this.options.maxEditSize) throw new TheFinderError("TOO_LARGE", "Content is too large");
     const max = vol.options.maxUploadSize;
-    if (max != null && data.byteLength > max) throw new CiFinderError("TOO_LARGE", "Content is too large");
+    if (max != null && data.byteLength > max) throw new TheFinderError("TOO_LARGE", "Content is too large");
     await snapshot(vol, stat, reasonOf(p, "edit"));
     await vol.driver.write(path, data);
     if (blob) await this.thumbs?.forget(vol, path);
@@ -883,7 +894,7 @@ export class CiFinder {
     const { vol } = targets[0]!;
     const dir = dirname(targets[0]!.path);
     if (targets.some((t) => t.vol !== vol || dirname(t.path) !== dir || t.path === "/")) {
-      throw new CiFinderError("BAD_REQUEST", "All items must be in the same folder");
+      throw new TheFinderError("BAD_REQUEST", "All items must be in the same folder");
     }
     vol.assertCan("write", dir);
     vol.assertExtensionAllowed("a.zip");
@@ -917,7 +928,7 @@ export class CiFinder {
     const { vol, path } = this.target(p.id);
     vol.assertCan("read", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file" || extname(stat.name) !== "zip") throw new CiFinderError("UNSUPPORTED", "Only .zip archives can be extracted");
+    if (stat.kind !== "file" || extname(stat.name) !== "zip") throw new TheFinderError("UNSUPPORTED", "Only .zip archives can be extracted");
     const dir = dirname(path);
     vol.assertCan("write", dir);
 
@@ -925,7 +936,7 @@ export class CiFinder {
     const entries = await readZipEntries(read, stat.size);
     const maxTotal = this.options.maxExtractSize ?? 4 * 1024 * MiB;
     const declared = entries.reduce((n, e) => n + e.size, 0);
-    if (declared > maxTotal) throw new CiFinderError("TOO_LARGE", "Archive is too large to extract");
+    if (declared > maxTotal) throw new TheFinderError("TOO_LARGE", "Archive is too large to extract");
 
     const folderName = await vol.uniqueName(dir, stat.name.replace(/\.zip$/i, "") || "archive", true);
     const root = joinPath(dir, folderName);
@@ -964,7 +975,7 @@ export class CiFinder {
       const counter = new TransformStream<Uint8Array, Uint8Array>({
         transform(chunk, controller) {
           written += chunk.byteLength;
-          if (written > maxTotal) throw new CiFinderError("TOO_LARGE", "Archive is too large to extract");
+          if (written > maxTotal) throw new TheFinderError("TOO_LARGE", "Archive is too large to extract");
           controller.enqueue(chunk);
         },
       });
@@ -981,7 +992,7 @@ export class CiFinder {
     vol.assertNotRoot(path);
     vol.assertCan("read", path);
     const current = await vol.driver.stat(path);
-    if (current?.kind === "dir") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (current?.kind === "dir") throw new TheFinderError("NOT_A_FILE", "Not a file");
     return { versions: await listVersions(vol, path), entry: current ? vol.entry(current) : null };
   }
 
@@ -1030,7 +1041,7 @@ export class CiFinder {
 
   private volumeParam(p: Params): Volume {
     const vol = this.volumes.get(str(p, "volume"));
-    if (!vol) throw new CiFinderError("NOT_FOUND", "Volume not found");
+    if (!vol) throw new TheFinderError("NOT_FOUND", "Volume not found");
     return vol;
   }
 
@@ -1055,13 +1066,13 @@ export class CiFinder {
       if (await vol.driver.stat(THUMBS_ROOT)) await vol.driver.remove(THUMBS_ROOT);
       return { removed: files.length, freed: files.reduce((n, s) => n + s.size, 0) };
     }
-    if (target !== "versions") throw new CiFinderError("BAD_REQUEST", `Unknown cleanup target "${target}"`);
+    if (target !== "versions") throw new TheFinderError("BAD_REQUEST", `Unknown cleanup target "${target}"`);
     const mode = str(p, "mode");
     let prune: PruneMode;
     if (mode === "all" || mode === "orphaned") prune = { mode };
     else if (mode === "older") prune = { mode, days: int(p, "days") };
     else if (mode === "keep") prune = { mode, keep: int(p, "keep") };
-    else throw new CiFinderError("BAD_REQUEST", `Unknown cleanup mode "${mode}"`);
+    else throw new TheFinderError("BAD_REQUEST", `Unknown cleanup mode "${mode}"`);
     return pruneVersions(vol, prune);
   }
 
@@ -1089,14 +1100,14 @@ export class CiFinder {
    */
   private async transform(p: Params) {
     const images = this.images;
-    if (!images) throw new CiFinderError("UNSUPPORTED", "Image processing is not enabled on the server");
+    if (!images) throw new TheFinderError("UNSUPPORTED", "Image processing is not enabled on the server");
     const requested = str(p, "format", false) || "keep";
     if (requested !== "keep" && !images.formats.includes(requested as ImageFormat)) {
-      throw new CiFinderError("BAD_REQUEST", `Unsupported format "${requested}"`);
+      throw new TheFinderError("BAD_REQUEST", `Unsupported format "${requested}"`);
     }
     const width = int(p, "width", 0);
     const height = int(p, "height", 0);
-    if (width > 20_000 || height > 20_000) throw new CiFinderError("BAD_REQUEST", "Size is too large");
+    if (width > 20_000 || height > 20_000) throw new TheFinderError("BAD_REQUEST", "Size is too large");
     const options = {
       requested: requested as ImageFormat | "keep",
       width,
@@ -1113,7 +1124,7 @@ export class CiFinder {
         results.push(await this.transformOne(images, id, options));
       } catch (e) {
         const err = mapNativeError(e);
-        if (err.code === "INTERNAL") console.error("[ci-finder] transform", e);
+        if (err.code === "INTERNAL") console.error("[thefinder] transform", e);
         let name = "";
         try {
           name = basename(decodeId(id).path);
@@ -1143,7 +1154,7 @@ export class CiFinder {
     const { vol, path } = this.target(id);
     vol.assertCan("read", path);
     const stat = await vol.stat(path);
-    if (stat.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (stat.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
     const result: TransformResult = { id, name: stat.name, before: stat.size };
     const ext = extname(stat.name);
     const source = formatOfExt(ext);
@@ -1154,7 +1165,7 @@ export class CiFinder {
     const inPlace = format === source && o.overwrite;
     vol.assertCan("write", inPlace ? path : dir);
     const maxSize = this.options.maxImageSize ?? 60 * MiB;
-    if (stat.size > maxSize) throw new CiFinderError("TOO_LARGE", "Image is too large to process");
+    if (stat.size > maxSize) throw new TheFinderError("TOO_LARGE", "Image is too large to process");
 
     const input = await readAll(await vol.driver.read(path), maxSize);
     const out = await this.imageSlot(() => images.transform(input, { format, width: o.width, height: o.height, quality: o.quality }));
@@ -1205,7 +1216,7 @@ async function parseParams(request: Request): Promise<Params> {
     try {
       body = await request.json();
     } catch {
-      throw new CiFinderError("BAD_REQUEST", "Invalid JSON body");
+      throw new TheFinderError("BAD_REQUEST", "Invalid JSON body");
     }
     if (body && typeof body === "object" && !Array.isArray(body)) for (const [k, v] of Object.entries(body)) set(k, v);
   } else if (type.includes("multipart/form-data") || type.includes("application/x-www-form-urlencoded")) {
@@ -1215,8 +1226,8 @@ async function parseParams(request: Request): Promise<Params> {
   return params;
 }
 
-export function createCiFinder(options: CiFinderOptions): CiFinder {
-  return new CiFinder(options);
+export function createTheFinder(options: TheFinderOptions): TheFinder {
+  return new TheFinder(options);
 }
 
 export { mimeOf };

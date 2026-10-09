@@ -7,7 +7,7 @@ import { item, MenuButton, sep, type MenuEntry } from "./Menu";
 function ToolButton({ action, label }: { action: Action; label?: boolean }) {
   const title = action.shortcut ? `${action.label} (${shortcut(action.shortcut)})` : action.label;
   return (
-    <button type="button" className={cx("cf-btn", !label && "is-icon")} disabled={!action.enabled} onClick={action.run} title={title} aria-label={action.label}>
+    <button type="button" className={cx("tf-btn", !label && "is-icon")} disabled={!action.enabled} onClick={action.run} title={title} aria-label={action.label}>
       {action.icon && <Icon name={action.icon} />}
       {label && <span>{action.label}</span>}
     </button>
@@ -59,31 +59,31 @@ export function Toolbar() {
   ];
 
   return (
-    <div className="cf-toolbar" role="toolbar" aria-label="ciFinder">
+    <div className="tf-toolbar" role="toolbar" aria-label="theFinder">
       {inTrash ? (
         <>
-          <div className="cf-toolgroup">
+          <div className="tf-toolgroup">
             <ToolButton action={actions.restore} label />
             <ToolButton action={actions.delete} />
           </div>
-          <div className="cf-toolgroup">
-            <button type="button" className="cf-btn is-danger-text" disabled={!actions.emptyTrash.enabled} onClick={actions.emptyTrash.run}>
+          <div className="tf-toolgroup">
+            <button type="button" className="tf-btn is-danger-text" disabled={!actions.emptyTrash.enabled} onClick={actions.emptyTrash.run}>
               <span>{actions.emptyTrash.label}</span>
             </button>
           </div>
         </>
       ) : (
         <>
-          <div className="cf-toolgroup">
+          <div className="tf-toolgroup">
             <MenuButton label={t("upload")} icon="upload" showLabel className="is-primary" entries={[item(actions.uploadFiles), item(actions.uploadFolder)]} />
             <ToolButton action={actions.newFolder} />
           </div>
-          <div className="cf-toolgroup is-clipboard">
+          <div className="tf-toolgroup is-clipboard">
             <ToolButton action={actions.cut} />
             <ToolButton action={actions.copy} />
             <ToolButton action={actions.paste} />
           </div>
-          <div className="cf-toolgroup">
+          <div className="tf-toolgroup">
             <ToolButton action={actions.rename} />
             <ToolButton action={actions.download} />
             <ToolButton action={actions.delete} />
@@ -91,15 +91,15 @@ export function Toolbar() {
           </div>
         </>
       )}
-      <div className="cf-toolbar-spacer" />
-      <div className="cf-toolgroup">
+      <div className="tf-toolbar-spacer" />
+      <div className="tf-toolgroup">
         <MenuButton label={t("sortBy")} icon="sort" entries={sortMenu} alignRight />
-        <div className="cf-segmented" role="radiogroup" aria-label={t("view")}>
+        <div className="tf-segmented" role="radiogroup" aria-label={t("view")}>
           <button
             type="button"
             role="radio"
             aria-checked={view === "grid"}
-            className={cx("cf-btn is-icon", view === "grid" && "is-on")}
+            className={cx("tf-btn is-icon", view === "grid" && "is-on")}
             title={t("viewGrid")}
             aria-label={t("viewGrid")}
             onClick={() => store.set({ view: "grid" })}
@@ -110,7 +110,7 @@ export function Toolbar() {
             type="button"
             role="radio"
             aria-checked={view === "list"}
-            className={cx("cf-btn is-icon", view === "list" && "is-on")}
+            className={cx("tf-btn is-icon", view === "list" && "is-on")}
             title={t("viewList")}
             aria-label={t("viewList")}
             onClick={() => store.set({ view: "list" })}
@@ -120,7 +120,7 @@ export function Toolbar() {
         </div>
         <button
           type="button"
-          className={cx("cf-btn is-icon", detailsOpen && "is-on")}
+          className={cx("tf-btn is-icon", detailsOpen && "is-on")}
           aria-pressed={detailsOpen}
           title={t("details")}
           aria-label={t("details")}

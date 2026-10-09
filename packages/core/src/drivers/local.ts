@@ -1,7 +1,7 @@
 import { constants, promises as fs, type Dirent } from "node:fs";
 import type { FileHandle } from "node:fs/promises";
 import * as nodePath from "node:path";
-import { CiFinderError } from "../errors";
+import { TheFinderError } from "../errors";
 import { mapLimit } from "../stream";
 import type { ByteRange, DriverStat, StorageDriver, UploadChunk, UploadChunkResult, VolumePath, WriteData } from "../types";
 
@@ -17,8 +17,8 @@ export interface LocalDriverOptions {
   followSymlinks?: boolean;
 }
 
-const UPLOAD_SUFFIX = ".cf-upload";
-const TEMP_SUFFIX = ".cf-tmp";
+const UPLOAD_SUFFIX = ".tf-upload";
+const TEMP_SUFFIX = ".tf-tmp";
 const READ_CHUNK = 64 * 1024;
 
 const isInternal = (name: string) => name.endsWith(UPLOAD_SUFFIX) || name.endsWith(TEMP_SUFFIX);
@@ -41,7 +41,7 @@ export class LocalDriver implements StorageDriver {
   private realRoot: Promise<string> | null = null;
 
   constructor(options: LocalDriverOptions) {
-    if (!options?.root) throw new Error("ciFinder localDriver: `root` is required");
+    if (!options?.root) throw new Error("theFinder localDriver: `root` is required");
     this.root = nodePath.resolve(options.root);
     this.create = options.create ?? true;
     this.followSymlinks = options.followSymlinks ?? true;
@@ -73,8 +73,8 @@ export class LocalDriver implements StorageDriver {
       return true; // does not exist yet; its parent is checked by the caller
     }
     if (real !== realRoot && !real.startsWith(realRoot + nodePath.sep)) return false;
-    // Windows 8.3 short names ("CF-TRA~1") reach folders under another name, e.g. the hidden
-    // ".cf-trash". realpath returns the long name: anything but the requested name is refused.
+    // Windows 8.3 short names ("TF-TRA~1") reach folders under another name, e.g. the hidden
+    // ".tf-trash". realpath returns the long name: anything but the requested name is refused.
     const rel = abs.slice(this.root.length);
     return !(WINDOWS && /~\d/.test(rel) && real.slice(realRoot.length).toLowerCase() !== rel.toLowerCase());
   }
@@ -82,12 +82,12 @@ export class LocalDriver implements StorageDriver {
   private async safe(path: VolumePath): Promise<string> {
     await this.getRealRoot();
     if (WINDOWS && path.split("/").some((segment) => WINDOWS_UNSAFE.test(segment))) {
-      throw new CiFinderError("FORBIDDEN", "This path is not valid on this system");
+      throw new TheFinderError("FORBIDDEN", "This path is not valid on this system");
     }
     const abs = this.abs(path);
     const parentOk = path === "/" || (await this.contained(nodePath.dirname(abs)));
     if (!parentOk || !(await this.contained(abs))) {
-      throw new CiFinderError("FORBIDDEN", "Path resolves outside of the volume");
+      throw new TheFinderError("FORBIDDEN", "Path resolves outside of the volume");
     }
     return abs;
   }
@@ -109,7 +109,7 @@ export class LocalDriver implements StorageDriver {
       if (l.isSymbolicLink() && !this.followSymlinks) return null;
       return this.toStat(path, l.isSymbolicLink() ? await fs.stat(abs) : l);
     } catch (e) {
-      if (isMissing(e) || (e as CiFinderError).code === "FORBIDDEN") return null;
+      if (isMissing(e) || (e as TheFinderError).code === "FORBIDDEN") return null;
       throw e;
     }
   }
@@ -239,7 +239,7 @@ export class LocalDriver implements StorageDriver {
   }
 
   async remove(path: VolumePath): Promise<void> {
-    if (path === "/") throw new CiFinderError("LOCKED", "The root folder cannot be removed");
+    if (path === "/") throw new TheFinderError("LOCKED", "The root folder cannot be removed");
     await fs.rm(await this.safe(path), { recursive: true });
   }
 
@@ -267,7 +267,7 @@ export class LocalDriver implements StorageDriver {
     const src = await this.safe(from);
     const dst = await this.safe(to);
     const caseOnly = src.toLowerCase() === dst.toLowerCase();
-    if (!caseOnly && (await exists(dst))) throw new CiFinderError("EXISTS", "Target already exists");
+    if (!caseOnly && (await exists(dst))) throw new TheFinderError("EXISTS", "Target already exists");
     try {
       await fs.rename(src, dst);
     } catch (e) {
@@ -284,11 +284,11 @@ export class LocalDriver implements StorageDriver {
     if (!session) {
       session = `.${nodePath.basename(dst)}.${random()}${UPLOAD_SUFFIX}`;
     } else if (session.includes("/") || session.includes("\\") || session.includes(":") || !session.startsWith(".") || !session.endsWith(UPLOAD_SUFFIX)) {
-      throw new CiFinderError("BAD_REQUEST", "Invalid upload session");
+      throw new TheFinderError("BAD_REQUEST", "Invalid upload session");
     }
     const tmp = nodePath.join(dir, session);
     const handle = await fs.open(tmp, chunk.session ? "r+" : "wx").catch((e) => {
-      if (isMissing(e)) throw new CiFinderError("BAD_REQUEST", "Upload session expired");
+      if (isMissing(e)) throw new TheFinderError("BAD_REQUEST", "Upload session expired");
       throw e;
     });
     try {
@@ -302,7 +302,7 @@ export class LocalDriver implements StorageDriver {
       const { size } = await fs.stat(tmp);
       if (size !== chunk.size) {
         await fs.rm(tmp, { force: true });
-        throw new CiFinderError("BAD_REQUEST", `Upload incomplete: received ${size} of ${chunk.size} bytes`);
+        throw new TheFinderError("BAD_REQUEST", `Upload incomplete: received ${size} of ${chunk.size} bytes`);
       }
       await replaceFile(tmp, dst);
     }

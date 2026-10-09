@@ -1,18 +1,18 @@
-# `@ci-finder/core/client`
+# `@thefinder/core/client`
 
 🌐 [English](../client.md) · **Türkçe**
 
-[HTTP protokolünü](protocol.md) saran, bağımlılıksız API istemcisi. Arayüz bunu kullanır; tarayıcıda, Node.js'te, Bun'da ya da başka bir framework'te (Vue, Svelte, vanilla JS) kendi arayüzünüzü yazmak için de kullanılabilir. `createClient`, `CiFinderClient`, `ApiError` ve `encodeId` `@ci-finder/react`'tan da alınabilir.
+[HTTP protokolünü](protocol.md) saran, bağımlılıksız API istemcisi. Arayüz bunu kullanır; tarayıcıda, Node.js'te, Bun'da ya da başka bir framework'te (Vue, Svelte, vanilla JS) kendi arayüzünüzü yazmak için de kullanılabilir. `createClient`, `TheFinderClient`, `ApiError` ve `encodeId` `@thefinder/react`'tan da alınabilir.
 
 ```ts
-import { createClient, ApiError } from "@ci-finder/core/client";
+import { createClient, ApiError } from "@thefinder/core/client";
 
 const client = createClient({ endpoint: "/api/files" });
 const { volumes } = await client.init();
 const { entries } = await client.ls(volumes[0].root.id);
 ```
 
-## `createClient(options)` / `new CiFinderClient(options)`
+## `createClient(options)` / `new TheFinderClient(options)`
 
 | Seçenek | Tip | Varsayılan | Açıklama |
 |---|---|---|---|
@@ -21,7 +21,7 @@ const { entries } = await client.ls(volumes[0].root.id);
 | `credentials` | `RequestCredentials` | `"same-origin"` | Cross-origin API'de çerez göndermek için `"include"` |
 | `fetch` | `typeof fetch` | global `fetch` | Özel `fetch`. Verilirse yüklemeler de XHR yerine bu `fetch` ile yapılır (bayt düzeyinde ilerleme olmaz). |
 
-Değişiklik yapan istekler `POST` ile ve `x-ci-finder` başlığıyla gönderilir.
+Değişiklik yapan istekler `POST` ile ve `x-thefinder` başlığıyla gönderilir.
 
 ## Metotlar
 

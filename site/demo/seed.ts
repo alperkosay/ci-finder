@@ -1,5 +1,5 @@
-import { createZipStream, encodeId } from "@ci-finder/core";
-import type { CiFinder } from "@ci-finder/core";
+import { createZipStream, encodeId } from "@thefinder/core";
+import type { TheFinder } from "@thefinder/core";
 import type { MemoryDriver } from "./memory-driver";
 
 /**
@@ -92,7 +92,7 @@ const TR: Content = {
     plan: "/Görseller/kat-planı.png",
     logo: "/Görseller/logo.svg",
     oldLogo: "/Görseller/eski-logo.svg",
-    hero: "/Görseller/Ekran görüntüleri/cifinder.png",
+    hero: "/Görseller/Ekran görüntüleri/thefinder.png",
     features: "/Görseller/Ekran görüntüleri/özellikler.png",
     project: "/Proje",
     archive: "/Arşiv",
@@ -105,9 +105,9 @@ const TR: Content = {
     agreement: "/Sözleşmeler/hizmet-sözleşmesi.md",
     agreementText: "# Hizmet sözleşmesi\n\nBu klasör salt okunurdur. Dosyaları kopyalayabilirsiniz ama burada değiştiremezsiniz.\n",
   },
-  welcome: `# ciFinder canlı demo
+  welcome: `# theFinder canlı demo
 
-Bu dosya yöneticisinin arkasında sunucu yok. \`@ci-finder/core\` motorunun kendisi bu sekmede,
+Bu dosya yöneticisinin arkasında sunucu yok. \`@thefinder/core\` motorunun kendisi bu sekmede,
 bellekte tutulan bir sürücüyle çalışıyor. Sayfayı yenilediğinizde her şey baştan başlar.
 
 ## Deneyebilecekleriniz
@@ -143,7 +143,7 @@ bellekte tutulan bir sürücüyle çalışıyor. Sayfayı yenilediğinizde her �
 Katılanlar: Deniz, Ece, Mert
 
 1. Galeri sayfasında proje fotoğrafları tam ekran açılsın.
-2. Fotoğraflar sunucuda WebP'ye çevrilsin (ciFinder → Görselleri optimize et).
+2. Fotoğraflar sunucuda WebP'ye çevrilsin (theFinder → Görselleri optimize et).
 3. Editörler CKEditor'den görsel seçebilsin. useFilePicker ile çözüldü.
 4. Bir sonraki toplantı: 25 Eylül, 10:00.
 `,
@@ -154,7 +154,7 @@ Geliştirme,1,110000,110000
 Barındırma (1 yıl),1,16000,16000
 `,
   appTsx: appTsx("Kapak görseli yok", "Görsel seç"),
-  stylesComment: "ciFinder'ı markaya uydurmak için yalnızca değişkenler yeterli",
+  stylesComment: "theFinder'ı markaya uydurmak için yalnızca değişkenler yeterli",
   projectReadme: `# Kıyı Mimarlık web sitesi
 
 Next.js 16, \`output: "standalone"\`. Dosyalar proje kökündeki \`uploads/\` klasöründe.
@@ -185,7 +185,7 @@ npm run dev
     "eski-site/style.css": "body { font-family: Georgia, serif; }\n",
     "eski-site/notlar.txt": "2025 sitesi. Arşiv için saklanıyor.\n",
   },
-  media: { hero: "../media/cifinder-hero.tr.png", features: "../media/cifinder-features.tr.png" },
+  media: { hero: "../media/thefinder-hero.tr.png", features: "../media/thefinder-features.tr.png" },
 };
 
 const EN: Content = {
@@ -202,7 +202,7 @@ const EN: Content = {
     plan: "/Images/floor-plan.png",
     logo: "/Images/logo.svg",
     oldLogo: "/Images/old-logo.svg",
-    hero: "/Images/Screenshots/cifinder.png",
+    hero: "/Images/Screenshots/thefinder.png",
     features: "/Images/Screenshots/features.png",
     project: "/Project",
     archive: "/Archive",
@@ -215,9 +215,9 @@ const EN: Content = {
     agreement: "/Contracts/service-agreement.md",
     agreementText: "# Service agreement\n\nThis folder is read-only. You can copy files out of it, but you cannot change them here.\n",
   },
-  welcome: `# ciFinder live demo
+  welcome: `# theFinder live demo
 
-There is no server behind this file manager. The \`@ci-finder/core\` engine itself runs in this tab,
+There is no server behind this file manager. The \`@thefinder/core\` engine itself runs in this tab,
 with a driver that keeps everything in memory. Reload the page and it all starts over.
 
 ## Things to try
@@ -253,7 +253,7 @@ with a driver that keeps everything in memory. Reload the page and it all starts
 Attendees: Dana, Eli, Marco
 
 1. Project photos on the gallery page should open full screen.
-2. Convert photos to WebP on the server (ciFinder → Optimize images).
+2. Convert photos to WebP on the server (theFinder → Optimize images).
 3. Editors should pick images from CKEditor. Solved with useFilePicker.
 4. Next meeting: 25 September, 10:00.
 `,
@@ -264,7 +264,7 @@ Turkish translation,7,400,2800
 Hosting (1 year),1,1600,1600
 `,
   appTsx: appTsx("No cover image", "Choose image"),
-  stylesComment: "Variables are all it takes to match ciFinder to the brand",
+  stylesComment: "Variables are all it takes to match theFinder to the brand",
   projectReadme: `# Coastline Architects website
 
 Next.js 16, \`output: "standalone"\`. Files live in \`uploads/\` at the project root.
@@ -295,7 +295,7 @@ npm run dev
     "old-site/style.css": "body { font-family: Georgia, serif; }\n",
     "old-site/notes.txt": "The 2025 site. Kept for the archive.\n",
   },
-  media: { hero: "../media/cifinder-hero.png", features: "../media/cifinder-features.png" },
+  media: { hero: "../media/thefinder-hero.png", features: "../media/thefinder-features.png" },
 };
 
 export const teamName = (lang: DemoLang) => (lang === "tr" ? TR : EN).team.name;
@@ -309,8 +309,8 @@ const packageJson = `{
     "start": "node .next/standalone/server.js"
   },
   "dependencies": {
-    "@ci-finder/next": "^0.1.0",
-    "@ci-finder/react": "^0.1.0",
+    "@thefinder/next": "^0.1.0",
+    "@thefinder/react": "^0.1.0",
     "next": "^16.0.0",
     "react": "^19.0.0"
   }
@@ -320,8 +320,8 @@ const packageJson = `{
 function appTsx(empty: string, choose: string) {
   return `"use client";
 import { useState } from "react";
-import { useFilePicker } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { useFilePicker } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 export function CoverField({ initial }: { initial?: string }) {
   const [cover, setCover] = useState(initial ?? "");
@@ -360,16 +360,16 @@ const stylesCss = (comment: string) => `.cover-field {
 }
 
 /* ${comment} */
-.cf-root {
-  --cf-accent: #0f766e;
-  --cf-radius: 6px;
+.tf-root {
+  --tf-accent: #0f766e;
+  --tf-radius: 6px;
 }
 `;
 
-const finderTs = `import { createCiFinder, localDriver, uploadsDir } from "@ci-finder/next";
-import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
+const finderTs = `import { createTheFinder, localDriver, uploadsDir } from "@thefinder/next";
+import { sharpImages, sharpThumbnailer } from "@thefinder/core/sharp";
 
-export const finder = createCiFinder({
+export const finder = createTheFinder({
   volumes: [
     {
       id: "uploads",
@@ -541,7 +541,7 @@ async function fetchBytes(url: string): Promise<Uint8Array | null> {
   }
 }
 
-export async function seed(finder: CiFinder, demo: MemoryDriver, team: MemoryDriver, lang: DemoLang) {
+export async function seed(finder: TheFinder, demo: MemoryDriver, team: MemoryDriver, lang: DemoLang) {
   const c = lang === "tr" ? TR : EN;
   const p = c.path;
   const dirs = [p.docs, p.images, p.screenshots, p.project, `${p.project}/src`, `${p.project}/lib`, p.archive];

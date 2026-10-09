@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import { sha1Hex } from "./id";
 import { dirname, isInside, joinPath, normalizePath } from "./path";
 import { mapLimit, readAll } from "./stream";
@@ -8,12 +8,12 @@ import { walkAll } from "./walk";
 
 /**
  * Version history without a database. Before a file is overwritten its content is copied to
- * `/.cf-versions/<sha1(path)>/<vid>.bin`; a `file.json` next to the copies remembers which file
+ * `/.tf-versions/<sha1(path)>/<vid>.bin`; a `file.json` next to the copies remembers which file
  * the folder belongs to. The version id carries the time and the reason, so listing a file's history
  * is a single folder listing on local disk and S3 alike. Renames and moves carry the history along.
  */
-export const VERSIONS_ROOT = "/.cf-versions";
-export const VERSIONS_NAME = ".cf-versions";
+export const VERSIONS_ROOT = "/.tf-versions";
+export const VERSIONS_NAME = ".tf-versions";
 
 const META = "file.json";
 const VID = /^([a-z0-9]{6,12})-([a-z0-9]{4,10})-([a-z]{1,16})$/;
@@ -98,9 +98,9 @@ export async function listVersions(vol: Volume, path: VolumePath): Promise<FileV
 
 /** Stat of one stored version, or NOT_FOUND. */
 export async function versionStat(vol: Volume, path: VolumePath, vid: unknown): Promise<DriverStat> {
-  if (!isVersionId(vid)) throw new CiFinderError("BAD_REQUEST", "Invalid version id");
+  if (!isVersionId(vid)) throw new TheFinderError("BAD_REQUEST", "Invalid version id");
   const stat = await vol.driver.stat(blobPath(await groupDir(path), vid));
-  if (!stat || stat.kind !== "file") throw new CiFinderError("NOT_FOUND", "This version no longer exists");
+  if (!stat || stat.kind !== "file") throw new TheFinderError("NOT_FOUND", "This version no longer exists");
   return stat;
 }
 
@@ -145,7 +145,7 @@ async function removeVersions(vol: Volume, dir: VolumePath, versions: FileVersio
 export async function restoreVersion(vol: Volume, path: VolumePath, vid: unknown): Promise<void> {
   const blob = await versionStat(vol, path, vid);
   const current = await vol.driver.stat(path);
-  if (current?.kind === "dir") throw new CiFinderError("NOT_A_FILE", "A folder now exists at this location");
+  if (current?.kind === "dir") throw new TheFinderError("NOT_A_FILE", "A folder now exists at this location");
   if (current) await snapshot(vol, current, "revert", { trim: false });
   else await vol.mkdirp(dirname(path));
   await vol.driver.write(path, await vol.driver.read(blob.path));
@@ -191,7 +191,7 @@ export async function relocateVersions(vol: Volume, from: VolumePath, to: Volume
       if (g.path && g.path !== from && isInside(from, g.path)) await moveGroup(vol, g.path, to + g.path.slice(from.length));
     }
   } catch (e) {
-    console.warn("[ci-finder] could not move version history:", from, "→", to, (e as Error)?.message ?? e);
+    console.warn("[thefinder] could not move version history:", from, "→", to, (e as Error)?.message ?? e);
   }
 }
 
@@ -207,7 +207,7 @@ export async function forgetVersions(vol: Volume, path: VolumePath, kind: Driver
       if (g.path && isInside(path, g.path)) await vol.driver.remove(g.dir).catch(ignoreMissing);
     }
   } catch (e) {
-    console.warn("[ci-finder] could not remove version history:", path, (e as Error)?.message ?? e);
+    console.warn("[thefinder] could not remove version history:", path, (e as Error)?.message ?? e);
   }
 }
 

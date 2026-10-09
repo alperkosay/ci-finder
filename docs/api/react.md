@@ -1,4 +1,4 @@
-# `@ci-finder/react`
+# `@thefinder/react`
 
 🌐 **English** · [Türkçe](tr/react.md)
 
@@ -6,17 +6,17 @@ The file manager UI. Its only dependencies are `react` and `react-dom` (≥ 18, 
 
 ```tsx
 "use client";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 <div style={{ height: "100vh" }}>
-  <CiFinder endpoint="/api/files" locale="en" />
+  <TheFinder endpoint="/api/files" locale="en" />
 </div>
 ```
 
 Import `styles.css` once, anywhere in your app. The component fills the height of its parent (change it with the `height` prop).
 
-## `<CiFinder />`
+## `<TheFinder />`
 
 ### Connection
 
@@ -25,7 +25,7 @@ Import `styles.css` once, anywhere in your app. The component fills the height o
 | `endpoint` | `string` | Required. API URL, e.g. `"/api/files"` |
 | `headers` | `Record<string, string> \| () => Record<string, string>` | Headers added to every request (e.g. `Authorization`) |
 | `credentials` | `RequestCredentials` | `"include"` for cookies with a cross-origin API |
-| `client` | `CiFinderClient` | A client you configured yourself. When given, it is used instead of `endpoint`/`headers`/`credentials`. |
+| `client` | `TheFinderClient` | A client you configured yourself. When given, it is used instead of `endpoint`/`headers`/`credentials`. |
 | `onUnauthorized` | `() => void` | Called when the API returns `401`, e.g. to redirect to a login page |
 
 ### Appearance
@@ -39,7 +39,7 @@ Import `styles.css` once, anywhere in your app. The component fills the height o
 | `density` | `"comfortable" \| "compact"` | `"comfortable"` | |
 | `settings` | `boolean` | `true` | A settings menu in the header for theme, view and density. The user's choice is stored under `persistKey` and wins over the props; if a prop changes later, the prop applies. |
 | `height` | `number \| string` | `"100%"` | |
-| `className`, `style` | | — | Added to the root element (`.cf-root`) |
+| `className`, `style` | | — | Added to the root element (`.tf-root`) |
 | `thumbnails` | `boolean` | `true` | Shows thumbnails for images |
 
 ### Initial state
@@ -48,7 +48,7 @@ Import `styles.css` once, anywhere in your app. The component fills the height o
 |---|---|---|---|
 | `initialFolder` | `string` | root of the first volume | Id of the folder to open first |
 | `defaultView` | `Partial<Prefs>` | — | Initial preferences. Whatever the user changes is stored under `persistKey` and takes precedence. |
-| `persistKey` | `string \| false` | `"ci-finder"` | localStorage key for preferences. `false` stores nothing. |
+| `persistKey` | `string \| false` | `"thefinder"` | localStorage key for preferences. `false` stores nothing. |
 
 `Prefs`:
 
@@ -132,8 +132,8 @@ Returns `{ open(overrides?), isOpen }`.
 The same picker outside React (vanilla JS, Vue, rich text editors). It appends a `<dialog>` to the end of `<body>` and removes it on close. React and React DOM must be bundled on the page.
 
 ```ts
-import { openFilePicker } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { openFilePicker } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 const files = await openFilePicker({ endpoint: "/api/files", accept: ".pdf" });
 if (files) input.value = files[0].url;
@@ -143,12 +143,12 @@ On the server (no `document`) it resolves `null` right away.
 
 ### `FilePickerOptions`
 
-All `<CiFinder />` props (except `onSelect`, `onCancel`, `height`, `style`), plus:
+All `<TheFinder />` props (except `onSelect`, `onCancel`, `height`, `style`), plus:
 
 | Option | Default | Description |
 |---|---|---|
 | `absoluteUrls` | `false` | The `url` field contains a full URL (`https://site/uploads/a.png`) |
-| `persistKey` | `"ci-finder-picker"` | The picker's view preferences are stored separately from the main file manager |
+| `persistKey` | `"thefinder-picker"` | The picker's view preferences are stored separately from the main file manager |
 
 The picker closes with `Escape`, a click on the backdrop or the "Cancel" button. `Escape` first closes any open menu or dialog.
 
@@ -163,7 +163,7 @@ The picker closes with `Escape`, a click on the backdrop or the "Cancel" button.
 The `editors` prop adds an item to the "Open with" menu for matching files. The editor opens full-size inside the file manager.
 
 ```tsx
-import type { CustomEditor } from "@ci-finder/react";
+import type { CustomEditor } from "@thefinder/react";
 
 const csvViewer: CustomEditor = {
   id: "csv",
@@ -172,7 +172,7 @@ const csvViewer: CustomEditor = {
   render: ({ entry, store, onClose }) => <CsvTable url={store.fileUrl(entry)} title={entry.name} onClose={onClose} />,
 };
 
-<CiFinder endpoint="/api/files" editors={[csvViewer]} />
+<TheFinder endpoint="/api/files" editors={[csvViewer]} />
 ```
 
 | Field | Description |
@@ -186,7 +186,7 @@ Useful store members inside an editor:
 
 | Member | Description |
 |---|---|
-| `store.client` | The connected [`CiFinderClient`](client.md): `getContent`, `putContent`, `putBlob`… |
+| `store.client` | The connected [`TheFinderClient`](client.md): `getContent`, `putContent`, `putBlob`… |
 | `store.fileUrl(entry)` | The file's URL (the volume `url` or the API URL) |
 | `store.updateEntry(entry)` | Updates the size and date in the list after saving |
 | `store.toast(message, kind?)` | A notification; `kind`: `"info" \| "success" \| "error"` |
@@ -205,11 +205,11 @@ store.toast("Saved", "success");
 
 ## Store and hooks
 
-The component uses a small store (`FinderStore`) built on `useSyncExternalStore`. The store is reachable only from components rendered inside `<CiFinder />` (for example custom editors).
+The component uses a small store (`FinderStore`) built on `useSyncExternalStore`. The store is reachable only from components rendered inside `<TheFinder />` (for example custom editors).
 
 | Export | Description |
 |---|---|
-| `useFinder()` | The context: `{ store, t, locale, editors, pickMode, multiple, … }`. Throws if called outside `<CiFinder>`. |
+| `useFinder()` | The context: `{ store, t, locale, editors, pickMode, multiple, … }`. Throws if called outside `<TheFinder>`. |
 | `useStore(selector)` | Subscribes to a slice of the store: `const cwd = useStore((s) => s.cwd)`. The selector must return the same value for unchanged state. |
 | `FinderStore` | The store class. Read the state with `store.getState()` and watch changes with `store.subscribe(fn)`. |
 | `FinderState` | The state type: `cwd`, `selection`, `entries`, `volumes`, `uploads`, `clipboard`, `searchQuery`… |
@@ -228,10 +228,10 @@ The store methods (`open`, `select`, `upload`, `paste`, `remove`…) were writte
 To add a new language, translate every key and pass it in; anything left out shows in English:
 
 ```tsx
-import { locales, type Messages } from "@ci-finder/react";
+import { locales, type Messages } from "@thefinder/react";
 
 const de: Partial<Messages> = { upload: "Hochladen", newFolder: "Neuer Ordner" /* ... */ };
-<CiFinder endpoint="/api/files" locale="de" messages={de} />
+<TheFinder endpoint="/api/files" locale="de" messages={de} />
 ```
 
 See the `locales.en` object for the full list of keys.
@@ -248,41 +248,41 @@ The UI's hand-drawn SVG icons can be used in your own components too:
 
 ## Theming
 
-All styles live in `@layer ci-finder`. Any rule you write outside the layer wins, no `!important` needed. The root element is `.cf-root`. It carries the `data-theme` (`light`, `dark`, `auto`), `data-skin` (`classic`, `macos`) and `data-density` attributes.
+All styles live in `@layer thefinder`. Any rule you write outside the layer wins, no `!important` needed. The root element is `.tf-root`. It carries the `data-theme` (`light`, `dark`, `auto`), `data-skin` (`classic`, `macos`) and `data-density` attributes.
 
 ```css
-.cf-root {
-  --cf-accent: #0f766e;
-  --cf-radius: 4px;
-  --cf-font: "Inter", system-ui, sans-serif;
+.tf-root {
+  --tf-accent: #0f766e;
+  --tf-radius: 4px;
+  --tf-font: "Inter", system-ui, sans-serif;
 }
-.cf-root[data-theme="dark"] {
-  --cf-bg: #101418;
+.tf-root[data-theme="dark"] {
+  --tf-bg: #101418;
 }
 ```
 
 | Variable | Description |
 |---|---|
-| `--cf-font`, `--cf-mono` | Fonts |
-| `--cf-accent` | Accent color (selection, primary button, focus) |
-| `--cf-accent-text` | Text on an accent fill |
-| `--cf-accent-ink` | Accent text on a neutral background (links); kept separate for contrast |
-| `--cf-accent-soft`, `--cf-accent-line` | Light fill and line tones of the accent (derived from `--cf-accent` by default) |
-| `--cf-bg`, `--cf-surface`, `--cf-chrome`, `--cf-field` | Background, panels, top/bottom bars, input fields |
-| `--cf-line`, `--cf-line-strong` | Lines |
-| `--cf-text`, `--cf-text-2`, `--cf-text-3` | Text, secondary text, muted text |
-| `--cf-hover`, `--cf-press`, `--cf-sel`, `--cf-sel-muted` | Hover, press, selection, unfocused selection |
-| `--cf-danger`, `--cf-success`, `--cf-warn` | Status colors |
-| `--cf-folder-back`, `--cf-folder-front`, `--cf-page`, `--cf-page-line` | Folder and file icons |
-| `--cf-code-bg`, `--cf-code-active` | Code editor background and active line |
-| `--cf-toast-bg`, `--cf-toast-text` | Notifications |
-| `--cf-backdrop`, `--cf-shadow-pop`, `--cf-shadow-dialog` | Modal backdrop and shadows |
-| `--cf-radius`, `--cf-radius-lg` | Corner radius |
-| `--cf-header-h`, `--cf-toolbar-h`, `--cf-status-h`, `--cf-details-w` | Bar heights and details panel width |
+| `--tf-font`, `--tf-mono` | Fonts |
+| `--tf-accent` | Accent color (selection, primary button, focus) |
+| `--tf-accent-text` | Text on an accent fill |
+| `--tf-accent-ink` | Accent text on a neutral background (links); kept separate for contrast |
+| `--tf-accent-soft`, `--tf-accent-line` | Light fill and line tones of the accent (derived from `--tf-accent` by default) |
+| `--tf-bg`, `--tf-surface`, `--tf-chrome`, `--tf-field` | Background, panels, top/bottom bars, input fields |
+| `--tf-line`, `--tf-line-strong` | Lines |
+| `--tf-text`, `--tf-text-2`, `--tf-text-3` | Text, secondary text, muted text |
+| `--tf-hover`, `--tf-press`, `--tf-sel`, `--tf-sel-muted` | Hover, press, selection, unfocused selection |
+| `--tf-danger`, `--tf-success`, `--tf-warn` | Status colors |
+| `--tf-folder-back`, `--tf-folder-front`, `--tf-page`, `--tf-page-line` | Folder and file icons |
+| `--tf-code-bg`, `--tf-code-active` | Code editor background and active line |
+| `--tf-toast-bg`, `--tf-toast-text` | Notifications |
+| `--tf-backdrop`, `--tf-shadow-pop`, `--tf-shadow-dialog` | Modal backdrop and shadows |
+| `--tf-radius`, `--tf-radius-lg` | Corner radius |
+| `--tf-header-h`, `--tf-toolbar-h`, `--tf-status-h`, `--tf-details-w` | Bar heights and details panel width |
 | `--tk-*` | Code editor syntax colors (`--tk-kw`, `--tk-str`, `--tk-com`, `--tk-num`, `--tk-fn`, `--tk-type`, `--tk-prop`…) |
 
-Every class is prefixed with `cf-`. Classes other than the variables are internal structure and may change in minor releases.
+Every class is prefixed with `tf-`. Classes other than the variables are internal structure and may change in minor releases.
 
 ## Re-exports
 
-`createClient`, `CiFinderClient`, `ApiError`, `encodeId` and the `Entry`, `VolumeInfo` types come straight from `@ci-finder/core/client`.
+`createClient`, `TheFinderClient`, `ApiError`, `encodeId` and the `Entry`, `VolumeInfo` types come straight from `@thefinder/core/client`.

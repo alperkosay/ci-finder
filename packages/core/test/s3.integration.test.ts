@@ -7,7 +7,7 @@
  */
 import sharp from "sharp";
 import { beforeAll, describe, expect, it } from "vitest";
-import { createCiFinder, type CiFinder } from "../src/index";
+import { createTheFinder, type TheFinder } from "../src/index";
 import { s3Driver } from "../src/drivers/s3";
 import { signRequest } from "../src/drivers/sigv4";
 import { sharpThumbnailer } from "../src/sharp";
@@ -17,11 +17,11 @@ const endpoint = process.env.CI_FINDER_S3_ENDPOINT;
 const accessKeyId = process.env.CI_FINDER_S3_KEY ?? "";
 const secretAccessKey = process.env.CI_FINDER_S3_SECRET ?? "";
 const region = process.env.CI_FINDER_S3_REGION ?? "us-east-1";
-const bucket = `ci-finder-${Date.now().toString(36)}`;
+const bucket = `thefinder-${Date.now().toString(36)}`;
 const MiB = 1024 * 1024;
 
 describe.skipIf(!endpoint)("S3 driver against a real server", () => {
-  let finder: CiFinder;
+  let finder: TheFinder;
   let a: ReturnType<typeof api>;
   const ROOT = id("s3", "/");
   const driver = () => s3Driver({ bucket, endpoint, region, accessKeyId, secretAccessKey, prefix: "site/" });
@@ -31,12 +31,12 @@ describe.skipIf(!endpoint)("S3 driver against a real server", () => {
     const headers = await signRequest({ method: "PUT", url, region, credentials: { accessKeyId, secretAccessKey } });
     const res = await fetch(url, { method: "PUT", headers });
     expect(res.status, await res.text()).toBe(200);
-    finder = createCiFinder({ volumes: [{ id: "s3", driver: driver() }], thumbnails: { generator: sharpThumbnailer() } });
+    finder = createTheFinder({ volumes: [{ id: "s3", driver: driver() }], thumbnails: { generator: sharpThumbnailer() } });
     a = api(finder);
   }, 30_000);
 
   it("rejects a wrong secret (signatures are really checked)", async () => {
-    const bad = api(createCiFinder({ volumes: [{ id: "s3", driver: s3Driver({ bucket, endpoint, region, accessKeyId, secretAccessKey: "wrong" }) }] }));
+    const bad = api(createTheFinder({ volumes: [{ id: "s3", driver: s3Driver({ bucket, endpoint, region, accessKeyId, secretAccessKey: "wrong" }) }] }));
     expect(await bad.fail("ls", { id: ROOT })).toBe("FORBIDDEN");
   });
 
@@ -108,7 +108,7 @@ describe.skipIf(!endpoint)("S3 driver against a real server", () => {
     const thumb = await a.get({ cmd: "thumb", id: entry.id, size: "256" });
     expect(thumb.headers.get("content-type")).toBe("image/webp");
     expect((await sharp(Buffer.from(await thumb.arrayBuffer())).metadata()).width).toBe(256);
-    expect(await driver().stat("/.cf-thumbs/256")).toMatchObject({ kind: "dir" });
+    expect(await driver().stat("/.tf-thumbs/256")).toMatchObject({ kind: "dir" });
 
     const { trashed } = await a.ok("rm", { ids: [entry.id] });
     expect((await a.ok("trash")).entries.map((e: any) => e.name)).toContain("foto.jpg");

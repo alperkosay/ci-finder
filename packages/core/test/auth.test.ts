@@ -1,23 +1,23 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, it } from "vitest";
-import { CiFinderError, createCiFinder, type CiFinder } from "../src/index";
+import { TheFinderError, createTheFinder, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { api, id, tempDir } from "./helpers";
 
 let dir: string;
 let cleanup: () => Promise<void>;
-let finder: CiFinder;
+let finder: TheFinder;
 
 beforeEach(async () => {
   ({ dir, cleanup } = await tempDir());
   await writeFile(join(dir, "a.txt"), "a");
   // Role comes from a header here; real apps read their session cookie.
-  finder = createCiFinder({
+  finder = createTheFinder({
     volumes: [{ id: "local", driver: localDriver({ root: dir }) }],
     authorize: ({ request }) => {
       const role = request.headers.get("x-role");
-      if (!role) throw new CiFinderError("UNAUTHORIZED", "Sign in first");
+      if (!role) throw new TheFinderError("UNAUTHORIZED", "Sign in first");
       return role === "viewer" ? { readOnly: true } : true;
     },
   });

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { Entry, FileVersion } from "@ci-finder/core/client";
+import type { Entry, FileVersion } from "@thefinder/core/client";
 import { cx, useFinder, useStore } from "../context";
 import { categoryOf, formatDate, formatFullDate, formatSize, isEditableText } from "../format";
 import type { MessageKey } from "../i18n";
@@ -90,33 +90,33 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
   const probe = { kind: "file" as const, name, mime: current?.mime ?? "" };
 
   return (
-    <Modal label={t("versions")} onCancel={onClose} className="cf-versions-dialog">
-      <div className="cf-editor">
-        <header className="cf-editor-head">
+    <Modal label={t("versions")} onCancel={onClose} className="tf-versions-dialog">
+      <div className="tf-editor">
+        <header className="tf-editor-head">
           <Icon name="history" size={18} />
-          <div className="cf-editor-title">
+          <div className="tf-editor-title">
             <strong>{t("versions")}</strong>
             <span>{name}</span>
           </div>
-          <div className="cf-editor-tools">
-            <button type="button" className="cf-btn is-icon" aria-label={t("close")} onClick={onClose}>
+          <div className="tf-editor-tools">
+            <button type="button" className="tf-btn is-icon" aria-label={t("close")} onClick={onClose}>
               <Icon name="close" />
             </button>
           </div>
         </header>
 
         {error ? (
-          <div className="cf-editor-state is-error">
+          <div className="tf-editor-state is-error">
             <Icon name="alert" size={24} />
             <span>{error}</span>
           </div>
         ) : !versions ? (
-          <div className="cf-editor-state">
+          <div className="tf-editor-state">
             <Spinner size={20} />
           </div>
         ) : (
-          <div className="cf-versions-body">
-            <div className="cf-versions-list" role="listbox" aria-label={t("versions")}>
+          <div className="tf-versions-body">
+            <div className="tf-versions-list" role="listbox" aria-label={t("versions")}>
               {current && (
                 <VersionRow
                   active={selected === CURRENT}
@@ -127,7 +127,7 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
                   isCurrent
                 />
               )}
-              {!current && <p className="cf-versions-note">{t("versionDeletedFile")}</p>}
+              {!current && <p className="tf-versions-note">{t("versionDeletedFile")}</p>}
               {versions.map((v) => (
                 <VersionRow
                   key={v.id}
@@ -139,15 +139,15 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
                 />
               ))}
               {!versions.length && (
-                <div className="cf-versions-empty">
+                <div className="tf-versions-empty">
                   <strong>{t("noVersions")}</strong>
                   <span>{t("noVersionsHint")}</span>
                 </div>
               )}
             </div>
 
-            <div className="cf-versions-preview">
-              <div className="cf-versions-stage">
+            <div className="tf-versions-preview">
+              <div className="tf-versions-stage">
                 {selected === CURRENT && current ? (
                   <Preview probe={probe} src={store.fileUrl(current)} />
                 ) : version ? (
@@ -155,19 +155,19 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
                 ) : null}
               </div>
               {version && (
-                <div className="cf-versions-actions">
-                  <div className="cf-versions-meta">
+                <div className="tf-versions-actions">
+                  <div className="tf-versions-meta">
                     <strong>{formatFullDate(version.createdAt, locale)}</strong>
                     <span>
                       {reasonLabel(version.reason)} · {formatSize(version.size, locale)}
                     </span>
                   </div>
-                  <a className="cf-btn is-icon" href={store.client.versionUrl(id, version.id, true)} download title={t("download")} aria-label={t("download")}>
+                  <a className="tf-btn is-icon" href={store.client.versionUrl(id, version.id, true)} download title={t("download")} aria-label={t("download")}>
                     <Icon name="download" />
                   </a>
                   <button
                     type="button"
-                    className="cf-btn is-icon is-danger-text"
+                    className="tf-btn is-icon is-danger-text"
                     disabled={!!busy}
                     title={t("deleteVersion")}
                     aria-label={t("deleteVersion")}
@@ -175,15 +175,15 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
                   >
                     {busy === version.id ? <Spinner size={14} /> : <Icon name="trash" />}
                   </button>
-                  <button type="button" className="cf-btn is-primary" disabled={!!busy} onClick={() => void restore(version)}>
+                  <button type="button" className="tf-btn is-primary" disabled={!!busy} onClick={() => void restore(version)}>
                     {busy === version.id ? <Spinner size={14} /> : <Icon name="restore" />}
                     <span>{t("restoreVersion")}</span>
                   </button>
                 </div>
               )}
               {selected === CURRENT && current && (
-                <div className="cf-versions-actions">
-                  <div className="cf-versions-meta">
+                <div className="tf-versions-actions">
+                  <div className="tf-versions-meta">
                     <strong>{t("currentVersion")}</strong>
                     <span>
                       {formatFullDate(current.mtime, locale)} · {formatSize(current.size, locale)}
@@ -196,11 +196,11 @@ function VersionsView({ id, name, onClose }: { id: string; name: string; onClose
         )}
 
         {versions && versions.length > 0 && (
-          <footer className="cf-versions-foot">
-            <span className="cf-dim">
+          <footer className="tf-versions-foot">
+            <span className="tf-dim">
               {t("versionsCount", { n: versions.length })} · {formatSize(total, locale)}
             </span>
-            <button type="button" className="cf-btn is-danger-text" disabled={!!busy} onClick={() => void remove()}>
+            <button type="button" className="tf-btn is-danger-text" disabled={!!busy} onClick={() => void remove()}>
               {busy === "all" ? <Spinner size={14} /> : <Icon name="trash" />}
               <span>{t("deleteHistory")}</span>
             </button>
@@ -217,15 +217,15 @@ function VersionRow(props: { active: boolean; onSelect: () => void; title: strin
       type="button"
       role="option"
       aria-selected={props.active}
-      className={cx("cf-version-row", props.active && "is-active", props.isCurrent && "is-current")}
+      className={cx("tf-version-row", props.active && "is-active", props.isCurrent && "is-current")}
       onClick={props.onSelect}
     >
-      <span className="cf-version-dot" aria-hidden="true" />
-      <span className="cf-version-text">
+      <span className="tf-version-dot" aria-hidden="true" />
+      <span className="tf-version-text">
         <strong>{props.title}</strong>
         <span>{props.when}</span>
       </span>
-      <span className="cf-version-size">{props.size}</span>
+      <span className="tf-version-size">{props.size}</span>
     </button>
   );
 }
@@ -249,16 +249,16 @@ function Preview({ probe, src }: { probe: { kind: "file"; name: string; mime: st
 
   if (category === "image" && !failed) {
     return (
-      <div className="cf-versions-image">
+      <div className="tf-versions-image">
         <img src={src} alt="" draggable={false} onError={() => setFailed(true)} />
       </div>
     );
   }
   if (text && !failed) {
-    return content === null ? <Spinner size={18} /> : <pre className="cf-versions-text">{content}</pre>;
+    return content === null ? <Spinner size={18} /> : <pre className="tf-versions-text">{content}</pre>;
   }
   return (
-    <div className="cf-ql-empty">
+    <div className="tf-ql-empty">
       <FileIcon entry={probe} size={72} />
       <span>{t("previewUnavailable")}</span>
     </div>

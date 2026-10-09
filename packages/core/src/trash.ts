@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import { encodeId } from "./id";
 import { DIRECTORY_MIME, mimeOf } from "./mime";
 import { dirname, joinPath, normalizePath } from "./path";
@@ -7,12 +7,12 @@ import type { DriverStat, Entry, EntryKind, VolumePath } from "./types";
 import type { Volume } from "./volume";
 
 /**
- * Trash without a database: every deleted item is moved to `/.cf-trash/<tid>/<name>` inside its own
- * volume, next to a `/.cf-trash/<tid>.json` sidecar describing where it came from. Works the same on
+ * Trash without a database: every deleted item is moved to `/.tf-trash/<tid>/<name>` inside its own
+ * volume, next to a `/.tf-trash/<tid>.json` sidecar describing where it came from. Works the same on
  * local disk and S3, survives restarts and needs no external state.
  */
-export const TRASH_ROOT = "/.cf-trash";
-export const TRASH_NAME = ".cf-trash";
+export const TRASH_ROOT = "/.tf-trash";
+export const TRASH_NAME = ".tf-trash";
 
 const TID = /^[a-z0-9]{6,12}-[a-z0-9]{6,10}$/;
 const DAY = 86_400_000;
@@ -32,14 +32,14 @@ export function isTrashPath(path: VolumePath): boolean {
 
 /**
  * Internal folders (trash, thumbnail cache, version history) that are never reachable through normal
- * commands. Case-insensitive: on Windows and macOS "/.CF-TRASH" is the same folder.
+ * commands. Case-insensitive: on Windows and macOS "/.TF-TRASH" is the same folder.
  */
 export function isReservedPath(path: VolumePath): boolean {
   const p = path.toLowerCase();
-  return [TRASH_ROOT, "/.cf-thumbs", "/.cf-versions"].some((root) => p === root || p.startsWith(root + "/"));
+  return [TRASH_ROOT, "/.tf-thumbs", "/.tf-versions"].some((root) => p === root || p.startsWith(root + "/"));
 }
 
-export const RESERVED_NAMES = new Set([".cf-trash", ".cf-thumbs", ".cf-versions"]);
+export const RESERVED_NAMES = new Set([".tf-trash", ".tf-thumbs", ".tf-versions"]);
 
 const metaPath = (tid: string) => `${TRASH_ROOT}/${tid}.json`;
 const itemDir = (tid: string) => `${TRASH_ROOT}/${tid}`;
@@ -48,7 +48,7 @@ function newTid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10).padEnd(8, "0")}`;
 }
 
-/** Extracts the trash id from a trash entry path ("/.cf-trash/<tid>"). */
+/** Extracts the trash id from a trash entry path ("/.tf-trash/<tid>"). */
 export function parseTrashPath(path: VolumePath): string | null {
   const tid = path.startsWith(TRASH_ROOT + "/") ? path.slice(TRASH_ROOT.length + 1) : "";
   return TID.test(tid) ? tid : null;
@@ -142,7 +142,7 @@ export async function countTrash(vol: Volume): Promise<number> {
 export async function restoreFromTrash(vol: Volume, tid: string): Promise<Entry> {
   const meta = await readMeta(vol, tid);
   const source = joinPath(itemDir(tid), meta?.name ?? "");
-  if (!meta || !(await vol.driver.stat(source))) throw new CiFinderError("NOT_FOUND", "Item is no longer in the trash");
+  if (!meta || !(await vol.driver.stat(source))) throw new TheFinderError("NOT_FOUND", "Item is no longer in the trash");
   const dir = dirname(meta.originalPath);
   vol.assertCan("write", dir);
   await vol.mkdirp(dir);
@@ -151,7 +151,7 @@ export async function restoreFromTrash(vol: Volume, tid: string): Promise<Entry>
   await vol.driver.move(source, target);
   await purgeOne(vol, tid);
   const stat = await vol.driver.stat(target);
-  if (!stat) throw new CiFinderError("STORAGE", "Restored item could not be found");
+  if (!stat) throw new TheFinderError("STORAGE", "Restored item could not be found");
   return vol.entry(stat);
 }
 

@@ -1,15 +1,15 @@
 import { ButtonView, FileRepository, Plugin, type FileLoader, type UploadAdapter, type UploadResponse } from "ckeditor5";
-import { ApiError, createClient, type CiFinderClient } from "@ci-finder/core/client";
-import { openFilePicker, pickedUrl, type FilePickerOptions, type PickedFile } from "@ci-finder/react";
+import { ApiError, createClient, type TheFinderClient } from "@thefinder/core/client";
+import { openFilePicker, pickedUrl, type FilePickerOptions, type PickedFile } from "@thefinder/react";
 import { ensureFolder } from "./folder";
 
-export interface CiFinderEditorConfig {
-  /** URL of the ciFinder API route. Default: "/api/files". */
+export interface TheFinderEditorConfig {
+  /** URL of theFinder's API route. Default: "/api/files". */
   endpoint?: string;
   headers?: Record<string, string> | (() => Record<string, string>);
   credentials?: RequestCredentials;
   /** Bring your own configured client instead of `endpoint` / `headers`. */
-  client?: CiFinderClient;
+  client?: TheFinderClient;
   /**
    * Where pasted and dropped images are uploaded: a folder path in the first volume ("/editor"), or
    * `{ volume, path }`. Missing folders are created. `false` keeps CKEditor's own upload handling.
@@ -20,17 +20,17 @@ export interface CiFinderEditorConfig {
   absoluteUrls?: boolean;
   /** Options for the picker opened by the toolbar button (accept, theme, locale...). */
   picker?: Partial<FilePickerOptions>;
-  /** Replace the built-in picker, e.g. to open ciFinder inside your own modal. */
+  /** Replace the built-in picker, e.g. to open theFinder inside your own modal. */
   openPicker?: () => Promise<PickedFile[] | null>;
 }
 
 declare module "@ckeditor/ckeditor5-core" {
   interface EditorConfig {
-    /** ciFinder connector settings. See `CiFinderEditorConfig`. */
-    ciFinder?: CiFinderEditorConfig;
+    /** theFinder connector settings. See `TheFinderEditorConfig`. */
+    theFinder?: TheFinderEditorConfig;
   }
   interface PluginsMap {
-    [CiFinder.pluginName]: CiFinder;
+    [TheFinder.pluginName]: TheFinder;
   }
 }
 
@@ -44,36 +44,36 @@ const LABELS: Record<string, { browse: string; insert: string; uploadFailed: str
 };
 
 /**
- * CKEditor 5 connector for ciFinder (the CKFinder role):
- * - a `ciFinder` toolbar button that opens the file manager; chosen images are inserted as images,
+ * CKEditor 5 connector for theFinder (the CKFinder role):
+ * - a `theFinder` toolbar button that opens the file manager; chosen images are inserted as images,
  *   other files as links (on the selected text when there is one);
- * - an upload adapter, so pasted and dropped images are stored through ciFinder.
+ * - an upload adapter, so pasted and dropped images are stored through theFinder.
  *
  * ```ts
  * ClassicEditor.create(el, {
  *   licenseKey: "GPL",
- *   plugins: [Essentials, Paragraph, Image, ImageUpload, Link, CiFinder],
- *   toolbar: ["bold", "link", "|", "ciFinder"],
- *   ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+ *   plugins: [Essentials, Paragraph, Image, ImageUpload, Link, TheFinder],
+ *   toolbar: ["bold", "link", "|", "theFinder"],
+ *   theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
  * });
  * ```
  */
-export class CiFinder extends Plugin {
+export class TheFinder extends Plugin {
   static get pluginName() {
-    return "CiFinder" as const;
+    return "TheFinder" as const;
   }
 
   static get requires() {
     return [FileRepository] as const;
   }
 
-  private client!: CiFinderClient;
-  private settings!: CiFinderEditorConfig;
+  private client!: TheFinderClient;
+  private settings!: TheFinderEditorConfig;
   private folder: Promise<string> | null = null;
 
   init(): void {
     const editor = this.editor;
-    const settings: CiFinderEditorConfig = editor.config.get("ciFinder") ?? {};
+    const settings: TheFinderEditorConfig = editor.config.get("theFinder") ?? {};
     this.settings = settings;
     this.client =
       settings.client ?? createClient({ endpoint: settings.endpoint ?? "/api/files", headers: settings.headers, credentials: settings.credentials });
@@ -81,10 +81,10 @@ export class CiFinder extends Plugin {
 
     if (settings.uploadFolder !== false) {
       editor.plugins.get(FileRepository).createUploadAdapter = (loader) =>
-        new CiFinderUploadAdapter(loader, this.client, () => this.uploadTarget(), !!settings.absoluteUrls, labels.uploadFailed);
+        new TheFinderUploadAdapter(loader, this.client, () => this.uploadTarget(), !!settings.absoluteUrls, labels.uploadFailed);
     }
 
-    editor.ui.componentFactory.add("ciFinder", (locale) => {
+    editor.ui.componentFactory.add("theFinder", (locale) => {
       const button = new ButtonView(locale);
       button.set({ label: labels.browse, icon: ICON, tooltip: true });
       button.bind("isEnabled").to(editor, "isReadOnly", (readOnly: boolean) => !readOnly);
@@ -146,13 +146,13 @@ export class CiFinder extends Plugin {
   }
 }
 
-/** CKEditor upload adapter that stores files through ciFinder's chunked upload. */
-export class CiFinderUploadAdapter implements UploadAdapter {
+/** CKEditor upload adapter that stores files through theFinder's chunked upload. */
+export class TheFinderUploadAdapter implements UploadAdapter {
   private readonly controller = new AbortController();
 
   constructor(
     private readonly loader: FileLoader,
-    private readonly client: CiFinderClient,
+    private readonly client: TheFinderClient,
     private readonly target: () => Promise<string>,
     private readonly absolute = false,
     private readonly failedMessage = "Upload failed",
@@ -181,4 +181,4 @@ export class CiFinderUploadAdapter implements UploadAdapter {
   }
 }
 
-export type { PickedFile } from "@ci-finder/react";
+export type { PickedFile } from "@thefinder/react";

@@ -1,19 +1,19 @@
 <div align="center">
 
-<a href="https://alperkosay.github.io/ci-finder/"><img src="examples/next/app/icon.svg" width="84" height="84" alt="ciFinder logo" /></a>
+<a href="https://alperkosay.github.io/thefinder/"><img src="examples/next/app/icon.svg" width="84" height="84" alt="theFinder logo" /></a>
 
-<h1>ciFinder</h1>
+<h1>theFinder</h1>
 
 <p><strong>Web için bir Finder.</strong><br />
 React için hızlı ve klavye dostu bir dosya yöneticisi. Saf CSS, bağımlılıksız bir çekirdek ve tek bir API ucu.</p>
 
 <p>
-  <a href="https://www.npmjs.com/package/@ci-finder/react"><img alt="npm version" src="https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
-  <a href="https://github.com/alperkosay/ci-finder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/ci-finder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
+  <a href="https://www.npmjs.com/package/@thefinder/react"><img alt="npm version" src="https://img.shields.io/npm/v/@thefinder/react?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
+  <a href="https://github.com/alperkosay/thefinder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/thefinder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4c9a6a?style=flat-square&labelColor=33302b" /></a>
   <a href="packages/core/package.json"><img alt="Çalışma zamanı bağımlılığı yok" src="https://img.shields.io/badge/core%20dependencies-0-4c9a6a?style=flat-square&labelColor=33302b" /></a>
   <img alt="TypeScript ile yazıldı" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white&labelColor=33302b" />
-  <a href="https://alperkosay.github.io/ci-finder/demo/?lang=tr"><img alt="Canlı demo" src="https://img.shields.io/badge/demo-canl%C4%B1-d6a03d?style=flat-square&labelColor=33302b" /></a>
+  <a href="https://alperkosay.github.io/thefinder/demo/?lang=tr"><img alt="Canlı demo" src="https://img.shields.io/badge/demo-canl%C4%B1-d6a03d?style=flat-square&labelColor=33302b" /></a>
 </p>
 
 <p>
@@ -27,11 +27,9 @@ React için hızlı ve klavye dostu bir dosya yöneticisi. Saf CSS, bağımlıl�
 </p>
 
 <p>
-  <a href="https://alperkosay.github.io/ci-finder/demo/?lang=tr"><b>Canlı demo</b></a>
+  <a href="https://alperkosay.github.io/thefinder/demo/?lang=tr"><b>Canlı demo</b></a>
   &nbsp;·&nbsp;
-  <a href="https://alperkosay.github.io/ci-finder/docs/tr/"><b>Belgeler</b></a>
-  &nbsp;·&nbsp;
-  <a href="https://alperkosay.github.io/ci-finder/media/cifinder-film.tr.mp4"><b>Filmi izle</b></a>
+  <a href="https://alperkosay.github.io/thefinder/docs/tr/"><b>Belgeler</b></a>
   &nbsp;·&nbsp;
   <a href="docs/api/tr/README.md"><b>API referansı</b></a>
   &nbsp;·&nbsp;
@@ -40,20 +38,20 @@ React için hızlı ve klavye dostu bir dosya yöneticisi. Saf CSS, bağımlıl�
 
 </div>
 
-![ciFinder](docs/media/cifinder-hero.tr.png)
+![theFinder](docs/media/thefinder-hero.tr.png)
 
 React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüphanesine bağlı değil. Backend Web standardı `Request → Response` üzerine kurulu; Next.js (standalone dahil), Node.js, Bun, Express, Fastify, Koa ve Hono ile çalışır. Dosyalar yerel diskte, S3'te ya da ikisinde birden tutulabilir.
 
 | Paket | Sürüm | İçerik |
 |---|---|---|
-| [`@ci-finder/core`](packages/core) | [![npm](https://img.shields.io/npm/v/@ci-finder/core?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/core) | Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok. |
-| [`@ci-finder/next`](packages/next) | [![npm](https://img.shields.io/npm/v/@ci-finder/next?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/next) | Next.js route'ları ve standalone uyumlu proje kökü tespiti. |
-| [`@ci-finder/react`](packages/react) | [![npm](https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/react) | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
-| [`@ci-finder/ckeditor`](packages/ckeditor) | [![npm](https://img.shields.io/npm/v/@ci-finder/ckeditor?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/ckeditor) | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
+| [`@thefinder/core`](packages/core) | [![npm](https://img.shields.io/npm/v/@thefinder/core?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/core) | Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok. |
+| [`@thefinder/next`](packages/next) | [![npm](https://img.shields.io/npm/v/@thefinder/next?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/next) | Next.js route'ları ve standalone uyumlu proje kökü tespiti. |
+| [`@thefinder/react`](packages/react) | [![npm](https://img.shields.io/npm/v/@thefinder/react?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/react) | `<TheFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
+| [`@thefinder/ckeditor`](packages/ckeditor) | [![npm](https://img.shields.io/npm/v/@thefinder/ckeditor?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/ckeditor) | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
-Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/tr/README.md). Canlı demo, belgeler ve elFinder karşılaştırması: [alperkosay.github.io/ci-finder](https://alperkosay.github.io/ci-finder/tr/).
+Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/tr/README.md). Canlı demo, belgeler ve elFinder karşılaştırması: [alperkosay.github.io/thefinder](https://alperkosay.github.io/thefinder/tr/).
 
-![ciFinder özellikleri](docs/media/cifinder-features.tr.png)
+![theFinder özellikleri](docs/media/thefinder-features.tr.png)
 
 ## Özellikler
 
@@ -84,7 +82,7 @@ Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/tr/README.
 ## Kurulum
 
 ```bash
-npm i @ci-finder/core @ci-finder/react @ci-finder/next
+npm i @thefinder/core @thefinder/react @thefinder/next
 ```
 
 ## Next.js
@@ -92,9 +90,9 @@ npm i @ci-finder/core @ci-finder/react @ci-finder/next
 **1. Sunucu ayarı (`lib/finder.ts`)**
 
 ```ts
-import { createCiFinder, localDriver, uploadsDir } from "@ci-finder/next";
+import { createTheFinder, localDriver, uploadsDir } from "@thefinder/next";
 
-export const finder = createCiFinder({
+export const finder = createTheFinder({
   volumes: [
     {
       id: "uploads",
@@ -111,7 +109,7 @@ export const finder = createCiFinder({
 **2. API route'u (`app/api/files/route.ts`)**
 
 ```ts
-import { createNextRoutes } from "@ci-finder/next";
+import { createNextRoutes } from "@thefinder/next";
 import { finder } from "@/lib/finder";
 
 export const runtime = "nodejs";
@@ -121,7 +119,7 @@ export const { GET, POST } = createNextRoutes(finder);
 **3. Dosya sunumu (`app/uploads/[...path]/route.ts`)**
 
 ```ts
-import { createUploadsRoute } from "@ci-finder/next";
+import { createUploadsRoute } from "@thefinder/next";
 
 export const runtime = "nodejs";
 export const { GET, HEAD } = createUploadsRoute();
@@ -131,13 +129,13 @@ export const { GET, HEAD } = createUploadsRoute();
 
 ```tsx
 "use client";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 export default function Files() {
   return (
     <div style={{ height: "100vh" }}>
-      <CiFinder endpoint="/api/files" locale="tr" />
+      <TheFinder endpoint="/api/files" locale="tr" />
     </div>
   );
 }
@@ -163,16 +161,16 @@ export default function Files() {
 
 ### Yetkilendirme
 
-ciFinder oturum yönetimi yapmaz; uygulamanızdaki oturumu (Auth.js, Clerk, kendi çereziniz…) `authorize` hook'unda okursunuz:
+theFinder oturum yönetimi yapmaz; uygulamanızdaki oturumu (Auth.js, Clerk, kendi çereziniz…) `authorize` hook'unda okursunuz:
 
 ```ts
-import { CiFinderError } from "@ci-finder/next"; // veya "@ci-finder/core"
+import { TheFinderError } from "@thefinder/next"; // veya "@thefinder/core"
 
-createCiFinder({
+createTheFinder({
   volumes,
   authorize: async ({ request, cmd }) => {
     const session = await getSession(request);
-    if (!session) throw new CiFinderError("UNAUTHORIZED");          // → 401
+    if (!session) throw new TheFinderError("UNAUTHORIZED");          // → 401
     if (session.role === "viewer") return { readOnly: true };       // her şey salt okunur
     return true;                                                     // false → 403
   },
@@ -181,18 +179,18 @@ createCiFinder({
 
 - `false` döndürmek 403, `UNAUTHORIZED` fırlatmak 401 verir.
 - `{ readOnly: true }` döndürülürse o istek için bütün volume'ler salt okunur olur. Arayüz yazma eylemlerini kendiliğinden gizler, API de yazma isteklerini `READ_ONLY` hatasıyla reddeder.
-- Arayüz 401 alınca `onUnauthorized` çağrılır, örneğin `<CiFinder onUnauthorized={() => location.assign("/login")} />`.
+- Arayüz 401 alınca `onUnauthorized` çağrılır, örneğin `<TheFinder onUnauthorized={() => location.assign("/login")} />`.
 - `/uploads` adresini de korumak isterseniz: `createUploadsRoute({ authorize: (request) => isSignedIn(request) })`.
 
 ## Bun
 
 ```ts
-import { createCiFinder, createFileServer } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { createTheFinder, createFileServer } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 import index from "./index.html";
 
 const driver = localDriver({ root: "./uploads" });
-const finder = createCiFinder({ volumes: [{ id: "files", driver, url: "/uploads" }] });
+const finder = createTheFinder({ volumes: [{ id: "files", driver, url: "/uploads" }] });
 
 Bun.serve({
   routes: {
@@ -206,7 +204,7 @@ Bun.serve({
 ## Node.js, Express, Fastify, Koa
 
 ```ts
-import { toExpress, toNodeHandler, toFastify, toKoa } from "@ci-finder/core/node";
+import { toExpress, toNodeHandler, toFastify, toKoa } from "@thefinder/core/node";
 
 app.all("/api/files", toExpress(finder.handler));                       // Express / Connect
 http.createServer(toNodeHandler(finder.handler));                       // düz node:http
@@ -219,7 +217,7 @@ router.all("/api/files", toKoa(finder.handler));                        // Koa
 ## S3, R2, MinIO
 
 ```ts
-import { s3Driver } from "@ci-finder/core/s3";
+import { s3Driver } from "@thefinder/core/s3";
 
 volumes: [
   { id: "local", driver: localDriver({ root: uploadsDir() }), url: "/uploads" },
@@ -245,23 +243,23 @@ volumes: [
 - Görsel editörü S3'teki görselleri düzenleyebilsin diye bucket'ta CORS ayarı gerekir (`GET`, uygulamanızın origin'i).
 - Gerçek bir S3 uyumlu sunucuya karşı entegrasyon testi:
   ```bash
-  CI_FINDER_S3_ENDPOINT=http://127.0.0.1:7070 CI_FINDER_S3_KEY=... CI_FINDER_S3_SECRET=... npm run test:s3 -w @ci-finder/core
+  CI_FINDER_S3_ENDPOINT=http://127.0.0.1:7070 CI_FINDER_S3_KEY=... CI_FINDER_S3_SECRET=... npm run test:s3 -w @thefinder/core
   ```
   Bu testler [Versity Gateway](https://github.com/versity/versitygw) 1.8 üzerinde çalıştırıldı ve hepsi geçti. İmza doğrulaması, Türkçe ve özel karakterli anahtarlar, multipart yükleme, 1.000'den fazla nesnenin sayfalı listelenmesi, presigned URL, çöp kutusu ve küçük resimler kontrol edildi.
 
 ## Küçük resimler
 
 ```ts
-import { sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({
+createTheFinder({
   volumes,
   thumbnails: { generator: sharpThumbnailer() }, // sizes: [128, 256, 512], concurrency: 2
 });
 ```
 
-- Üretim için [`sharp`](https://sharp.pixelplumbing.com) kullanılır. Next.js projelerinde zaten kurulu gelir (`next/image` onu kullanır); diğer projelerde `npm i sharp` yeterli. Core paketinin kendisi sharp'a bağımlı değildir, sadece `@ci-finder/core/sharp` alt yolu onu içeri alır.
-- İlk istekte üretilir, volume içindeki gizli `.cf-thumbs/` klasöründe saklanır (S3'te de çalışır). Kaynak görsel değişince yeniden üretilir; dosya silinince, taşınınca veya adı değişince ilgili küçük resim temizlenir. Klasör istendiği zaman silinebilir, gerektiğinde yeniden oluşur.
+- Üretim için [`sharp`](https://sharp.pixelplumbing.com) kullanılır. Next.js projelerinde zaten kurulu gelir (`next/image` onu kullanır); diğer projelerde `npm i sharp` yeterli. Core paketinin kendisi sharp'a bağımlı değildir, sadece `@thefinder/core/sharp` alt yolu onu içeri alır.
+- İlk istekte üretilir, volume içindeki gizli `.tf-thumbs/` klasöründe saklanır (S3'te de çalışır). Kaynak görsel değişince yeniden üretilir; dosya silinince, taşınınca veya adı değişince ilgili küçük resim temizlenir. Klasör istendiği zaman silinebilir, gerektiğinde yeniden oluşur.
 - **Kötüye kullanıma karşı koruma:**
   - Yalnızca belirlenen boyutlar üretilir, keyfi boyut istenemez.
   - Aynı anda yapılan üretim sayısı sınırlıdır ve aynı görsel için gelen eşzamanlı istekler tek üretimde birleştirilir.
@@ -271,10 +269,10 @@ createCiFinder({
 
 ## Çöp kutusu
 
-Veritabanı kullanılmaz. Her volume'ün çöpü kendi içinde, gizli `.cf-trash/` klasöründe tutulur:
+Veritabanı kullanılmaz. Her volume'ün çöpü kendi içinde, gizli `.tf-trash/` klasöründe tutulur:
 
 ```
-uploads/.cf-trash/
+uploads/.tf-trash/
   mgh2k1-a8f3c2d1/          ← silinen öğe (asıl adıyla)
     Faturalar/...
   mgh2k1-a8f3c2d1.json      ← { name, originalPath, deletedAt, kind, size }
@@ -283,7 +281,7 @@ uploads/.cf-trash/
 - Yerel diskte de S3'te de aynı şekilde çalışır ve sunucu yeniden başlasa da korunur.
 - Geri yüklenen öğe eski yerine döner. Eski klasör silinmişse yeniden oluşturulur; aynı adla başka bir öğe varsa adı "dosya (2)" olur.
 - Süresi dolan öğeler çöp kutusu her listelendiğinde temizlenir, bunun için cron gerekmez.
-- `.cf-trash` normal listede, aramada, zip indirmede ve `/uploads` route'unda hiç görünmez; `showHidden: true` olsa bile.
+- `.tf-trash` normal listede, aramada, zip indirmede ve `/uploads` route'unda hiç görünmez; `showHidden: true` olsa bile.
 
 ```ts
 { id: "uploads", driver, trash: { retentionDays: 14 } } // varsayılan: 30 gün
@@ -294,10 +292,10 @@ API komutları: `rm` (varsayılan olarak çöpe taşır, `permanent: true` ile k
 
 ## Sürüm geçmişi
 
-Çöp kutusu gibi veritabanı kullanmaz. Bir dosyanın üzerine yazılmadan önce eski içeriği volume içindeki gizli `.cf-versions/` klasörüne kopyalanır:
+Çöp kutusu gibi veritabanı kullanmaz. Bir dosyanın üzerine yazılmadan önce eski içeriği volume içindeki gizli `.tf-versions/` klasörüne kopyalanır:
 
 ```
-uploads/.cf-versions/
+uploads/.tf-versions/
   3f0a…c9/                         ← sha1(dosya yolu)
     file.json                      ← { path }
     mgh2k1-a8f3c2-edit.bin         ← zaman-rastgele-sebep
@@ -306,7 +304,7 @@ uploads/.cf-versions/
 
 - Sürüm alınan durumlar: editörde kaydetme (kod ve görsel), toplu optimizasyonda üzerine yazma, "değiştir" ile yükleme, yapıştırmada "değiştir", bir sürümü geri yükleme (geri yüklemeden önceki hali de sürüm olur, yani geri alınabilir).
 - Yeniden adlandırma ve taşımada (klasör taşıma dahil) geçmiş dosyayla birlikte gider. Dosya çöpe gidince geçmiş kalır, çöpten geri gelince yine bağlı olur; kalıcı silinince geçmiş de silinir.
-- ciFinder dışında silinen bir dosyanın geçmişinden sürüm geri yüklenirse dosya yeniden oluşturulur.
+- theFinder dışında silinen bir dosyanın geçmişinden sürüm geri yüklenirse dosya yeniden oluşturulur.
 - Sürüm almak bir kopyalamadır: yerel diskte dosya kopyası, S3'te sunucu tarafı `CopyObject` (veri sunucudan geçmez). Bir dosyanın geçmişini listelemek tek bir klasör listeleme isteğidir.
 
 ```ts
@@ -321,9 +319,9 @@ API komutları: `versions`, `version` (GET, sürümü sunar), `revert`, `rmVersi
 ## Toplu görsel işlemleri
 
 ```ts
-import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpImages, sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({
+createTheFinder({
   volumes,
   thumbnails: { generator: sharpThumbnailer() },
   images: sharpImages(), // yeniden boyutlandırma, sıkıştırma, WebP / AVIF / JPEG / PNG
@@ -339,10 +337,10 @@ createCiFinder({
 
 ## Dosya seçici: `useFilePicker`
 
-ciFinder'ı modal bir seçici olarak açar ve seçilen dosyaları `Promise` ile döndürür. Vazgeçilirse `null` gelir.
+theFinder'ı modal bir seçici olarak açar ve seçilen dosyaları `Promise` ile döndürür. Vazgeçilirse `null` gelir.
 
 ```tsx
-import { useFilePicker } from "@ci-finder/react";
+import { useFilePicker } from "@thefinder/react";
 
 const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
 
@@ -354,45 +352,45 @@ const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
 ```
 
 - `accept`: `<input type="file">` ile aynı söz dizimi (`"image/*"`, `".pdf,.docx"`) ya da `(entry) => boolean`. Uymayan dosyalar soluk görünür, seçilemez.
-- `multiple`, `selectLabel`, `locale`, `theme` ve diğer `<CiFinder />` prop'ları geçerlidir. `absoluteUrls: true` tam adres döndürür.
+- `multiple`, `selectLabel`, `locale`, `theme` ve diğer `<TheFinder />` prop'ları geçerlidir. `absoluteUrls: true` tam adres döndürür.
 - React dışında (vanilla JS, Vue…) aynı şey: `const files = await openFilePicker({ endpoint: "/api/files" })`.
 - Çalışan örnek: `examples/next` içindeki `/playground` sayfası.
 
 ## CKEditor
 
-`@ci-finder/ckeditor`, CKFinder'ın yaptığı işi yapar: araç çubuğuna dosya yöneticisi düğmesi ekler ve yapıştırılan / sürüklenen görselleri ciFinder üzerinden yükler.
+`@thefinder/ckeditor`, CKFinder'ın yaptığı işi yapar: araç çubuğuna dosya yöneticisi düğmesi ekler ve yapıştırılan / sürüklenen görselleri theFinder üzerinden yükler.
 
 **CKEditor 5**
 
 ```ts
-import { CiFinder } from "@ci-finder/ckeditor";
+import { TheFinder } from "@thefinder/ckeditor";
 
 ClassicEditor.create(el, {
   licenseKey: "GPL",
-  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, CiFinder],
-  toolbar: ["bold", "link", "|", "ciFinder"],
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, TheFinder],
+  toolbar: ["bold", "link", "|", "theFinder"],
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });
 ```
 
 **CKEditor 4**
 
 ```ts
-import { registerCiFinder } from "@ci-finder/ckeditor/v4";
+import { registerTheFinder } from "@thefinder/ckeditor/v4";
 
-registerCiFinder(window.CKEDITOR);
+registerTheFinder(window.CKEDITOR);
 CKEDITOR.replace("body", {
-  extraPlugins: "cifinder,uploadimage",
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  extraPlugins: "thefinder,uploadimage",
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });
 ```
 
 - Seçilen görseller görsel olarak, diğer dosyalar bağlantı olarak eklenir (seçili metin varsa ona bağlantı verilir).
-- CKEditor 4'te Resim ve Bağlantı pencerelerindeki "Sunucuyu Gözat" düğmeleri de ciFinder'ı açar.
+- CKEditor 4'te Resim ve Bağlantı pencerelerindeki "Sunucuyu Gözat" düğmeleri de theFinder'ı açar.
 - `uploadFolder` yoksa oluşturulur; `false` verilirse editörün kendi yükleme ayarı kullanılır. `picker` ile seçicinin ayarları (`accept`, `theme`…), `openPicker` ile tamamen kendi seçiciniz verilebilir.
 - CKEditor 4'ün açık kaynak son sürümü 4.22.1'dir; 4.23 ve sonrası ticari lisans anahtarı ister. Connector iki sürümle de çalışır.
 
-## `<CiFinder />` prop'ları
+## `<TheFinder />` prop'ları
 
 | Prop | Açıklama |
 |---|---|
@@ -413,26 +411,26 @@ CKEDITOR.replace("body", {
 
 ## Tema
 
-Tüm stiller `@layer ci-finder` içindedir, yani katman dışında yazdığınız her kural onları ezer. Renkler CSS değişkenleriyle tanımlı:
+Tüm stiller `@layer thefinder` içindedir, yani katman dışında yazdığınız her kural onları ezer. Renkler CSS değişkenleriyle tanımlı:
 
 ```css
-.cf-root {
-  --cf-accent: #0f766e;
-  --cf-radius: 4px;
-  --cf-font: "Inter", system-ui, sans-serif;
+.tf-root {
+  --tf-accent: #0f766e;
+  --tf-radius: 4px;
+  --tf-font: "Inter", system-ui, sans-serif;
 }
-.cf-root[data-theme="dark"] {
-  --cf-bg: #101418;
+.tf-root[data-theme="dark"] {
+  --tf-bg: #101418;
 }
 ```
 
 ## Güvenlik
 
 - **Path traversal:** `..` içeren yollar çözülmeye çalışılmaz, doğrudan reddedilir. Kök dışına işaret eden symlink'ler gizlenir.
-- **CSRF:** Tüm değişiklik isteklerinde `x-ci-finder` başlığı zorunludur; değişiklik yapan komutlar GET ile çalışmaz.
+- **CSRF:** Tüm değişiklik isteklerinde `x-thefinder` başlığı zorunludur; değişiklik yapan komutlar GET ile çalışmaz.
 - **Yetkilendirme:** Volume bazında `readOnly`, `permission(action, path)`, uzantı izin ve yasak listeleri, `maxUploadSize`; komut bazında `authorize` hook'u.
 - **Arşivler:** Zip-slip ve zip bombası koruması (`maxExtractSize`).
-- **İç klasörler:** `.cf-trash`, `.cf-versions` ve `.cf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
+- **İç klasörler:** `.tf-trash`, `.tf-versions` ve `.tf-thumbs` hiçbir komutla, aramayla veya `/uploads` adresiyle erişilemez; bu adla klasör de oluşturulamaz.
 - **Aktif içerik:** Yüklenen HTML ve SVG dosyaları sandbox CSP ile sunulur, uygulamanızın origin'inde script çalıştıramaz.
 - **Kimlik doğrulama:** Kimlik doğrulama `authorize` hook'unda yapılır; varsayılan ayarlarla API'ye herkes erişebilir. Ayrıntılar için [Yetkilendirme](#yetkilendirme) bölümüne bakın.
 
@@ -449,7 +447,7 @@ npm run site:dev   # GitHub Pages sitesini derler ve sunar (http://localhost:417
 
 Örnekler: [examples/next](examples/next), [examples/bun](examples/bun), [examples/express](examples/express).
 
-Site kaynağı [site/](site) klasöründedir. Belgeler sayfaları `README.md`, `README.tr.md` ve `docs/api/**/*.md` dosyalarından üretilir; canlı demo gerçek `@ci-finder/core` motorunu tarayıcıda, bellek içi bir sürücüyle çalıştırır. `main`'e gelen her push'ta [Pages](.github/workflows/pages.yml) iş akışı siteyi yayımlar.
+Site kaynağı [site/](site) klasöründedir. Belgeler sayfaları `README.md`, `README.tr.md` ve `docs/api/**/*.md` dosyalarından üretilir; canlı demo gerçek `@thefinder/core` motorunu tarayıcıda, bellek içi bir sürücüyle çalıştırır. `main`'e gelen her push'ta [Pages](.github/workflows/pages.yml) iş akışı siteyi yayımlar.
 
 ## Sürüm ve yayın
 
@@ -460,7 +458,7 @@ Sürümler [Changesets](https://github.com/changesets/changesets) ile yönetilir
 3. O PR birleştirildiğinde paketler derlenir ve npm'e yayımlanır. Yayınlar provenance bilgisiyle gider.
 
 Gereksinimler:
-- npm'de `ci-finder` organizasyonu (`@ci-finder/*` kapsamı için).
+- npm'de `thefinder` organizasyonu (`@thefinder/*` kapsamı için).
 - Repo secret'ı olarak `NPM_TOKEN`: yayın yetkili, granular ya da Automation türünde bir npm token'ı.
 - Repo ayarlarında *Settings › Actions › General › Allow GitHub Actions to create and approve pull requests* açık olmalı.
 

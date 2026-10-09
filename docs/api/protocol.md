@@ -2,7 +2,7 @@
 
 🌐 **English** · [Türkçe](tr/protocol.md)
 
-ciFinder works RPC-style over a single endpoint (for example `/api/files`). The UI speaks this protocol through [`CiFinderClient`](client.md). If you are writing your own client or calling the API from another language, this document is all you need.
+theFinder works RPC-style over a single endpoint (for example `/api/files`). The UI speaks this protocol through [`TheFinderClient`](client.md). If you are writing your own client or calling the API from another language, this document is all you need.
 
 ## Request format
 
@@ -12,7 +12,7 @@ ciFinder works RPC-style over a single endpoint (for example `/api/files`). The 
 | Methods | `GET`, `HEAD`, `POST`. Anything else returns `405`. |
 | Read-only commands | `init`, `ls`, `tree`, `parents`, `info`, `size`, `search`, `file`, `thumb`, `download`, `get`, `trash`, `versions`, `version`, `stats`. These can be called with `GET` and `POST`. |
 | Mutating commands | Everything else works only with `POST`; calling them with `GET` returns `BAD_REQUEST`. |
-| CSRF header | Every `POST` request must carry an `x-ci-finder` header (the value doesn't matter, the client sends `1`). Otherwise `403 FORBIDDEN`. Can be turned off with `csrfProtection: false`. |
+| CSRF header | Every `POST` request must carry an `x-thefinder` header (the value doesn't matter, the client sends `1`). Otherwise `403 FORBIDDEN`. Can be turned off with `csrfProtection: false`. |
 | Body | `application/json`, `multipart/form-data` or `application/x-www-form-urlencoded`. Query string parameters are read as well; if the same name is in the body, the body wins. |
 | Lists (`ids`, `vids`) | A JSON array, comma-separated text (`ids=a,b`) or a repeated query parameter (`ids=a&ids=b`). At most 10,000 items. |
 | Booleans | `true`, `"true"`, `"1"` and `1` count as true. |
@@ -69,7 +69,7 @@ Types such as `Entry` and `VolumeInfo` in the tables are defined in [core.md ›
 | `restore` | `ids` (trash item ids) | `{ restored: Entry[], removed: string[] }`: goes back to its old place; the folder is recreated if missing, and the name becomes "name (2)" if taken |
 | `purge` | `ids` or `all: true` (+ `volume?`) | `{ removed: string[], all: boolean }`: deletes permanently |
 
-Trash item ids also use the `<volume>_<base64url>` format but point inside `.cf-trash`. They can only be used with `restore` and `purge`.
+Trash item ids also use the `<volume>_<base64url>` format but point inside `.tf-trash`. They can only be used with `restore` and `purge`.
 
 ### Uploading
 
@@ -170,7 +170,7 @@ Response: `{ results: TransformResult[] }`. Each file reports its own result; an
 | Code | HTTP | When |
 |---|---|---|
 | `BAD_REQUEST` | 400 | Missing or invalid parameter, invalid id/path, mutating command over GET |
-| `UNAUTHORIZED` | 401 | The `authorize` hook threw `CiFinderError("UNAUTHORIZED")` |
+| `UNAUTHORIZED` | 401 | The `authorize` hook threw `TheFinderError("UNAUTHORIZED")` |
 | `UNKNOWN_COMMAND` | 400 | Unknown `cmd` |
 | `NOT_FOUND` | 404 | No such item, volume or trash item |
 | `EXISTS` | 409 | An item with the same name exists |
@@ -187,7 +187,7 @@ Response: `{ results: TransformResult[] }`. Each file reports its own result; an
 | `INVALID_ARCHIVE` | 400 | Corrupt zip |
 | `INVALID_IMAGE` | 400 | The image could not be decoded |
 | `STORAGE` | 502 | Storage error (S3 response, disk full) |
-| `INTERNAL` | 500 | Unexpected error; details go to the server log with the `[ci-finder]` prefix |
+| `INTERNAL` | 500 | Unexpected error; details go to the server log with the `[thefinder]` prefix |
 
 File system errors are mapped to these codes as well: `ENOENT` → `NOT_FOUND`, `EEXIST`/`ENOTEMPTY` → `EXISTS`, `EACCES`/`EPERM` → `FORBIDDEN`, `ENOSPC` → `STORAGE`, `ENAMETOOLONG` → `INVALID_NAME`.
 

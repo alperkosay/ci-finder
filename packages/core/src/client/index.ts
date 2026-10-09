@@ -6,7 +6,7 @@ export { encodeId } from "../id";
 export type ConflictMode = "rename" | "overwrite" | "skip";
 
 export interface ClientOptions {
-  /** URL of the ciFinder API route, e.g. "/api/files". */
+  /** URL of theFinder's API route, e.g. "/api/files". */
   endpoint: string;
   /** Extra headers (e.g. Authorization) sent with every request. */
   headers?: Record<string, string> | (() => Record<string, string>);
@@ -68,7 +68,7 @@ export interface SizeResult {
   dirs: number;
 }
 
-export class CiFinderClient {
+export class TheFinderClient {
   readonly endpoint: string;
   private chunkSize = 5 * 1024 * 1024;
   private readonly fetchFn: typeof fetch;
@@ -115,7 +115,7 @@ export class CiFinderClient {
     if (isForm) body.set("cmd", cmd);
     const res = await this.fetchFn(this.endpoint, {
       method: "POST",
-      headers: { ...this.headers(), "x-ci-finder": "1", ...(isForm ? {} : { "content-type": "application/json" }) },
+      headers: { ...this.headers(), "x-thefinder": "1", ...(isForm ? {} : { "content-type": "application/json" }) },
       body: isForm ? body : JSON.stringify({ cmd, ...body }),
       credentials: this.options.credentials ?? "same-origin",
       signal,
@@ -299,7 +299,7 @@ export class CiFinderClient {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", this.endpoint);
       xhr.withCredentials = this.options.credentials === "include";
-      for (const [k, v] of Object.entries({ ...this.headers(), "x-ci-finder": "1" })) xhr.setRequestHeader(k, v);
+      for (const [k, v] of Object.entries({ ...this.headers(), "x-thefinder": "1" })) xhr.setRequestHeader(k, v);
       xhr.upload.onprogress = (e) => onProgress(e.loaded);
       xhr.onload = () => {
         this.parse<R>(new Response(xhr.responseText, { status: xhr.status })).then(resolve, reject);
@@ -312,6 +312,6 @@ export class CiFinderClient {
   }
 }
 
-export function createClient(options: ClientOptions): CiFinderClient {
-  return new CiFinderClient(options);
+export function createClient(options: ClientOptions): TheFinderClient {
+  return new TheFinderClient(options);
 }

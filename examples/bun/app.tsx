@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
-createRoot(document.getElementById("root")!).render(<CiFinder endpoint="/api/files" />);
+createRoot(document.getElementById("root")!).render(<TheFinder endpoint="/api/files" />);

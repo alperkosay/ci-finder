@@ -61,7 +61,7 @@ const f = (p, data) => {
   mkdirSync(join(root, p, ".."), { recursive: true });
   writeFileSync(join(root, p), data);
 };
-for (const d of ["Belgeler", "Fotoğraflar/2026 Kapadokya", "Projeler/ci-finder/src", "Faturalar", "Müzik", "Tasarım"])
+for (const d of ["Belgeler", "Fotoğraflar/2026 Kapadokya", "Projeler/thefinder/src", "Faturalar", "Müzik", "Tasarım"])
   mkdirSync(join(root, d), { recursive: true });
 
 f("Fotoğraflar/kapadokya-gün-doğumu.png", png(480, 320, sky));
@@ -81,7 +81,7 @@ f("tanıtım.mp4", Buffer.alloc(12_582_912, 5));
 f("yedek.zip", Buffer.alloc(734_003, 6));
 f(
   "README.md",
-  `# ciFinder
+  `# theFinder
 
 Native CSS ile yazılmış, **React** tabanlı bir dosya yöneticisi.
 
@@ -93,8 +93,8 @@ Native CSS ile yazılmış, **React** tabanlı bir dosya yöneticisi.
 
 | Paket | Açıklama |
 | --- | --- |
-| \`@ci-finder/core\` | Sunucu motoru |
-| \`@ci-finder/react\` | Arayüz |
+| \`@thefinder/core\` | Sunucu motoru |
+| \`@thefinder/react\` | Arayüz |
 
 > Sürükle, bırak, düzenle.
 
@@ -104,12 +104,12 @@ export const { GET, POST } = createNextRoutes(finder);
 `,
 );
 f(
-  "Projeler/ci-finder/src/index.ts",
-  `import { createCiFinder } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+  "Projeler/thefinder/src/index.ts",
+  `import { createTheFinder } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 
 /** Uploads are stored next to the project. */
-export const finder = createCiFinder({
+export const finder = createTheFinder({
   volumes: [{ id: "files", driver: localDriver({ root: "./uploads" }), url: "/uploads" }],
   chunkSize: 5 * 1024 * 1024,
 });
@@ -123,9 +123,9 @@ export async function handler(request: Request): Promise<Response> {
 `,
 );
 f(
-  "Projeler/ci-finder/src/styles.css",
-  `.cf-root {\n  --cf-accent: #2a64d6;\n  border-radius: 10px;\n}\n\n@media (prefers-color-scheme: dark) {\n  .cf-root { --cf-bg: #1b1a18; }\n}\n`,
+  "Projeler/thefinder/src/styles.css",
+  `.tf-root {\n  --tf-accent: #2a64d6;\n  border-radius: 10px;\n}\n\n@media (prefers-color-scheme: dark) {\n  .tf-root { --tf-bg: #1b1a18; }\n}\n`,
 );
-f("Projeler/ci-finder/package.json", JSON.stringify({ name: "ci-finder", version: "0.1.0", private: true, scripts: { dev: "next dev" } }, null, 2));
+f("Projeler/thefinder/package.json", JSON.stringify({ name: "thefinder", version: "0.1.0", private: true, scripts: { dev: "next dev" } }, null, 2));
 f("notlar.txt", "Pazartesi: S3 sürücüsünü bitir\nSalı: görsel editörü\nÇarşamba: yayın\n");
 console.log("seeded", root);

@@ -1,19 +1,19 @@
 import { mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createCiFinder, readZipEntries, openZipEntry, type CiFinder } from "../src/index";
+import { createTheFinder, readZipEntries, openZipEntry, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { api, bytes, id, streamToBytes, tempDir } from "./helpers";
 
 let dir: string;
 let cleanup: () => Promise<void>;
-let finder: CiFinder;
+let finder: TheFinder;
 let a: ReturnType<typeof api>;
 const ROOT = id("local", "/");
 
 beforeEach(async () => {
   ({ dir, cleanup } = await tempDir());
-  finder = createCiFinder({
+  finder = createTheFinder({
     volumes: [{ id: "local", name: "Files", driver: localDriver({ root: dir }), url: "/uploads" }],
     chunkSize: 1024,
   });
@@ -176,7 +176,7 @@ describe("upload", () => {
   });
 
   it("rejects bad chunks and denied extensions", async () => {
-    const f = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), denyExtensions: ["php"], maxUploadSize: 100 }], chunkSize: 1024 });
+    const f = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), denyExtensions: ["php"], maxUploadSize: 100 }], chunkSize: 1024 });
     const b = api(f);
     await expect(b.upload(ROOT, "shell.php", bytes(5), 1024)).rejects.toThrow(/EXTENSION_DENIED/);
     await expect(b.upload(ROOT, "big.bin", bytes(500), 1024)).rejects.toThrow(/TOO_LARGE/);
@@ -187,11 +187,11 @@ describe("upload", () => {
   it("rejects a tampered session that points outside the destination", async () => {
     await mkdir(join(dir, "inbox"));
     const form = new FormData();
-    const session = btoa(JSON.stringify({ p: "/elsewhere.txt", s: ".x.cf-upload" })).replace(/=+$/, "");
+    const session = btoa(JSON.stringify({ p: "/elsewhere.txt", s: ".x.tf-upload" })).replace(/=+$/, "");
     for (const [k, v] of Object.entries({ cmd: "upload", dst: id("local", "/inbox"), name: "a.txt", size: "4", index: "1", total: "2", offset: "2", session }))
       form.set(k, v);
     form.set("chunk", new Blob([new Uint8Array(2)]));
-    const res = await finder.handler(new Request("http://localhost/", { method: "POST", headers: { "x-ci-finder": "1" }, body: form }));
+    const res = await finder.handler(new Request("http://localhost/", { method: "POST", headers: { "x-thefinder": "1" }, body: form }));
     expect((await res.json()).error.code).toBe("BAD_REQUEST");
   });
 });
@@ -208,12 +208,12 @@ describe("security", () => {
   });
 
   it("read-only volumes reject writes", async () => {
-    const f = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), readOnly: true }] });
+    const f = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), readOnly: true }] });
     expect(await api(f).fail("mkdir", { id: ROOT, name: "x" })).toBe("READ_ONLY");
   });
 
   it("authorize hook can block commands", async () => {
-    const f = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], authorize: ({ cmd }) => cmd !== "rm" });
+    const f = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], authorize: ({ cmd }) => cmd !== "rm" });
     await writeFile(join(dir, "a.txt"), "");
     expect(await api(f).fail("rm", { ids: [id("local", "/a.txt")] })).toBe("FORBIDDEN");
   });

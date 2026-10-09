@@ -1,5 +1,5 @@
 {
-  "name": "ci-finder-monorepo",
+  "name": "thefinder-monorepo",
   "private": true,
   "type": "module",
   "workspaces": [
@@ -10,13 +10,13 @@
     "examples/*"
   ],
   "scripts": {
-    "build": "npm run build -w @ci-finder/core && npm run build -w @ci-finder/next && npm run build -w @ci-finder/react && npm run build -w @ci-finder/ckeditor",
+    "build": "npm run build -w @thefinder/core && npm run build -w @thefinder/next && npm run build -w @thefinder/react && npm run build -w @thefinder/ckeditor",
     "dev": "npm run build && npm run dev -w example-next",
     "site:build": "node site/build.mjs",
     "site:dev": "node site/build.mjs --serve",
-    "test": "npm run test -w @ci-finder/core",
-    "test:bun": "npm run test:bun -w @ci-finder/core",
-    "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react && npm run typecheck -w @ci-finder/ckeditor",
+    "test": "npm run test -w @thefinder/core",
+    "test:bun": "npm run test:bun -w @thefinder/core",
+    "typecheck": "npm run typecheck -w @thefinder/core && npm run typecheck -w @thefinder/next && npm run typecheck -w @thefinder/react && npm run typecheck -w @thefinder/ckeditor",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

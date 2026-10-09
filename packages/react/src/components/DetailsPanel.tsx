@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, useActions, useFinder, useStore } from "../context";
 import { categoryOf, formatFullDate, formatSize, kindLabel, locationOf } from "../format";
 import { FileIcon, FolderIcon, Icon, Spinner } from "../icons";
@@ -34,7 +34,7 @@ function FolderSize({ ids }: { ids: string[] }) {
   return (
     <button
       type="button"
-      className="cf-link-btn"
+      className="tf-link-btn"
       disabled={state.loading}
       onClick={async () => {
         setState({ loading: true });
@@ -53,7 +53,7 @@ function FolderSize({ ids }: { ids: string[] }) {
 
 function Meta({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="cf-meta-row">
+    <div className="tf-meta-row">
       <dt>{label}</dt>
       <dd>{children}</dd>
     </div>
@@ -66,20 +66,20 @@ function TrashItem({ entry }: { entry: Entry }) {
   const volumeName = store.state.volumes.find((v) => v.id === entry.volume)?.name ?? entry.volume;
   return (
     <>
-      <div className="cf-details-preview">{entry.kind === "dir" ? <FolderIcon size={96} /> : <FileIcon entry={entry} size={96} />}</div>
-      <h3 className="cf-details-name">{entry.name}</h3>
-      <p className="cf-details-kind">
+      <div className="tf-details-preview">{entry.kind === "dir" ? <FolderIcon size={96} /> : <FileIcon entry={entry} size={96} />}</div>
+      <h3 className="tf-details-name">{entry.name}</h3>
+      <p className="tf-details-kind">
         {kindLabel(entry, t)}
         {entry.kind === "file" && ` · ${formatSize(entry.size, locale)}`}
       </p>
-      <div className="cf-details-actions">
-        <button type="button" className="cf-btn" onClick={() => store.restore([entry])}>
+      <div className="tf-details-actions">
+        <button type="button" className="tf-btn" onClick={() => store.restore([entry])}>
           <Icon name="restore" />
           <span>{t("restore")}</span>
         </button>
         <button
           type="button"
-          className="cf-btn is-icon"
+          className="tf-btn is-icon"
           title={t("deletePermanently")}
           aria-label={t("deletePermanently")}
           onClick={() => store.purge([entry])}
@@ -87,9 +87,9 @@ function TrashItem({ entry }: { entry: Entry }) {
           <Icon name="trash" />
         </button>
       </div>
-      <dl className="cf-meta">
+      <dl className="tf-meta">
         <Meta label={t("originalLocation")}>
-          <span className="cf-path">{locationOf({ path: info.originalPath }, volumeName)}</span>
+          <span className="tf-path">{locationOf({ path: info.originalPath }, volumeName)}</span>
         </Meta>
         <Meta label={t("deletedAt")}>{formatFullDate(info.deletedAt, locale)}</Meta>
         <Meta label={t("volume")}>{volumeName}</Meta>
@@ -114,7 +114,7 @@ function RegularItem({ entry }: { entry: Entry }) {
 
   return (
     <>
-      <div className={cx("cf-details-preview", src && "has-image")}>
+      <div className={cx("tf-details-preview", src && "has-image")}>
         {src && thumbnails ? (
           <img src={src} alt="" draggable={false} />
         ) : category === "video" ? (
@@ -125,44 +125,44 @@ function RegularItem({ entry }: { entry: Entry }) {
           <FileIcon entry={entry} size={96} />
         )}
       </div>
-      <h3 className="cf-details-name">{entry.name}</h3>
-      <p className="cf-details-kind">
+      <h3 className="tf-details-name">{entry.name}</h3>
+      <p className="tf-details-kind">
         {kindLabel(entry, t)}
         {entry.kind === "file" && ` · ${formatSize(entry.size, locale)}`}
       </p>
-      <div className="cf-details-actions">
+      <div className="tf-details-actions">
         {entry.kind === "file" && (
-          <button type="button" className="cf-btn" onClick={actions.preview.run}>
+          <button type="button" className="tf-btn" onClick={actions.preview.run}>
             <Icon name="eye" />
             <span>{t("preview")}</span>
           </button>
         )}
         {actions.edit.enabled && (
-          <button type="button" className="cf-btn" onClick={actions.edit.run}>
+          <button type="button" className="tf-btn" onClick={actions.edit.run}>
             <Icon name="code" />
             <span>{t("edit")}</span>
           </button>
         )}
         {actions.editImage.enabled && entry.write && (
-          <button type="button" className="cf-btn" onClick={actions.editImage.run}>
+          <button type="button" className="tf-btn" onClick={actions.editImage.run}>
             <Icon name="image" />
             <span>{t("edit")}</span>
           </button>
         )}
         {actions.versions.enabled && (
-          <button type="button" className="cf-btn is-icon" onClick={actions.versions.run} title={t("versions")} aria-label={t("versions")}>
+          <button type="button" className="tf-btn is-icon" onClick={actions.versions.run} title={t("versions")} aria-label={t("versions")}>
             <Icon name="history" />
           </button>
         )}
-        <button type="button" className="cf-btn is-icon" onClick={actions.download.run} title={t("download")} aria-label={t("download")}>
+        <button type="button" className="tf-btn is-icon" onClick={actions.download.run} title={t("download")} aria-label={t("download")}>
           <Icon name="download" />
         </button>
       </div>
-      <dl className="cf-meta">
+      <dl className="tf-meta">
         <Meta label={t("kind")}>{entry.mime === "directory" ? t("folder") : entry.mime}</Meta>
         {entry.kind === "file" ? (
           <Meta label={t("size")}>
-            {formatSize(entry.size, locale)} <span className="cf-dim">({entry.size.toLocaleString(locale)} B)</span>
+            {formatSize(entry.size, locale)} <span className="tf-dim">({entry.size.toLocaleString(locale)} B)</span>
           </Meta>
         ) : (
           <Meta label={t("contents")}>
@@ -176,11 +176,11 @@ function RegularItem({ entry }: { entry: Entry }) {
         )}
         <Meta label={t("modified")}>{formatFullDate(entry.mtime, locale)}</Meta>
         <Meta label={t("location")}>
-          <span className="cf-path">{entry.path}</span>
+          <span className="tf-path">{entry.path}</span>
         </Meta>
         {url && (
           <Meta label={t("url")}>
-            <button type="button" className="cf-link-btn cf-url" title={url} onClick={() => store.copyText(url)}>
+            <button type="button" className="tf-link-btn tf-url" title={url} onClick={() => store.copyText(url)}>
               <span>{entry.url ?? url}</span>
               <Icon name="copy" size={12} />
             </button>
@@ -199,23 +199,23 @@ function Multiple({ entries }: { entries: Entry[] }) {
   const size = files.reduce((n, e) => n + e.size, 0);
   return (
     <>
-      <div className="cf-details-preview cf-stack">
+      <div className="tf-details-preview tf-stack">
         {entries.slice(0, 3).map((e, i) => (
           <span key={e.id} style={{ "--i": i } as React.CSSProperties}>
             {e.kind === "dir" ? <FolderIcon size={72} /> : <FileIcon entry={e} size={72} />}
           </span>
         ))}
       </div>
-      <h3 className="cf-details-name">{t("multiSelection", { n: entries.length })}</h3>
+      <h3 className="tf-details-name">{t("multiSelection", { n: entries.length })}</h3>
       {actions.optimizeImages.enabled && (
-        <div className="cf-details-actions">
-          <button type="button" className="cf-btn" onClick={actions.optimizeImages.run}>
+        <div className="tf-details-actions">
+          <button type="button" className="tf-btn" onClick={actions.optimizeImages.run}>
             <Icon name="sliders" />
             <span>{t("optimizeImages")}</span>
           </button>
         </div>
       )}
-      <dl className="cf-meta">
+      <dl className="tf-meta">
         <Meta label={t("contents")}>{t("filesAndFolders", { files: files.length, dirs: dirs.length })}</Meta>
         <Meta label={t("size")}>{dirs.length ? <FolderSize ids={entries.map((e) => e.id)} /> : formatSize(size, locale)}</Meta>
       </dl>
@@ -232,32 +232,32 @@ export function DetailsPanel() {
   const selected = selection.map((id) => entries[id]).filter((e): e is Entry => !!e);
 
   return (
-    <aside className="cf-details" aria-label={t("details")}>
-      <div className="cf-details-head">
+    <aside className="tf-details" aria-label={t("details")}>
+      <div className="tf-details-head">
         <span>{t("details")}</span>
-        <button type="button" className="cf-btn is-icon is-small" aria-label={t("close")} onClick={() => store.set({ detailsOpen: false })}>
+        <button type="button" className="tf-btn is-icon is-small" aria-label={t("close")} onClick={() => store.set({ detailsOpen: false })}>
           <Icon name="close" size={14} />
         </button>
       </div>
-      <div className="cf-details-body">
+      <div className="tf-details-body">
         {selected.length === 1 ? (
           <Single entry={selected[0]!} />
         ) : selected.length > 1 ? (
           <Multiple entries={selected} />
         ) : cwd ? (
           <>
-            <div className="cf-details-preview">
+            <div className="tf-details-preview">
               <FolderIcon size={96} />
             </div>
-            <h3 className="cf-details-name">{cwd.name}</h3>
-            <p className="cf-details-kind">{count === 1 ? t("item") : t("items", { n: count })}</p>
-            <dl className="cf-meta">
+            <h3 className="tf-details-name">{cwd.name}</h3>
+            <p className="tf-details-kind">{count === 1 ? t("item") : t("items", { n: count })}</p>
+            <dl className="tf-meta">
               <Meta label={t("modified")}>{formatFullDate(cwd.mtime, locale)}</Meta>
               <Meta label={t("location")}>
-                <span className="cf-path">{cwd.path}</span>
+                <span className="tf-path">{cwd.path}</span>
               </Meta>
             </dl>
-            <p className="cf-details-hint">{t("noSelection")}</p>
+            <p className="tf-details-hint">{t("noSelection")}</p>
           </>
         ) : null}
       </div>

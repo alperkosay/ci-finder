@@ -1,4 +1,4 @@
-import { createNextRoutes } from "@ci-finder/next";
+import { createNextRoutes } from "@thefinder/next";
 import { finder } from "@/lib/finder";
 
 export const runtime = "nodejs";

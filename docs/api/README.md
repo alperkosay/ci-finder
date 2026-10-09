@@ -1,4 +1,4 @@
-# ciFinder API reference
+# theFinder API reference
 
 🌐 **English** · [Türkçe](tr/README.md)
 
@@ -7,11 +7,11 @@ This folder documents the public API of every package, one by one. For installat
 | Document | Contents |
 |---|---|
 | [protocol.md](protocol.md) | The HTTP protocol: request format, every command, parameters, responses, error codes |
-| [core.md](core.md) | `@ci-finder/core`: engine, options, drivers, adapters, file server, sharp, helpers, types |
-| [client.md](client.md) | `@ci-finder/core/client`: API client for the browser and the server |
-| [next.md](next.md) | `@ci-finder/next`: routes and project root detection |
-| [react.md](react.md) | `@ci-finder/react`: `<CiFinder />`, file picker, custom editors, store, i18n, theme variables |
-| [ckeditor.md](ckeditor.md) | `@ci-finder/ckeditor`: CKEditor 5 plugin and CKEditor 4 connector |
+| [core.md](core.md) | `@thefinder/core`: engine, options, drivers, adapters, file server, sharp, helpers, types |
+| [client.md](client.md) | `@thefinder/core/client`: API client for the browser and the server |
+| [next.md](next.md) | `@thefinder/next`: routes and project root detection |
+| [react.md](react.md) | `@thefinder/react`: `<TheFinder />`, file picker, custom editors, store, i18n, theme variables |
+| [ckeditor.md](ckeditor.md) | `@thefinder/ckeditor`: CKEditor 5 plugin and CKEditor 4 connector |
 
 ## Core concepts
 
@@ -19,7 +19,7 @@ This folder documents the public API of every package, one by one. For installat
 - **Volume path:** A normalized POSIX path inside the volume that starts with `/`: `/`, `/documents/report.pdf`. Paths containing `..` are not resolved, they are rejected.
 - **Id:** `<volume>_<base64url(path)>`, for example `files_L2RvY3MvYS50eHQ` (`/docs/a.txt` in the `files` volume). Ids are stable, safe to use in URLs and reversible: `encodeId` / `decodeId`.
 - **Entry:** How a file or folder is represented in the API. See [core.md › Entry](core.md#entry) for its fields.
-- **Hidden internal folders:** `.cf-trash` (trash), `.cf-versions` (version history) and `.cf-thumbs` (thumbnail cache). They cannot be reached by any command, search or the file server, and no item can be created with these names.
+- **Hidden internal folders:** `.tf-trash` (trash), `.tf-versions` (version history) and `.tf-thumbs` (thumbnail cache). They cannot be reached by any command, search or the file server, and no item can be created with these names.
 
 ## Versions
 

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, useFinder, useStore } from "../context";
 import { FolderIcon, Icon, Spinner } from "../icons";
 import { TRASH_ID, type FinderStore } from "../store";
@@ -53,7 +53,7 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
       aria-selected={isCwd}
       data-tree-id={entry.id}
       tabIndex={focused ? 0 : -1}
-      className={cx("cf-tree-row", isCwd && "is-current", over && "is-drop", isRoot && "is-root")}
+      className={cx("tf-tree-row", isCwd && "is-current", over && "is-drop", isRoot && "is-root")}
       style={{ "--depth": depth } as React.CSSProperties}
       {...touch.handlers}
       onClick={(e) => {
@@ -92,7 +92,7 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
       }}
     >
       <span
-        className={cx("cf-tree-toggle", !expandable && "is-leaf")}
+        className={cx("tf-tree-toggle", !expandable && "is-leaf")}
         onClick={(e) => {
           e.stopPropagation();
           if (expandable) store.toggleExpanded(entry.id);
@@ -101,16 +101,16 @@ function TreeRow({ row, focused, onFocusRow }: { row: Row; focused: boolean; onF
       >
         {loading ? <Spinner size={12} /> : expandable && <Icon name={expanded ? "chevronDown" : "chevronRight"} size={12} />}
       </span>
-      {isRoot ? <Icon name={volume?.kind === "s3" ? "cloud" : "drive"} className="cf-tree-volume" /> : <FolderIcon size={18} open={isCwd} />}
-      <span className="cf-tree-name">{entry.name}</span>
-      {isRoot && volume?.readOnly && <Icon name="lock" size={12} className="cf-tree-badge" aria-label={t("readOnly")} />}
+      {isRoot ? <Icon name={volume?.kind === "s3" ? "cloud" : "drive"} className="tf-tree-volume" /> : <FolderIcon size={18} open={isCwd} />}
+      <span className="tf-tree-name">{entry.name}</span>
+      {isRoot && volume?.readOnly && <Icon name="lock" size={12} className="tf-tree-badge" aria-label={t("readOnly")} />}
     </div>
   );
 }
 
 /** On narrow screens the sidebar is an overlay drawer: close it once a location is chosen. */
 function closeDrawerIfNarrow(el: HTMLElement, store: FinderStore) {
-  if (el.closest(".cf-root")?.classList.contains("is-narrow")) store.set({ sidebarOpen: false });
+  if (el.closest(".tf-root")?.classList.contains("is-narrow")) store.set({ sidebarOpen: false });
 }
 
 function TrashRow({ focused, onFocusRow }: { focused: boolean; onFocusRow: (id: string) => void }) {
@@ -125,7 +125,7 @@ function TrashRow({ focused, onFocusRow }: { focused: boolean; onFocusRow: (id: 
       aria-selected={isCwd}
       data-tree-id={TRASH_ID}
       tabIndex={focused ? 0 : -1}
-      className={cx("cf-tree-row is-root is-trash", isCwd && "is-current", over && "is-drop")}
+      className={cx("tf-tree-row is-root is-trash", isCwd && "is-current", over && "is-drop")}
       style={{ "--depth": 0 } as React.CSSProperties}
       onClick={(e) => {
         onFocusRow(TRASH_ID);
@@ -151,10 +151,10 @@ function TrashRow({ focused, onFocusRow }: { focused: boolean; onFocusRow: (id: 
         void store.remove(ids.map((id) => store.entry(id)).filter((x): x is Entry => !!x));
       }}
     >
-      <span className="cf-tree-toggle is-leaf" aria-hidden="true" />
-      <Icon name="trash" className="cf-tree-volume" />
-      <span className="cf-tree-name">{t("trash")}</span>
-      {count > 0 && <span className="cf-tree-count">{count}</span>}
+      <span className="tf-tree-toggle is-leaf" aria-hidden="true" />
+      <Icon name="trash" className="tf-tree-volume" />
+      <span className="tf-tree-name">{t("trash")}</span>
+      {count > 0 && <span className="tf-tree-count">{count}</span>}
     </div>
   );
 }
@@ -241,15 +241,15 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="cf-sidebar" style={{ "--cf-sidebar-w": `${width}px` } as React.CSSProperties}>
-      <div ref={treeRef} className="cf-tree" role="tree" aria-label={t("location")} onKeyDown={onKeyDown}>
+    <aside className="tf-sidebar" style={{ "--tf-sidebar-w": `${width}px` } as React.CSSProperties}>
+      <div ref={treeRef} className="tf-tree" role="tree" aria-label={t("location")} onKeyDown={onKeyDown}>
         {rows.map((row) => (
           <TreeRow key={row.entry.id} row={row} focused={row.entry.id === activeId} onFocusRow={setFocusId} />
         ))}
         {hasTrash && <TrashRow focused={activeId === TRASH_ID} onFocusRow={setFocusId} />}
       </div>
       <div
-        className="cf-resizer"
+        className="tf-resizer"
         role="separator"
         aria-orientation="vertical"
         aria-valuenow={width}

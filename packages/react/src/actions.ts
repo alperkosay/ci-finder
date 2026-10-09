@@ -1,4 +1,4 @@
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import type { CustomEditor } from "./context";
 import { extOf, isBatchImage, isEditableImage, isEditableText } from "./format";
 import type { MessageKey, Translate } from "./i18n";

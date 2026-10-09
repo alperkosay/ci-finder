@@ -1,21 +1,21 @@
 <p align="center">
-  <a href="https://alperkosay.github.io/ci-finder/"><img src="https://alperkosay.github.io/ci-finder/icon.svg" width="72" height="72" alt="ciFinder logo" /></a>
+  <a href="https://alperkosay.github.io/thefinder/"><img src="https://alperkosay.github.io/thefinder/icon.svg" width="72" height="72" alt="theFinder logo" /></a>
 </p>
 
-<h1 align="center">@ci-finder/core</h1>
+<h1 align="center">@thefinder/core</h1>
 
 <p align="center">
-  The server engine of <a href="https://github.com/alperkosay/ci-finder">ciFinder</a>, a file manager for React.<br />
+  The server engine of <a href="https://github.com/alperkosay/thefinder">theFinder</a>, a file manager for React.<br />
   Framework-agnostic <code>Request → Response</code>, zero runtime dependencies, local disk and S3.
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/@ci-finder/core"><img alt="npm version" src="https://img.shields.io/npm/v/@ci-finder/core?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
-  <a href="https://github.com/alperkosay/ci-finder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/ci-finder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
+  <a href="https://www.npmjs.com/package/@thefinder/core"><img alt="npm version" src="https://img.shields.io/npm/v/@thefinder/core?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
+  <a href="https://github.com/alperkosay/thefinder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/thefinder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
   <img alt="Zero runtime dependencies" src="https://img.shields.io/badge/dependencies-0-4c9a6a?style=flat-square&labelColor=33302b" />
   <img alt="Types included" src="https://img.shields.io/badge/types-included-3178c6?style=flat-square&logo=typescript&logoColor=white&labelColor=33302b" />
   <img alt="ESM and CJS" src="https://img.shields.io/badge/module-ESM%20%2B%20CJS-555555?style=flat-square&labelColor=33302b" />
-  <a href="https://github.com/alperkosay/ci-finder/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/@ci-finder/core?style=flat-square&color=4c9a6a&labelColor=33302b" /></a>
+  <a href="https://github.com/alperkosay/thefinder/blob/main/LICENSE"><img alt="MIT license" src="https://img.shields.io/npm/l/@thefinder/core?style=flat-square&color=4c9a6a&labelColor=33302b" /></a>
 </p>
 
 <p align="center">
@@ -26,10 +26,10 @@
 </p>
 
 <p align="center">
-  <a href="https://alperkosay.github.io/ci-finder/demo/"><b>Live demo</b></a> ·
-  <a href="https://alperkosay.github.io/ci-finder/docs/"><b>Docs</b></a> ·
-  <a href="https://alperkosay.github.io/ci-finder/docs/core.html"><b>API reference</b></a> ·
-  <a href="https://alperkosay.github.io/ci-finder/docs/tr/core.html">Türkçe</a>
+  <a href="https://alperkosay.github.io/thefinder/demo/"><b>Live demo</b></a> ·
+  <a href="https://alperkosay.github.io/thefinder/docs/"><b>Docs</b></a> ·
+  <a href="https://alperkosay.github.io/thefinder/docs/core.html"><b>API reference</b></a> ·
+  <a href="https://alperkosay.github.io/thefinder/docs/tr/core.html">Türkçe</a>
 </p>
 
 ---
@@ -37,17 +37,17 @@
 ## Install
 
 ```bash
-npm i @ci-finder/core
+npm i @thefinder/core
 ```
 
 ## Quick start
 
 ```ts
-import { createCiFinder, createFileServer } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { createTheFinder, createFileServer } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 
 const driver = localDriver({ root: "./uploads" });
-const finder = createCiFinder({
+const finder = createTheFinder({
   volumes: [{ id: "files", name: "Files", driver, url: "/uploads" }],
 });
 
@@ -63,30 +63,30 @@ Bun.serve({
 On Express, Fastify, Koa or plain `node:http`, wrap the handler with an adapter:
 
 ```ts
-import { toExpress } from "@ci-finder/core/node";
+import { toExpress } from "@thefinder/core/node";
 
 app.all("/api/files", toExpress(finder.handler));
 ```
 
-Then point the UI at it: [`@ci-finder/react`](https://www.npmjs.com/package/@ci-finder/react).
+Then point the UI at it: [`@thefinder/react`](https://www.npmjs.com/package/@thefinder/react).
 
 ## Entry points
 
 | Import | What |
 |---|---|
-| `@ci-finder/core` | `createCiFinder`, `createFileServer`, `serveFile`, zip stream, errors, types |
-| `@ci-finder/core/local` | `localDriver` (Node.js / Bun file system) |
-| `@ci-finder/core/s3` | `s3Driver` for AWS S3, Cloudflare R2, MinIO, Spaces, B2 (no AWS SDK) |
-| `@ci-finder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa` |
-| `@ci-finder/core/sharp` | `sharpThumbnailer`, `sharpImages` (optional peer `sharp`) |
-| `@ci-finder/core/client` | The browser client used by the UI |
+| `@thefinder/core` | `createTheFinder`, `createFileServer`, `serveFile`, zip stream, errors, types |
+| `@thefinder/core/local` | `localDriver` (Node.js / Bun file system) |
+| `@thefinder/core/s3` | `s3Driver` for AWS S3, Cloudflare R2, MinIO, Spaces, B2 (no AWS SDK) |
+| `@thefinder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa` |
+| `@thefinder/core/sharp` | `sharpThumbnailer`, `sharpImages` (optional peer `sharp`) |
+| `@thefinder/core/client` | The browser client used by the UI |
 
 ## Highlights
 
 - **Commands:** list, tree, search, create, rename, copy/move (also across volumes), chunked upload, zip download, archive/extract, text and binary save.
-- **Trash without a database:** `.cf-trash` per volume, restore, retention.
-- **Version history without a database:** `.cf-versions` per volume. Overwritten files keep their previous content; restore, follows renames, retention limits.
-- **Thumbnails:** generated on the server and cached per volume (`.cf-thumbs`).
+- **Trash without a database:** `.tf-trash` per volume, restore, retention.
+- **Version history without a database:** `.tf-versions` per volume. Overwritten files keep their previous content; restore, follows renames, retention limits.
+- **Thumbnails:** generated on the server and cached per volume (`.tf-thumbs`).
 - **Bulk images:** resize / compress / convert with `images: sharpImages()`; converting keeps the original next to the new file.
 - **Storage stats and cleanup** for a dashboard (`stats`, `cleanup`).
 - **`authorize` hook:** `false` → 403, throw `UNAUTHORIZED` → 401, `{ readOnly: true }` → a read-only request.
@@ -95,7 +95,7 @@ Then point the UI at it: [`@ci-finder/react`](https://www.npmjs.com/package/@ci-
 ## S3, R2, MinIO
 
 ```ts
-import { s3Driver } from "@ci-finder/core/s3";
+import { s3Driver } from "@thefinder/core/s3";
 
 const cloud = s3Driver({
   bucket: "my-bucket",
@@ -109,15 +109,15 @@ const cloud = s3Driver({
 
 Signing (SigV4) uses Web Crypto, so it also runs on edge runtimes. Uploads use multipart and the server keeps no state between requests.
 
-## The ciFinder family
+## All theFinder packages
 
 | Package | |
 |---|---|
-| [`@ci-finder/core`](https://www.npmjs.com/package/@ci-finder/core) | Server engine, drivers, adapters, client (this package) |
-| [`@ci-finder/react`](https://www.npmjs.com/package/@ci-finder/react) | The file manager UI and file picker |
-| [`@ci-finder/next`](https://www.npmjs.com/package/@ci-finder/next) | Next.js routes, standalone-ready |
-| [`@ci-finder/ckeditor`](https://www.npmjs.com/package/@ci-finder/ckeditor) | CKEditor 5 / 4 connector |
+| [`@thefinder/core`](https://www.npmjs.com/package/@thefinder/core) | Server engine, drivers, adapters, client (this package) |
+| [`@thefinder/react`](https://www.npmjs.com/package/@thefinder/react) | The file manager UI and file picker |
+| [`@thefinder/next`](https://www.npmjs.com/package/@thefinder/next) | Next.js routes, standalone-ready |
+| [`@thefinder/ckeditor`](https://www.npmjs.com/package/@thefinder/ckeditor) | CKEditor 5 / 4 connector |
 
 ## License
 
-[MIT](https://github.com/alperkosay/ci-finder/blob/main/LICENSE) © Alper Koşay
+[MIT](https://github.com/alperkosay/thefinder/blob/main/LICENSE) © Alper Koşay

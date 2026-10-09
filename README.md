@@ -1,19 +1,19 @@
 <div align="center">
 
-<a href="https://alperkosay.github.io/ci-finder/"><img src="examples/next/app/icon.svg" width="84" height="84" alt="ciFinder logo" /></a>
+<a href="https://alperkosay.github.io/thefinder/"><img src="examples/next/app/icon.svg" width="84" height="84" alt="theFinder logo" /></a>
 
-<h1>ciFinder</h1>
+<h1>theFinder</h1>
 
 <p><strong>A Finder for the web.</strong><br />
 A fast, keyboard-friendly file manager for React. Plain CSS, a zero-dependency core and a single API endpoint.</p>
 
 <p>
-  <a href="https://www.npmjs.com/package/@ci-finder/react"><img alt="npm version" src="https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
-  <a href="https://github.com/alperkosay/ci-finder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/ci-finder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
+  <a href="https://www.npmjs.com/package/@thefinder/react"><img alt="npm version" src="https://img.shields.io/npm/v/@thefinder/react?style=flat-square&label=npm&color=d6a03d&labelColor=33302b" /></a>
+  <a href="https://github.com/alperkosay/thefinder/actions/workflows/ci.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/alperkosay/thefinder/ci.yml?branch=main&style=flat-square&label=CI&labelColor=33302b" /></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-4c9a6a?style=flat-square&labelColor=33302b" /></a>
   <a href="packages/core/package.json"><img alt="Zero runtime dependencies" src="https://img.shields.io/badge/core%20dependencies-0-4c9a6a?style=flat-square&labelColor=33302b" /></a>
   <img alt="Written in TypeScript" src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square&logo=typescript&logoColor=white&labelColor=33302b" />
-  <a href="https://alperkosay.github.io/ci-finder/demo/"><img alt="Live demo" src="https://img.shields.io/badge/demo-live-d6a03d?style=flat-square&labelColor=33302b" /></a>
+  <a href="https://alperkosay.github.io/thefinder/demo/"><img alt="Live demo" src="https://img.shields.io/badge/demo-live-d6a03d?style=flat-square&labelColor=33302b" /></a>
 </p>
 
 <p>
@@ -27,11 +27,9 @@ A fast, keyboard-friendly file manager for React. Plain CSS, a zero-dependency c
 </p>
 
 <p>
-  <a href="https://alperkosay.github.io/ci-finder/demo/"><b>Live demo</b></a>
+  <a href="https://alperkosay.github.io/thefinder/demo/"><b>Live demo</b></a>
   &nbsp;·&nbsp;
-  <a href="https://alperkosay.github.io/ci-finder/docs/"><b>Documentation</b></a>
-  &nbsp;·&nbsp;
-  <a href="https://alperkosay.github.io/ci-finder/media/cifinder-film.mp4"><b>Watch the film</b></a>
+  <a href="https://alperkosay.github.io/thefinder/docs/"><b>Documentation</b></a>
   &nbsp;·&nbsp;
   <a href="docs/api/README.md"><b>API reference</b></a>
   &nbsp;·&nbsp;
@@ -40,20 +38,20 @@ A fast, keyboard-friendly file manager for React. Plain CSS, a zero-dependency c
 
 </div>
 
-![ciFinder](docs/media/cifinder-hero.png)
+![theFinder](docs/media/thefinder-hero.png)
 
 A file manager for React. The UI is written in plain CSS and depends on no UI library. The backend is built on the Web standard `Request → Response`, so it runs on Next.js (standalone included), Node.js, Bun, Express, Fastify, Koa and Hono. Files can live on the local disk, in S3, or in both at once.
 
 | Package | Version | What's inside |
 |---|---|---|
-| [`@ci-finder/core`](packages/core) | [![npm](https://img.shields.io/npm/v/@ci-finder/core?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/core) | Server engine, local and S3 drivers, Node adapters, browser client. No runtime dependencies. |
-| [`@ci-finder/next`](packages/next) | [![npm](https://img.shields.io/npm/v/@ci-finder/next?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/next) | Next.js routes and standalone-aware project root detection. |
-| [`@ci-finder/react`](packages/react) | [![npm](https://img.shields.io/npm/v/@ci-finder/react?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/react) | The `<CiFinder />` component, `useFilePicker` / `openFilePicker` and `styles.css`. Its only dependency is `react` (peer). |
-| [`@ci-finder/ckeditor`](packages/ckeditor) | [![npm](https://img.shields.io/npm/v/@ci-finder/ckeditor?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@ci-finder/ckeditor) | CKEditor 5 and CKEditor 4 connector (a drop-in for CKFinder). |
+| [`@thefinder/core`](packages/core) | [![npm](https://img.shields.io/npm/v/@thefinder/core?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/core) | Server engine, local and S3 drivers, Node adapters, browser client. No runtime dependencies. |
+| [`@thefinder/next`](packages/next) | [![npm](https://img.shields.io/npm/v/@thefinder/next?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/next) | Next.js routes and standalone-aware project root detection. |
+| [`@thefinder/react`](packages/react) | [![npm](https://img.shields.io/npm/v/@thefinder/react?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/react) | The `<TheFinder />` component, `useFilePicker` / `openFilePicker` and `styles.css`. Its only dependency is `react` (peer). |
+| [`@thefinder/ckeditor`](packages/ckeditor) | [![npm](https://img.shields.io/npm/v/@thefinder/ckeditor?style=flat-square&label=&color=d6a03d)](https://www.npmjs.com/package/@thefinder/ckeditor) | CKEditor 5 and CKEditor 4 connector (a drop-in for CKFinder). |
 
-For every option, command and type, see the [API reference](docs/api/README.md). Live demo, docs and a comparison with elFinder: [alperkosay.github.io/ci-finder](https://alperkosay.github.io/ci-finder/).
+For every option, command and type, see the [API reference](docs/api/README.md). Live demo, docs and a comparison with elFinder: [alperkosay.github.io/thefinder](https://alperkosay.github.io/thefinder/).
 
-![ciFinder features](docs/media/cifinder-features.png)
+![theFinder features](docs/media/thefinder-features.png)
 
 ## Features
 
@@ -84,7 +82,7 @@ For every option, command and type, see the [API reference](docs/api/README.md).
 ## Installation
 
 ```bash
-npm i @ci-finder/core @ci-finder/react @ci-finder/next
+npm i @thefinder/core @thefinder/react @thefinder/next
 ```
 
 ## Next.js
@@ -92,9 +90,9 @@ npm i @ci-finder/core @ci-finder/react @ci-finder/next
 **1. Server setup (`lib/finder.ts`)**
 
 ```ts
-import { createCiFinder, localDriver, uploadsDir } from "@ci-finder/next";
+import { createTheFinder, localDriver, uploadsDir } from "@thefinder/next";
 
-export const finder = createCiFinder({
+export const finder = createTheFinder({
   volumes: [
     {
       id: "uploads",
@@ -111,7 +109,7 @@ export const finder = createCiFinder({
 **2. API route (`app/api/files/route.ts`)**
 
 ```ts
-import { createNextRoutes } from "@ci-finder/next";
+import { createNextRoutes } from "@thefinder/next";
 import { finder } from "@/lib/finder";
 
 export const runtime = "nodejs";
@@ -121,7 +119,7 @@ export const { GET, POST } = createNextRoutes(finder);
 **3. Serving files (`app/uploads/[...path]/route.ts`)**
 
 ```ts
-import { createUploadsRoute } from "@ci-finder/next";
+import { createUploadsRoute } from "@thefinder/next";
 
 export const runtime = "nodejs";
 export const { GET, HEAD } = createUploadsRoute();
@@ -131,13 +129,13 @@ export const { GET, HEAD } = createUploadsRoute();
 
 ```tsx
 "use client";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 export default function Files() {
   return (
     <div style={{ height: "100vh" }}>
-      <CiFinder endpoint="/api/files" locale="en" />
+      <TheFinder endpoint="/api/files" locale="en" />
     </div>
   );
 }
@@ -163,16 +161,16 @@ export default function Files() {
 
 ### Authorization
 
-ciFinder does not manage sessions; you read your app's session (Auth.js, Clerk, your own cookie…) in the `authorize` hook:
+theFinder does not manage sessions; you read your app's session (Auth.js, Clerk, your own cookie…) in the `authorize` hook:
 
 ```ts
-import { CiFinderError } from "@ci-finder/next"; // or "@ci-finder/core"
+import { TheFinderError } from "@thefinder/next"; // or "@thefinder/core"
 
-createCiFinder({
+createTheFinder({
   volumes,
   authorize: async ({ request, cmd }) => {
     const session = await getSession(request);
-    if (!session) throw new CiFinderError("UNAUTHORIZED");          // → 401
+    if (!session) throw new TheFinderError("UNAUTHORIZED");          // → 401
     if (session.role === "viewer") return { readOnly: true };       // everything read-only
     return true;                                                     // false → 403
   },
@@ -181,18 +179,18 @@ createCiFinder({
 
 - Returning `false` gives 403, throwing `UNAUTHORIZED` gives 401.
 - Returning `{ readOnly: true }` makes every volume read-only for that request. The UI hides write actions by itself, and the API rejects writes with a `READ_ONLY` error.
-- When the UI receives a 401 it calls `onUnauthorized`, for example `<CiFinder onUnauthorized={() => location.assign("/login")} />`.
+- When the UI receives a 401 it calls `onUnauthorized`, for example `<TheFinder onUnauthorized={() => location.assign("/login")} />`.
 - To protect `/uploads` as well: `createUploadsRoute({ authorize: (request) => isSignedIn(request) })`.
 
 ## Bun
 
 ```ts
-import { createCiFinder, createFileServer } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { createTheFinder, createFileServer } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 import index from "./index.html";
 
 const driver = localDriver({ root: "./uploads" });
-const finder = createCiFinder({ volumes: [{ id: "files", driver, url: "/uploads" }] });
+const finder = createTheFinder({ volumes: [{ id: "files", driver, url: "/uploads" }] });
 
 Bun.serve({
   routes: {
@@ -206,7 +204,7 @@ Bun.serve({
 ## Node.js, Express, Fastify, Koa
 
 ```ts
-import { toExpress, toNodeHandler, toFastify, toKoa } from "@ci-finder/core/node";
+import { toExpress, toNodeHandler, toFastify, toKoa } from "@thefinder/core/node";
 
 app.all("/api/files", toExpress(finder.handler));                       // Express / Connect
 http.createServer(toNodeHandler(finder.handler));                       // plain node:http
@@ -219,7 +217,7 @@ Body parsers such as `express.json()` and `koa-bodyparser` cause no trouble; if 
 ## S3, R2, MinIO
 
 ```ts
-import { s3Driver } from "@ci-finder/core/s3";
+import { s3Driver } from "@thefinder/core/s3";
 
 volumes: [
   { id: "local", driver: localDriver({ root: uploadsDir() }), url: "/uploads" },
@@ -245,23 +243,23 @@ volumes: [
 - For the image editor to edit images stored in S3, the bucket needs a CORS rule (`GET`, your app's origin).
 - Integration tests against a real S3-compatible server:
   ```bash
-  CI_FINDER_S3_ENDPOINT=http://127.0.0.1:7070 CI_FINDER_S3_KEY=... CI_FINDER_S3_SECRET=... npm run test:s3 -w @ci-finder/core
+  CI_FINDER_S3_ENDPOINT=http://127.0.0.1:7070 CI_FINDER_S3_KEY=... CI_FINDER_S3_SECRET=... npm run test:s3 -w @thefinder/core
   ```
   These tests were run against [Versity Gateway](https://github.com/versity/versitygw) 1.8 and all passed. They cover signature verification, Turkish and special-character keys, multipart uploads, paginated listing of more than 1,000 objects, presigned URLs, trash and thumbnails.
 
 ## Thumbnails
 
 ```ts
-import { sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({
+createTheFinder({
   volumes,
   thumbnails: { generator: sharpThumbnailer() }, // sizes: [128, 256, 512], concurrency: 2
 });
 ```
 
-- Generated with [`sharp`](https://sharp.pixelplumbing.com). Next.js projects already ship it (`next/image` uses it); elsewhere `npm i sharp` is enough. The core package itself does not depend on sharp; only the `@ci-finder/core/sharp` subpath imports it.
-- Generated on first request and stored in the hidden `.cf-thumbs/` folder inside the volume (works on S3 too). Regenerated when the source image changes; cleaned up when the file is deleted, moved or renamed. The folder can be deleted at any time and is rebuilt when needed.
+- Generated with [`sharp`](https://sharp.pixelplumbing.com). Next.js projects already ship it (`next/image` uses it); elsewhere `npm i sharp` is enough. The core package itself does not depend on sharp; only the `@thefinder/core/sharp` subpath imports it.
+- Generated on first request and stored in the hidden `.tf-thumbs/` folder inside the volume (works on S3 too). Regenerated when the source image changes; cleaned up when the file is deleted, moved or renamed. The folder can be deleted at any time and is rebuilt when needed.
 - **Abuse protection:**
   - Only the configured sizes are generated; arbitrary sizes cannot be requested.
   - Concurrent generation is limited, and simultaneous requests for the same image are merged into one.
@@ -271,10 +269,10 @@ createCiFinder({
 
 ## Trash
 
-No database is used. Each volume keeps its own trash in a hidden `.cf-trash/` folder:
+No database is used. Each volume keeps its own trash in a hidden `.tf-trash/` folder:
 
 ```
-uploads/.cf-trash/
+uploads/.tf-trash/
   mgh2k1-a8f3c2d1/          ← the deleted item (with its original name)
     Invoices/...
   mgh2k1-a8f3c2d1.json      ← { name, originalPath, deletedAt, kind, size }
@@ -283,7 +281,7 @@ uploads/.cf-trash/
 - Works the same on the local disk and on S3, and survives server restarts.
 - A restored item goes back to its old place. If the old folder is gone it is recreated; if another item has the same name, it becomes "file (2)".
 - Expired items are cleaned up whenever the trash is listed, so no cron is needed.
-- `.cf-trash` never shows up in normal listings, search, zip downloads or the `/uploads` route, even with `showHidden: true`.
+- `.tf-trash` never shows up in normal listings, search, zip downloads or the `/uploads` route, even with `showHidden: true`.
 
 ```ts
 { id: "uploads", driver, trash: { retentionDays: 14 } } // default: 30 days
@@ -294,10 +292,10 @@ API commands: `rm` (moves to trash by default, `permanent: true` deletes for goo
 
 ## Version history
 
-Like the trash, no database. Before a file is overwritten, its old content is copied into the hidden `.cf-versions/` folder inside the volume:
+Like the trash, no database. Before a file is overwritten, its old content is copied into the hidden `.tf-versions/` folder inside the volume:
 
 ```
-uploads/.cf-versions/
+uploads/.tf-versions/
   3f0a…c9/                         ← sha1(file path)
     file.json                      ← { path }
     mgh2k1-a8f3c2-edit.bin         ← time-random-reason
@@ -306,7 +304,7 @@ uploads/.cf-versions/
 
 - A version is taken when: saving in an editor (code and image), overwriting during bulk optimization, uploading with "replace", pasting with "replace", restoring a version (the state before the restore becomes a version too, so it can be undone).
 - On rename and move (folder moves included) the history follows the file. When a file goes to the trash its history stays and reattaches when it is restored; a permanent delete removes the history as well.
-- Restoring a version of a file that was deleted outside ciFinder recreates the file.
+- Restoring a version of a file that was deleted outside theFinder recreates the file.
 - Taking a version is a copy: a file copy on the local disk, a server-side `CopyObject` on S3 (data never passes through your server). Listing a file's history is a single folder listing.
 
 ```ts
@@ -321,9 +319,9 @@ API commands: `versions`, `version` (GET, serves the version), `revert`, `rmVers
 ## Bulk image processing
 
 ```ts
-import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpImages, sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({
+createTheFinder({
   volumes,
   thumbnails: { generator: sharpThumbnailer() },
   images: sharpImages(), // resize, compress, WebP / AVIF / JPEG / PNG
@@ -339,10 +337,10 @@ createCiFinder({
 
 ## File picker: `useFilePicker`
 
-Opens ciFinder as a modal picker and resolves a `Promise` with the selected files. Resolves `null` if the user cancels.
+Opens theFinder as a modal picker and resolves a `Promise` with the selected files. Resolves `null` if the user cancels.
 
 ```tsx
-import { useFilePicker } from "@ci-finder/react";
+import { useFilePicker } from "@thefinder/react";
 
 const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
 
@@ -354,45 +352,45 @@ const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
 ```
 
 - `accept`: the same syntax as `<input type="file">` (`"image/*"`, `".pdf,.docx"`) or `(entry) => boolean`. Files that don't match are dimmed and cannot be selected.
-- `multiple`, `selectLabel`, `locale`, `theme` and the other `<CiFinder />` props apply. `absoluteUrls: true` returns full URLs.
+- `multiple`, `selectLabel`, `locale`, `theme` and the other `<TheFinder />` props apply. `absoluteUrls: true` returns full URLs.
 - Outside React (vanilla JS, Vue…) it's the same: `const files = await openFilePicker({ endpoint: "/api/files" })`.
 - Working example: the `/playground` page in `examples/next`.
 
 ## CKEditor
 
-`@ci-finder/ckeditor` does what CKFinder does: it adds a file manager button to the toolbar and uploads pasted / dropped images through ciFinder.
+`@thefinder/ckeditor` does what CKFinder does: it adds a file manager button to the toolbar and uploads pasted / dropped images through theFinder.
 
 **CKEditor 5**
 
 ```ts
-import { CiFinder } from "@ci-finder/ckeditor";
+import { TheFinder } from "@thefinder/ckeditor";
 
 ClassicEditor.create(el, {
   licenseKey: "GPL",
-  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, CiFinder],
-  toolbar: ["bold", "link", "|", "ciFinder"],
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, TheFinder],
+  toolbar: ["bold", "link", "|", "theFinder"],
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });
 ```
 
 **CKEditor 4**
 
 ```ts
-import { registerCiFinder } from "@ci-finder/ckeditor/v4";
+import { registerTheFinder } from "@thefinder/ckeditor/v4";
 
-registerCiFinder(window.CKEDITOR);
+registerTheFinder(window.CKEDITOR);
 CKEDITOR.replace("body", {
-  extraPlugins: "cifinder,uploadimage",
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  extraPlugins: "thefinder,uploadimage",
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });
 ```
 
 - Picked images are inserted as images, other files as links (if text is selected, the link goes on it).
-- In CKEditor 4 the "Browse Server" buttons of the Image and Link dialogs open ciFinder too.
+- In CKEditor 4 the "Browse Server" buttons of the Image and Link dialogs open theFinder too.
 - `uploadFolder` is created when missing; `false` keeps the editor's own upload setup. Use `picker` for picker options (`accept`, `theme`…) and `openPicker` to plug in a picker of your own.
 - The last open-source release of CKEditor 4 is 4.22.1; 4.23 and later require a commercial license key. The connector works with both.
 
-## `<CiFinder />` props
+## `<TheFinder />` props
 
 | Prop | Description |
 |---|---|
@@ -413,26 +411,26 @@ CKEDITOR.replace("body", {
 
 ## Theming
 
-All styles live in `@layer ci-finder`, so any rule you write outside the layer wins. Colors are CSS custom properties:
+All styles live in `@layer thefinder`, so any rule you write outside the layer wins. Colors are CSS custom properties:
 
 ```css
-.cf-root {
-  --cf-accent: #0f766e;
-  --cf-radius: 4px;
-  --cf-font: "Inter", system-ui, sans-serif;
+.tf-root {
+  --tf-accent: #0f766e;
+  --tf-radius: 4px;
+  --tf-font: "Inter", system-ui, sans-serif;
 }
-.cf-root[data-theme="dark"] {
-  --cf-bg: #101418;
+.tf-root[data-theme="dark"] {
+  --tf-bg: #101418;
 }
 ```
 
 ## Security
 
 - **Path traversal:** Paths containing `..` are not resolved, they are rejected outright. Symlinks pointing outside the root are hidden.
-- **CSRF:** Every mutating request needs the `x-ci-finder` header; mutating commands do not run over GET.
+- **CSRF:** Every mutating request needs the `x-thefinder` header; mutating commands do not run over GET.
 - **Authorization:** Per volume `readOnly`, `permission(action, path)`, extension allow and deny lists, `maxUploadSize`; per command the `authorize` hook.
 - **Archives:** Zip-slip and zip-bomb protection (`maxExtractSize`).
-- **Internal folders:** `.cf-trash`, `.cf-versions` and `.cf-thumbs` cannot be reached by any command, search or the `/uploads` URL, and no folder can be created with those names.
+- **Internal folders:** `.tf-trash`, `.tf-versions` and `.tf-thumbs` cannot be reached by any command, search or the `/uploads` URL, and no folder can be created with those names.
 - **Active content:** Uploaded HTML and SVG files are served with a sandbox CSP, so they cannot run scripts on your app's origin.
 - **Authentication:** Authentication happens in the `authorize` hook; with default settings anyone can reach the API. See [Authorization](#authorization) for details.
 
@@ -449,7 +447,7 @@ npm run site:dev   # builds and serves the GitHub Pages site (http://localhost:4
 
 Examples: [examples/next](examples/next), [examples/bun](examples/bun), [examples/express](examples/express).
 
-The site source lives in [site/](site). The docs pages are generated from `README.md`, `README.tr.md` and `docs/api/**/*.md`; the live demo runs the real `@ci-finder/core` engine in the browser with an in-memory driver. Every push to `main` publishes the site through the [Pages](.github/workflows/pages.yml) workflow.
+The site source lives in [site/](site). The docs pages are generated from `README.md`, `README.tr.md` and `docs/api/**/*.md`; the live demo runs the real `@thefinder/core` engine in the browser with an in-memory driver. Every push to `main` publishes the site through the [Pages](.github/workflows/pages.yml) workflow.
 
 ## Versioning and releases
 
@@ -460,7 +458,7 @@ Versions are managed with [Changesets](https://github.com/changesets/changesets)
 3. When that PR is merged the packages are built and published to npm, with provenance.
 
 Requirements:
-- The `ci-finder` organization on npm (for the `@ci-finder/*` scope).
+- The `thefinder` organization on npm (for the `@thefinder/*` scope).
 - An `NPM_TOKEN` repository secret: a granular or Automation npm token with publish rights.
 - *Settings › Actions › General › Allow GitHub Actions to create and approve pull requests* enabled in the repo settings.
 

@@ -1,12 +1,12 @@
-import { createCiFinder, createFileServer } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
-import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
+import { createTheFinder, createFileServer } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
+import { sharpImages, sharpThumbnailer } from "@thefinder/core/sharp";
 import { join } from "node:path";
 import index from "./index.html";
 
 const driver = localDriver({ root: join(import.meta.dir, "uploads") });
 
-const finder = createCiFinder({
+const finder = createTheFinder({
   volumes: [{ id: "files", name: "Files", driver, url: "/uploads" }],
   thumbnails: { generator: sharpThumbnailer() },
   // Bulk resize / compress / convert (WebP, AVIF...) from the "Optimize images" dialog.
@@ -24,4 +24,4 @@ const server = Bun.serve({
   development: process.env.NODE_ENV !== "production",
 });
 
-console.log(`ciFinder on Bun → ${server.url}`);
+console.log(`theFinder on Bun → ${server.url}`);

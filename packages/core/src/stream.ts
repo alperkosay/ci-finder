@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import type { WriteData } from "./types";
 
 const encoder = new TextEncoder();
@@ -41,7 +41,7 @@ export async function readAll(stream: ReadableStream<Uint8Array>, limit = Infini
       const { done, value } = await reader.read();
       if (done) break;
       total += value.byteLength;
-      if (total > limit) throw new CiFinderError("TOO_LARGE", "File is too large");
+      if (total > limit) throw new TheFinderError("TOO_LARGE", "File is too large");
       chunks.push(value);
     }
   } catch (e) {

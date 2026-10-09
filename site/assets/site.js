@@ -1,4 +1,4 @@
-// Small enhancements for the ciFinder site. Every section still reads fine without them.
+// Small enhancements for theFinder's site. Every section still reads fine without them.
 
 // Highlights gallery: previous / next buttons.
 for (const gallery of document.querySelectorAll("[data-gallery]")) {

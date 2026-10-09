@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import { normalizePath } from "./path";
 import type { VolumePath } from "./types";
 
@@ -27,14 +27,14 @@ export function encodeId(volume: string, path: VolumePath): string {
 }
 
 export function decodeId(id: unknown): { volume: string; path: VolumePath } {
-  if (typeof id !== "string" || id.length > 4096) throw new CiFinderError("BAD_REQUEST", "Invalid id");
+  if (typeof id !== "string" || id.length > 4096) throw new TheFinderError("BAD_REQUEST", "Invalid id");
   const i = id.indexOf("_");
-  if (i <= 0) throw new CiFinderError("BAD_REQUEST", "Invalid id");
+  if (i <= 0) throw new TheFinderError("BAD_REQUEST", "Invalid id");
   let raw: string;
   try {
     raw = decoder.decode(base64UrlDecode(id.slice(i + 1)));
   } catch {
-    throw new CiFinderError("BAD_REQUEST", "Invalid id");
+    throw new TheFinderError("BAD_REQUEST", "Invalid id");
   }
   return { volume: id.slice(0, i), path: normalizePath(raw) };
 }

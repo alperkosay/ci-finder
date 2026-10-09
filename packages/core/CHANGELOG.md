@@ -1,4 +1,4 @@
-# @ci-finder/core
+# @thefinder/core
 
 ## 0.1.1
 

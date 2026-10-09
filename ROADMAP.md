@@ -1,4 +1,4 @@
-# ciFinder — Yol Haritası
+# theFinder — Yol Haritası
 
 React tabanlı, backend'i Next.js / Node.js / Bun ve yaygın tüm framework'lerle çalışabilen, hiçbir UI kütüphanesine bağımlı olmayan, native CSS ile yazılmış bir dosya yöneticisi.
 
@@ -21,7 +21,7 @@ React tabanlı, backend'i Next.js / Node.js / Bun ve yaygın tüm framework'lerl
 ```
 elfinder-clone/
 ├─ packages/
-│  ├─ core/             # @ci-finder/core: backend motoru (framework bağımsız)
+│  ├─ core/             # @thefinder/core: backend motoru (framework bağımsız)
 │  │  └─ src/
 │  │     ├─ engine.ts   # komutlar, yetkilendirme, hook'lar
 │  │     ├─ drivers/    # LocalDriver, S3Driver, SigV4 (→ /local, /s3)
@@ -31,9 +31,9 @@ elfinder-clone/
 │  │     ├─ trash.ts, versions.ts, thumbnails.ts, stats.ts
 │  │     ├─ serve.ts, file-server.ts   # Range/ETag destekli dosya sunumu
 │  │     └─ sharp.ts    # küçük resim ve görsel işleme (→ /sharp)
-│  ├─ next/             # @ci-finder/next: API route, uploads route, kök tespiti
-│  ├─ react/            # @ci-finder/react: <CiFinder />, dosya seçici, styles.css
-│  └─ ckeditor/         # @ci-finder/ckeditor: CKEditor 5 eklentisi, CKEditor 4 connector'ı (→ /v4)
+│  ├─ next/             # @thefinder/next: API route, uploads route, kök tespiti
+│  ├─ react/            # @thefinder/react: <TheFinder />, dosya seçici, styles.css
+│  └─ ckeditor/         # @thefinder/ckeditor: CKEditor 5 eklentisi, CKEditor 4 connector'ı (→ /v4)
 ├─ examples/
 │  ├─ next/             # App Router, standalone, /playground sayfası
 │  ├─ bun/              # Bun.serve + Bun'ın kendi paketleyicisi
@@ -46,7 +46,7 @@ elfinder-clone/
 
 ```ts
 // Bun
-const fm = createCiFinder({ volumes: [{ id: "files", driver: localDriver({ root: "./storage" }) }] });
+const fm = createTheFinder({ volumes: [{ id: "files", driver: localDriver({ root: "./storage" }) }] });
 Bun.serve({ fetch: fm.handler });
 
 // Next.js — app/api/files/route.ts
@@ -56,7 +56,7 @@ export const { GET, POST } = createNextRoutes(fm);
 export const { GET, HEAD } = createUploadsRoute(); // <proje kökü>/uploads
 
 // S3 volume (yerel disk ile birlikte)
-createCiFinder({
+createTheFinder({
   volumes: [
     { id: "local", driver: localDriver({ root: projectPath("uploads") }), url: "/uploads" },
     { id: "s3", driver: s3Driver({ bucket, region, endpoint, accessKeyId, secretAccessKey }) },
@@ -69,10 +69,10 @@ app.use("/api/files", toExpress(fm.handler));
 
 ```tsx
 // React
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
-<CiFinder endpoint="/api/files" locale="tr" theme="auto" />
+<TheFinder endpoint="/api/files" locale="tr" theme="auto" />
 ```
 
 ### Protokol
@@ -191,7 +191,7 @@ Hepsi kendi kodumuz; Monaco, CodeMirror ya da benzeri bir bağımlılık yok.
 - Sistem font yığını; boyut ve tarih kolonlarında `tabular-nums`.
 - Gerçekçi boş, yükleniyor ve hata durumları.
 - Açık/koyu tema ve kompakt/rahat yoğunluk seçeneği.
-- Tüm sınıflar `cf-` önekli; stiller `@layer` içinde, tüketici CSS'i kolayca ezebilir.
+- Tüm sınıflar `tf-` önekli; stiller `@layer` içinde, tüketici CSS'i kolayca ezebilir.
 - Tema değiştirmek yalnızca CSS değişkenlerini ezmekle mümkün.
 
 ### Teknik
@@ -257,7 +257,7 @@ Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 ### Aşama 3 — UI temeli
 - [x] Tasarım tokenları, açık/koyu/otomatik tema
 - [x] SVG ikon seti (UI + dosya türleri)
-- [x] Tarayıcı istemcisi (`@ci-finder/core/client`)
+- [x] Tarayıcı istemcisi (`@thefinder/core/client`)
 - [x] Store ve veri akışı (`useSyncExternalStore`)
 - [x] Yerleşim: araç çubuğu, breadcrumb, ağaç, durum çubuğu, ayrıntılar paneli
 - [x] Grid ve liste görünümleri, sıralama
@@ -285,19 +285,19 @@ Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] Görsel editörü: kırp, döndür, çevir, boyutlandır, kaydet
 
 ### Aşama 5c — Çöp kutusu (veritabanısız)
-- [x] `.cf-trash` klasörü ve JSON yan dosyaları (yerel + S3)
+- [x] `.tf-trash` klasörü ve JSON yan dosyaları (yerel + S3)
 - [x] `rm` çöpe taşır, `permanent` ile kalıcı siler; `trash`, `restore`, `purge` komutları
-- [x] Saklama süresi ve tembel temizlik; `.cf-trash` her yoldan erişime kapalı
+- [x] Saklama süresi ve tembel temizlik; `.tf-trash` her yoldan erişime kapalı
 - [x] Arayüz: kenar çubuğunda sayaçlı "Çöp Kutusu", "Geri al" bildirimi, Shift+Delete
 - [x] Testler: 10 birim testi + 10 e2e senaryosu
 
 ### Aşama 5d — Küçük resimler ve yetkilendirme
-- [x] Sunucuda küçük resim üretimi (sharp, WebP, `.cf-thumbs` önbelleği, yerel + S3)
+- [x] Sunucuda küçük resim üretimi (sharp, WebP, `.tf-thumbs` önbelleği, yerel + S3)
 - [x] `authorize` hook'u: 401, 403 ve istek bazında salt-okunur mod
 - [x] Arayüzde `onUnauthorized`
 
 ### Aşama 5e — Sürüm geçmişi, toplu görsel işleme, depolama paneli
-- [x] Veritabanısız sürüm geçmişi (`.cf-versions`, yerel + S3; S3'te sunucu tarafı kopya)
+- [x] Veritabanısız sürüm geçmişi (`.tf-versions`, yerel + S3; S3'te sunucu tarafı kopya)
 - [x] Sürüm alınan durumlar: editörde kaydetme, "değiştir" ile yükleme/yapıştırma, optimizasyon, geri yükleme
 - [x] Geçmiş yeniden adlandırma ve taşımada dosyayla birlikte gider; çöpten dönünce yeniden bağlanır
 - [x] `versions`, `version`, `revert`, `rmVersions` komutları; arayüzde sürüm geçmişi penceresi
@@ -308,7 +308,7 @@ Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 ### Aşama 5f — Dosya seçici ve editör entegrasyonu
 - [x] Seçici modu: `accept`, `multiple`, `onCancel`
 - [x] `useFilePicker` / `openFilePicker` (React dışında da çalışır)
-- [x] `@ci-finder/ckeditor`: CKEditor 5 eklentisi (araç çubuğu düğmesi + upload adapter)
+- [x] `@thefinder/ckeditor`: CKEditor 5 eklentisi (araç çubuğu düğmesi + upload adapter)
 - [x] CKEditor 4 connector'ı ("Sunucuyu Gözat" düğmeleri ve `uploadimage`)
 - [x] Next örneğinde `/playground` sayfası
 
@@ -328,7 +328,7 @@ Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 - [x] Yayına hazır `package.json` (exports, types, sideEffects, publishConfig)
 - [x] Sürüm yönetimi (Changesets, tüm paketler aynı sürümde)
 - [x] CI ve yayın iş akışları (GitHub Actions, npm provenance)
-- [ ] İlk npm yayını: npm'de `ci-finder` organizasyonu ve `NPM_TOKEN` secret'ı gerekiyor
+- [ ] İlk npm yayını: npm'de `thefinder` organizasyonu ve `NPM_TOKEN` secret'ı gerekiyor
 
 ## Sonraya bırakılanlar
 
@@ -347,4 +347,4 @@ Durum: 9 Ekim 2026. `[x]` biten, `[ ]` bekleyen maddeler.
 | Next.js | Standalone dahil; `uploads/` proje kökünde, route ile sunulur | Karar verildi |
 | Dahili düzenleyiciler | Kod, Markdown, görsel | Karar verildi |
 | Paket yöneticisi | npm workspaces (Bun ile uyumlu) | Karar verildi |
-| Proje / paket adı | ciFinder — `@ci-finder/core`, `@ci-finder/react`, `@ci-finder/next` | Karar verildi |
+| Proje / paket adı | theFinder — `@thefinder/core`, `@thefinder/react`, `@thefinder/next` | Karar verildi |

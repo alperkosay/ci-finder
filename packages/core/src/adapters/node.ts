@@ -108,7 +108,7 @@ interface FastifyLike {
 
 /**
  * Fastify plugin. Fastify parses (and rejects unknown) bodies before handlers run, so the plugin
- * disables body parsing inside its own scope and hands the raw stream to ciFinder.
+ * disables body parsing inside its own scope and hands the raw stream to theFinder.
  *
  * ```ts
  * fastify.register(toFastify(finder.handler), { prefix: "/api/files" });

@@ -1,4 +1,4 @@
-# `@ci-finder/next`
+# `@thefinder/next`
 
 🌐 **English** · [Türkçe](tr/next.md)
 
@@ -6,10 +6,10 @@ Next.js App Router integration. Works in every mode, `output: "standalone"` incl
 
 ## Re-exports
 
-So that one import is enough, these come straight from `@ci-finder/core`: `createCiFinder`, `CiFinderError`, `localDriver`, `s3Driver` and every type from core.
+So that one import is enough, these come straight from `@thefinder/core`: `createTheFinder`, `TheFinderError`, `localDriver`, `s3Driver` and every type from core.
 
 ```ts
-import { createCiFinder, localDriver, s3Driver, uploadsDir, CiFinderError } from "@ci-finder/next";
+import { createTheFinder, localDriver, s3Driver, uploadsDir, TheFinderError } from "@thefinder/next";
 ```
 
 ## `createNextRoutes(finder)`
@@ -18,7 +18,7 @@ Creates the route handlers for `app/api/<name>/route.ts`.
 
 ```ts
 // app/api/files/route.ts
-import { createNextRoutes } from "@ci-finder/next";
+import { createNextRoutes } from "@thefinder/next";
 import { finder } from "@/lib/finder";
 
 export const runtime = "nodejs";
@@ -27,7 +27,7 @@ export const { GET, POST } = createNextRoutes(finder);
 
 | Parameter | Description |
 |---|---|
-| `finder` | A `CiFinder` instance or `CiFinderOptions`. With an options object the instance is created internally. |
+| `finder` | A `TheFinder` instance or `TheFinderOptions`. With an options object the instance is created internally. |
 
 Returns `{ GET, POST, HEAD }`. If you export `HEAD` too, `HEAD` requests for Range-capable file responses are answered as well.
 
@@ -39,7 +39,7 @@ A file server for `app/uploads/[...path]/route.ts`. It reads files from disk on 
 
 ```ts
 // app/uploads/[...path]/route.ts
-import { createUploadsRoute } from "@ci-finder/next";
+import { createUploadsRoute } from "@thefinder/next";
 
 export const runtime = "nodejs";
 export const { GET, HEAD } = createUploadsRoute();
@@ -52,7 +52,7 @@ export const { GET, HEAD } = createUploadsRoute();
 | `param` | `string` | `"path"` | Name of the catch-all segment (`[...path]`) |
 | `authorize` | `(request, path) => boolean \| Promise<boolean>` | — | `false` → `404`. Session check for private files. |
 | `cacheControl` | `string` | `"public, max-age=0, must-revalidate"` | Revalidated with ETag on every request |
-| `showHidden` | `boolean` | `false` | Serves dotfiles. The internal `.cf-*` folders are never served. |
+| `showHidden` | `boolean` | `false` | Serves dotfiles. The internal `.tf-*` folders are never served. |
 
 Range (video seeking), ETag/`304`, the right `Content-Type` and `?download` are supported. HTML and SVG are served with `Content-Security-Policy: sandbox`. Works with Next.js 14 (sync `params`) and 15+ (`Promise` `params`).
 

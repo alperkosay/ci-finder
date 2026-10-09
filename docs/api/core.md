@@ -1,4 +1,4 @@
-# `@ci-finder/core`
+# `@thefinder/core`
 
 🌐 **English** · [Türkçe](tr/core.md)
 
@@ -8,29 +8,29 @@ The server engine. It has no runtime dependencies and runs with the Web-standard
 
 | Subpath | Contents | Runtime |
 |---|---|---|
-| `@ci-finder/core` | Engine, file server, errors, helpers, types | Anywhere |
-| `@ci-finder/core/local` | `localDriver`, `LocalDriver` | Node.js, Bun (`node:fs`) |
-| `@ci-finder/core/s3` | `s3Driver`, `S3Driver` | Anywhere (Web Crypto + `fetch`) |
-| `@ci-finder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa`, `toWebRequest`, `sendWebResponse` | Node.js |
-| `@ci-finder/core/sharp` | `sharpThumbnailer`, `sharpImages` | Node.js, Bun; requires `sharp` (≥ 0.33) |
-| `@ci-finder/core/client` | `createClient`, `CiFinderClient`, `ApiError`. See [client.md](client.md) | Browser and server |
+| `@thefinder/core` | Engine, file server, errors, helpers, types | Anywhere |
+| `@thefinder/core/local` | `localDriver`, `LocalDriver` | Node.js, Bun (`node:fs`) |
+| `@thefinder/core/s3` | `s3Driver`, `S3Driver` | Anywhere (Web Crypto + `fetch`) |
+| `@thefinder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa`, `toWebRequest`, `sendWebResponse` | Node.js |
+| `@thefinder/core/sharp` | `sharpThumbnailer`, `sharpImages` | Node.js, Bun; requires `sharp` (≥ 0.33) |
+| `@thefinder/core/client` | `createClient`, `TheFinderClient`, `ApiError`. See [client.md](client.md) | Browser and server |
 
 ---
 
-## `createCiFinder(options)`
+## `createTheFinder(options)`
 
 ```ts
-import { createCiFinder } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { createTheFinder } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 
-const finder = createCiFinder({
+const finder = createTheFinder({
   volumes: [{ id: "files", name: "Files", driver: localDriver({ root: "./uploads" }), url: "/uploads" }],
 });
 ```
 
-Same as `new CiFinder(options)`. Throws an `Error` right away on a bad configuration (no volumes, the same volume id twice, `chunkSize` < 5 MiB while an S3 volume exists).
+Same as `new TheFinder(options)`. Throws an `Error` right away on a bad configuration (no volumes, the same volume id twice, `chunkSize` < 5 MiB while an S3 volume exists).
 
-### `CiFinderOptions`
+### `TheFinderOptions`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -45,7 +45,7 @@ Same as `new CiFinder(options)`. Throws an `Error` right away on a bad configura
 | `images` | `ImageProcessor` | — | Bulk image processing. See [Image processing](#image-processing). |
 | `maxImageSize` | `number` | 60 MiB | Largest input for `transform` |
 | `maxExtractSize` | `number` | 4 GiB | Total size `extract` may unpack (zip-bomb protection) |
-| `csrfProtection` | `boolean` | `true` | Requires the `x-ci-finder` header on `POST` requests |
+| `csrfProtection` | `boolean` | `true` | Requires the `x-thefinder` header on `POST` requests |
 
 ### `VolumeOptions`
 
@@ -56,7 +56,7 @@ Same as `new CiFinder(options)`. Throws an `Error` right away on a bad configura
 | `driver` | `StorageDriver` | — | Required |
 | `url` | `string` | — | Public base URL of the files (`"/uploads"`, `"https://cdn.example.com"`). When set, every file gets a `url` field; the UI uses it for previews and in the picker. |
 | `readOnly` | `boolean` | `false` | Rejects every write with `READ_ONLY`. Trash and version history are off too. |
-| `showHidden` | `boolean` | `false` | Shows files starting with a dot. When off, names starting with a dot (`.htaccess`, `.env`...) cannot be created, uploaded or extracted from zips. The internal folders (`.cf-*`) stay hidden in every case. |
+| `showHidden` | `boolean` | `false` | Shows files starting with a dot. When off, names starting with a dot (`.htaccess`, `.env`...) cannot be created, uploaded or extracted from zips. The internal folders (`.tf-*`) stay hidden in every case. |
 | `allowExtensions` | `string[]` | — | Only these extensions (lower case, no dot). Empty or missing means all. |
 | `denyExtensions` | `string[]` | — | Extensions rejected on upload, create, rename, paste and extract |
 | `maxUploadSize` | `number` | — | Byte limit for a single file (upload and binary `put`) |
@@ -64,12 +64,12 @@ Same as `new CiFinder(options)`. Throws an `Error` right away on a bad configura
 | `trash` | `boolean \| { retentionDays? }` | `true`, 30 days | `false`: deleted items are removed right away |
 | `versions` | `boolean \| { maxPerFile?, retentionDays? }` | `true`, 20 versions, forever | `retentionDays: 0` keeps forever. `false`: no versions are taken. |
 
-### The `CiFinder` instance
+### The `TheFinder` instance
 
 | Member | Description |
 |---|---|
 | `handler(request): Promise<Response>` | Web-standard request handler. Use it directly in Bun, Deno, Hono, Next.js routes and Cloudflare Workers; for Node frameworks see the [adapters](#node-adapters). It is defined as an arrow function to keep its binding: `Bun.serve({ fetch: finder.handler })` is safe. |
-| `execute<T>(cmd, params?, request?)` | Runs a command without HTTP; hooks and `authorize` still run. Throws `CiFinderError` on failure. Without `request` an empty `Request` is used. |
+| `execute<T>(cmd, params?, request?)` | Runs a command without HTTP; hooks and `authorize` still run. Throws `TheFinderError` on failure. Without `request` an empty `Request` is used. |
 | `getVolume(id)` | Returns the `Volume` instance (advanced use) |
 | `options` | The options with defaults applied |
 
@@ -95,13 +95,13 @@ interface CommandContext {
 | `true` or `undefined` | The request goes through |
 | `false` | `403 FORBIDDEN` |
 | `{ readOnly: true }` | The request goes through, but every volume is read-only for it. The `init` response carries `readOnly: true`, so the UI hides write actions by itself. |
-| `throw new CiFinderError("UNAUTHORIZED")` | `401`; the UI calls `onUnauthorized` |
+| `throw new TheFinderError("UNAUTHORIZED")` | `401`; the UI calls `onUnauthorized` |
 
 ---
 
 ## Drivers
 
-### `localDriver(options)`, `@ci-finder/core/local`
+### `localDriver(options)`, `@thefinder/core/local`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -113,7 +113,7 @@ interface CommandContext {
 - `capacity()` reports the disk size (for the storage dashboard).
 - `driver.root`: the resolved absolute root path. `driver.abs(path)`: converts a volume path to an OS path.
 
-### `s3Driver(options)`, `@ci-finder/core/s3`
+### `s3Driver(options)`, `@thefinder/core/s3`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -175,9 +175,9 @@ interface UploadChunk {
 ## Thumbnails
 
 ```ts
-import { sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [128, 256, 512] } });
+createTheFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [128, 256, 512] } });
 ```
 
 ### `ThumbnailOptions`
@@ -189,7 +189,7 @@ createCiFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [1
 | `maxInputSize` | `number` | 40 MiB | Larger files are not thumbnailed; the original is sent |
 | `concurrency` | `number` | 2 | Maximum number of generations at the same time |
 
-Thumbnails are kept in the volume's `.cf-thumbs/` folder. They are regenerated when the source changes and cleaned up when the file is deleted, moved or renamed.
+Thumbnails are kept in the volume's `.tf-thumbs/` folder. They are regenerated when the source changes and cleaned up when the file is deleted, moved or renamed.
 
 ### `sharpThumbnailer(options?)`
 
@@ -213,9 +213,9 @@ interface Thumbnailer {
 ## Image processing
 
 ```ts
-import { sharpImages } from "@ci-finder/core/sharp";
+import { sharpImages } from "@thefinder/core/sharp";
 
-createCiFinder({ volumes, images: sharpImages() });
+createTheFinder({ volumes, images: sharpImages() });
 ```
 
 ### `sharpImages(options?)`
@@ -255,7 +255,7 @@ Bun.serve({ routes: { "/uploads/*": createFileServer({ driver, prefix: "/uploads
 |---|---|---|---|
 | `driver` | `StorageDriver` | — | Required |
 | `prefix` | `string` | `""` | URL prefix |
-| `showHidden` | `boolean` | `false` | Serves dotfiles (`.cf-*` is never served) |
+| `showHidden` | `boolean` | `false` | Serves dotfiles (`.tf-*` is never served) |
 | `authorize` | `(request, path) => boolean \| Promise<boolean>` | — | `false` → `404` (private files don't even reveal that they exist) |
 | `cacheControl` | `string` | `"public, max-age=0, must-revalidate"` | |
 
@@ -281,7 +281,7 @@ Other helpers: `contentDisposition(type, filename)` (RFC 6266/5987, UTF-8 names)
 
 ## Node adapters
 
-`@ci-finder/core/node`. If a parser such as `express.json()` or `koa-bodyparser` has already read the body, the adapter rebuilds it.
+`@thefinder/core/node`. If a parser such as `express.json()` or `koa-bodyparser` has already read the body, the adapter rebuilds it.
 
 | Function | Usage |
 |---|---|
@@ -299,19 +299,19 @@ A file server can be mounted the same way: `app.get("/uploads/*", toExpress(crea
 ## Errors
 
 ```ts
-import { CiFinderError, isCiFinderError } from "@ci-finder/core";
+import { TheFinderError, isTheFinderError } from "@thefinder/core";
 
-throw new CiFinderError("UNAUTHORIZED");           // the message defaults to the code
-throw new CiFinderError("FORBIDDEN", "This folder is off limits");
+throw new TheFinderError("UNAUTHORIZED");           // the message defaults to the code
+throw new TheFinderError("FORBIDDEN", "This folder is off limits");
 ```
 
 | Member | Description |
 |---|---|
 | `code: ErrorCode` | The full list of codes and their HTTP statuses: [protocol.md › Error codes](protocol.md#error-codes) |
 | `status: number` | HTTP status derived from the code |
-| `isCiFinderError(e)` | Type guard |
+| `isTheFinderError(e)` | Type guard |
 
-A `CiFinderError` thrown in a hook or a driver reaches the client with its own code and message. Any other error becomes `INTERNAL` and its details are written only to the server log.
+A `TheFinderError` thrown in a hook or a driver reaches the client with its own code and message. Any other error becomes `INTERNAL` and its details are written only to the server log.
 
 ## Helpers
 
@@ -326,9 +326,9 @@ A `CiFinderError` thrown in a hook or a driver reaches the client with its own c
 | `isActiveContent(mime)` | Types that can run scripts in the browser (HTML, SVG, XML, JS) |
 | `createZipStream(sources)` | A dependency-free streaming zip writer (zip64 included). Already compressed formats are stored without compression. |
 | `readZipEntries(read, size)` / `openZipEntry(read, entry)` | A random-access zip reader; the archive is never loaded into memory |
-| `CSRF_HEADER` | `"x-ci-finder"` |
+| `CSRF_HEADER` | `"x-thefinder"` |
 | `VERSION` | Package version |
-| `TRASH_ROOT`, `THUMBS_ROOT`, `VERSIONS_ROOT` | `"/.cf-trash"`, `"/.cf-thumbs"`, `"/.cf-versions"` |
+| `TRASH_ROOT`, `THUMBS_ROOT`, `VERSIONS_ROOT` | `"/.tf-trash"`, `"/.tf-thumbs"`, `"/.tf-versions"` |
 | `isTrashPath(path)`, `isVersionsPath(path)`, `isReservedPath(path)` | Whether the path is inside one of the internal folders |
 | `Volume`, `ThumbnailService` | Internal engine classes; for advanced use, their APIs may change in minor releases |
 
@@ -345,7 +345,7 @@ interface ZipSource {
 
 ## Types
 
-Every type can be imported with `import type { … } from "@ci-finder/core"`. In browser code the same types are available from `@ci-finder/core/client`.
+Every type can be imported with `import type { … } from "@thefinder/core"`. In browser code the same types are available from `@thefinder/core/client`.
 
 ### `Entry`
 
@@ -395,7 +395,7 @@ Every type can be imported with `import type { … } from "@ci-finder/core"`. In
 | `truncated` | `true` if the volume is too large to scan completely |
 | `scannedAt` | Scan time (ms) |
 
-`VersionedFile`: `{ id, path, name, exists, count, size, latest }`. `exists: false` means the file was deleted or moved outside ciFinder, so its versions are orphaned.
+`VersionedFile`: `{ id, path, name, exists, count, size, latest }`. `exists: false` means the file was deleted or moved outside theFinder, so its versions are orphaned.
 
 ### `TransformResult`
 

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { getActions } from "./actions";
 import type { Translate } from "./i18n";
 import type { Density, FinderStore, Skin, State, Theme } from "./store";
@@ -64,7 +64,7 @@ export const FinderContext = createContext<FinderContextValue | null>(null);
 
 export function useFinder(): FinderContextValue {
   const ctx = useContext(FinderContext);
-  if (!ctx) throw new Error("ciFinder components must be rendered inside <CiFinder>");
+  if (!ctx) throw new Error("theFinder components must be rendered inside <TheFinder>");
   return ctx;
 }
 

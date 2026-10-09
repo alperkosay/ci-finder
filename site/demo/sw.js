@@ -1,6 +1,6 @@
 /**
  * The demo has no server. This worker only forwards requests for ./api/* to the page that owns
- * them, where the real ciFinder engine runs on an in-memory driver, and returns its answer.
+ * them, where the real theFinder engine runs on an in-memory driver, and returns its answer.
  * It keeps no state of its own, so the browser can stop and restart it at any time.
  */
 
@@ -36,7 +36,7 @@ async function forward(event) {
   const channel = new MessageChannel();
   const reply = new Promise((resolve) => (channel.port1.onmessage = (e) => resolve(e.data)));
   client.postMessage(
-    { type: "ci-finder:request", url: req.url, method: req.method, headers: [...req.headers], body },
+    { type: "thefinder:request", url: req.url, method: req.method, headers: [...req.headers], body },
     body ? [channel.port2, body] : [channel.port2],
   );
 

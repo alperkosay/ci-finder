@@ -1,5 +1,5 @@
 import { useCallback, useDeferredValue, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, modKey, shortcut, useFinder } from "../context";
 import { FileIcon, Icon, Spinner } from "../icons";
 import { Modal } from "../components/Dialogs";
@@ -17,7 +17,7 @@ interface Prefs {
 
 function loadPrefs(): Prefs {
   try {
-    return { wrap: false, fontSize: 13, ...JSON.parse(localStorage.getItem("ci-finder:editor") ?? "{}") };
+    return { wrap: false, fontSize: 13, ...JSON.parse(localStorage.getItem("thefinder:editor") ?? "{}") };
   } catch {
     return { wrap: false, fontSize: 13 };
   }
@@ -25,7 +25,7 @@ function loadPrefs(): Prefs {
 
 function savePrefs(p: Prefs) {
   try {
-    localStorage.setItem("ci-finder:editor", JSON.stringify(p));
+    localStorage.setItem("thefinder:editor", JSON.stringify(p));
   } catch {
     // ignore: preferences just won't persist
   }
@@ -131,7 +131,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
   const html = useMemo(() => {
     const tokens = tokenize(deferred, deferred.length > HIGHLIGHT_LIMIT ? "plain" : lang);
     return toLines(tokens)
-      .map((l) => `<span class="cf-ln">${l || "​"}</span>`)
+      .map((l) => `<span class="tf-ln">${l || "​"}</span>`)
       .join("");
   }, [deferred, lang]);
 
@@ -157,7 +157,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
     out += escapeHtml(deferred.slice(last));
     return out
       .split("\n")
-      .map((l) => `<span class="cf-ln">${l || "​"}</span>`)
+      .map((l) => `<span class="tf-ln">${l || "​"}</span>`)
       .join("");
   }, [matches, current, deferred]);
 
@@ -398,21 +398,21 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
   const gutter = `${Math.max(2, String(lineCount).length) + 1.5}ch`;
 
   return (
-    <Modal label={entry.name} onCancel={() => void requestClose()} className="cf-editor-dialog" wide>
-      <div className="cf-editor">
-        <header className="cf-editor-head">
+    <Modal label={entry.name} onCancel={() => void requestClose()} className="tf-editor-dialog" wide>
+      <div className="tf-editor">
+        <header className="tf-editor-head">
           <FileIcon entry={entry} size={20} />
-          <div className="cf-editor-title">
+          <div className="tf-editor-title">
             <strong>
               {entry.name}
-              {dirty && <span className="cf-dirty" aria-label="modified" />}
+              {dirty && <span className="tf-dirty" aria-label="modified" />}
             </strong>
             <span>{entry.path}</span>
           </div>
-          <div className="cf-editor-tools">
+          <div className="tf-editor-tools">
             <button
               type="button"
-              className={cx("cf-btn is-icon", find.open && "is-on")}
+              className={cx("tf-btn is-icon", find.open && "is-on")}
               title={`${t("find")} (${shortcut("Ctrl+F")})`}
               aria-label={t("find")}
               onClick={() => (find.open ? setFind((f) => ({ ...f, open: false })) : openFind(false))}
@@ -421,7 +421,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             </button>
             <button
               type="button"
-              className={cx("cf-btn is-icon", prefs.wrap && "is-on")}
+              className={cx("tf-btn is-icon", prefs.wrap && "is-on")}
               title={t("wrap")}
               aria-label={t("wrap")}
               aria-pressed={prefs.wrap}
@@ -432,7 +432,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             {isMarkdown && (
               <button
                 type="button"
-                className={cx("cf-btn is-icon", preview && "is-on")}
+                className={cx("tf-btn is-icon", preview && "is-on")}
                 title={t("previewPane")}
                 aria-label={t("previewPane")}
                 aria-pressed={preview}
@@ -441,10 +441,10 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
                 <Icon name="panelRight" />
               </button>
             )}
-            <span className="cf-tool-sep" />
+            <span className="tf-tool-sep" />
             <button
               type="button"
-              className="cf-btn is-primary"
+              className="tf-btn is-primary"
               disabled={!dirty || saving || !entry.write}
               onClick={() => void save()}
               title={shortcut("Ctrl+S")}
@@ -452,7 +452,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
               {saving ? <Spinner size={14} /> : <Icon name="save" />}
               <span>{saving ? t("saving") : t("save")}</span>
             </button>
-            <button type="button" className="cf-btn is-icon" aria-label={t("close")} title={t("close")} onClick={() => void requestClose()}>
+            <button type="button" className="tf-btn is-icon" aria-label={t("close")} title={t("close")} onClick={() => void requestClose()}>
               <Icon name="close" />
             </button>
           </div>
@@ -460,13 +460,13 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
 
         {find.open && (
           <div
-            className="cf-findbar"
+            className="tf-findbar"
             onKeyDown={(e) => e.key === "Escape" && (e.preventDefault(), setFind((f) => ({ ...f, open: false })), taRef.current?.focus())}
           >
-            <div className="cf-findbar-row">
+            <div className="tf-findbar-row">
               <button
                 type="button"
-                className="cf-btn is-icon is-small"
+                className="tf-btn is-icon is-small"
                 aria-label={t("replaceWith")}
                 aria-expanded={find.replace}
                 onClick={() => setFind((f) => ({ ...f, replace: !f.replace }))}
@@ -475,7 +475,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
               </button>
               <input
                 ref={findRef}
-                className="cf-input is-small"
+                className="tf-input is-small"
                 placeholder={t("find")}
                 value={find.q}
                 spellCheck={false}
@@ -489,25 +489,25 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
               />
               <button
                 type="button"
-                className={cx("cf-btn is-small cf-case", find.matchCase && "is-on")}
+                className={cx("tf-btn is-small tf-case", find.matchCase && "is-on")}
                 title={t("matchCase")}
                 aria-pressed={find.matchCase}
                 onClick={() => setFind((f) => ({ ...f, matchCase: !f.matchCase }))}
               >
                 Aa
               </button>
-              <span className="cf-find-count">{find.q ? (matches.length ? t("matchCount", { i: current + 1, n: matches.length }) : t("noMatches")) : ""}</span>
-              <button type="button" className="cf-btn is-icon is-small" aria-label="Previous" disabled={!matches.length} onClick={() => goToMatch(current - 1)}>
+              <span className="tf-find-count">{find.q ? (matches.length ? t("matchCount", { i: current + 1, n: matches.length }) : t("noMatches")) : ""}</span>
+              <button type="button" className="tf-btn is-icon is-small" aria-label="Previous" disabled={!matches.length} onClick={() => goToMatch(current - 1)}>
                 <Icon name="chevronUp" size={14} />
               </button>
-              <button type="button" className="cf-btn is-icon is-small" aria-label="Next" disabled={!matches.length} onClick={() => goToMatch(current + 1)}>
+              <button type="button" className="tf-btn is-icon is-small" aria-label="Next" disabled={!matches.length} onClick={() => goToMatch(current + 1)}>
                 <Icon name="chevronDown" size={14} />
               </button>
             </div>
             {find.replace && (
-              <div className="cf-findbar-row is-replace">
+              <div className="tf-findbar-row is-replace">
                 <input
-                  className="cf-input is-small"
+                  className="tf-input is-small"
                   placeholder={t("replaceWith")}
                   value={find.r}
                   spellCheck={false}
@@ -519,10 +519,10 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
                     }
                   }}
                 />
-                <button type="button" className="cf-btn is-small" disabled={current < 0 || !entry.write} onClick={replaceOne}>
+                <button type="button" className="tf-btn is-small" disabled={current < 0 || !entry.write} onClick={replaceOne}>
                   {t("replaceWith")}
                 </button>
-                <button type="button" className="cf-btn is-small" disabled={!matches.length || !entry.write} onClick={replaceAll}>
+                <button type="button" className="tf-btn is-small" disabled={!matches.length || !entry.write} onClick={replaceAll}>
                   {t("replaceAll")}
                 </button>
               </div>
@@ -530,13 +530,13 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
           </div>
         )}
 
-        <div className={cx("cf-editor-body", preview && isMarkdown && "is-split")}>
+        <div className={cx("tf-editor-body", preview && isMarkdown && "is-split")}>
           {state.loading ? (
-            <div className="cf-editor-state">
+            <div className="tf-editor-state">
               <Spinner size={20} />
             </div>
           ) : state.error ? (
-            <div className="cf-editor-state is-error">
+            <div className="tf-editor-state is-error">
               <Icon name="alert" size={24} />
               <span>{state.error}</span>
             </div>
@@ -544,17 +544,17 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             <>
               <div
                 ref={scrollRef}
-                className={cx("cf-code", prefs.wrap ? "is-wrap" : "is-nowrap")}
+                className={cx("tf-code", prefs.wrap ? "is-wrap" : "is-nowrap")}
                 onScroll={onScroll}
-                style={{ "--cf-code-fs": `${prefs.fontSize}px`, "--cf-code-lh": `${lineHeight}px`, "--cf-gutter": gutter } as React.CSSProperties}
+                style={{ "--tf-code-fs": `${prefs.fontSize}px`, "--tf-code-lh": `${lineHeight}px`, "--tf-gutter": gutter } as React.CSSProperties}
               >
-                <style>{`#cf-code-${uid} > .cf-ln:nth-child(${cursor.line}){background:var(--cf-code-active)}#cf-code-${uid} > .cf-ln:nth-child(${cursor.line})::before{color:var(--cf-text)}`}</style>
-                <div className="cf-code-grid">
-                  {marksHtml && <pre className="cf-code-layer cf-code-marks" aria-hidden="true" dangerouslySetInnerHTML={{ __html: marksHtml }} />}
-                  <pre ref={hlRef} id={`cf-code-${uid}`} className="cf-code-layer cf-code-hl" aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />
+                <style>{`#tf-code-${uid} > .tf-ln:nth-child(${cursor.line}){background:var(--tf-code-active)}#tf-code-${uid} > .tf-ln:nth-child(${cursor.line})::before{color:var(--tf-text)}`}</style>
+                <div className="tf-code-grid">
+                  {marksHtml && <pre className="tf-code-layer tf-code-marks" aria-hidden="true" dangerouslySetInnerHTML={{ __html: marksHtml }} />}
+                  <pre ref={hlRef} id={`tf-code-${uid}`} className="tf-code-layer tf-code-hl" aria-hidden="true" dangerouslySetInnerHTML={{ __html: html }} />
                   <textarea
                     ref={taRef}
-                    className="cf-code-input"
+                    className="tf-code-input"
                     value={value}
                     readOnly={!entry.write}
                     spellCheck={false}
@@ -572,15 +572,15 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
                   />
                 </div>
               </div>
-              {preview && isMarkdown && <div ref={previewRef} className="cf-md" dangerouslySetInnerHTML={{ __html: renderMarkdown(deferred) }} />}
+              {preview && isMarkdown && <div ref={previewRef} className="tf-md" dangerouslySetInnerHTML={{ __html: renderMarkdown(deferred) }} />}
             </>
           )}
         </div>
 
-        <footer className="cf-editor-status">
+        <footer className="tf-editor-status">
           {gotoOpen ? (
             <form
-              className="cf-goto"
+              className="tf-goto"
               onSubmit={(e) => {
                 e.preventDefault();
                 const n = Number(gotoRef.current?.value);
@@ -600,7 +600,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
                 {t("goToLine")}
                 <input
                   ref={gotoRef}
-                  className="cf-input is-small"
+                  className="tf-input is-small"
                   type="number"
                   min={1}
                   max={lineCount}
@@ -612,16 +612,16 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
           ) : (
             <button
               type="button"
-              className="cf-status-btn"
+              className="tf-status-btn"
               onClick={() => (setGotoOpen(true), requestAnimationFrame(() => gotoRef.current?.focus()))}
               title={`${t("goToLine")} (${shortcut("Ctrl+G")})`}
             >
               {t("line", { line: cursor.line, col: cursor.col })}
             </button>
           )}
-          <span className="cf-statusbar-spacer" />
+          <span className="tf-statusbar-spacer" />
           {!entry.write && (
-            <span className="cf-status-chip">
+            <span className="tf-status-chip">
               <Icon name="lock" size={12} />
               {t("readOnly")}
             </span>
@@ -630,10 +630,10 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
           <span>UTF-8{meta.bom ? " BOM" : ""}</span>
           <span>{meta.crlf ? "CRLF" : "LF"}</span>
           <span>{LANG_LABEL[lang]}</span>
-          <span className="cf-font-size">
+          <span className="tf-font-size">
             <button
               type="button"
-              className="cf-btn is-icon is-small"
+              className="tf-btn is-icon is-small"
               aria-label={`${t("fontSize")} −`}
               onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.max(10, p.fontSize - 1) }))}
             >
@@ -642,7 +642,7 @@ export function CodeEditor({ entry, onClose }: { entry: Entry; onClose: () => vo
             <span>{prefs.fontSize}px</span>
             <button
               type="button"
-              className="cf-btn is-icon is-small"
+              className="tf-btn is-icon is-small"
               aria-label={`${t("fontSize")} +`}
               onClick={() => setPrefs((p) => ({ ...p, fontSize: Math.min(24, p.fontSize + 1) }))}
             >

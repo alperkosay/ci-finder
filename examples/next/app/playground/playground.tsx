@@ -6,7 +6,7 @@ import { FileField, GalleryField } from "./file-field";
 import { RichEditor } from "./rich-editor";
 import { RichEditor4 } from "./rich-editor-4";
 
-const HOOK_SNIPPET = `import { useFilePicker } from "@ci-finder/react";
+const HOOK_SNIPPET = `import { useFilePicker } from "@thefinder/react";
 
 const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
 
@@ -16,25 +16,25 @@ const picker = useFilePicker({ endpoint: "/api/files", accept: "image/*" });
   if (files) setCover(files[0].url);      // "/uploads/kapak.png"
 }}>Dosya seç</button>`;
 
-const CK_SNIPPET = `import { CiFinder } from "@ci-finder/ckeditor";
+const CK_SNIPPET = `import { TheFinder } from "@thefinder/ckeditor";
 
 ClassicEditor.create(el, {
   licenseKey: "GPL",
-  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, CiFinder],
-  toolbar: ["bold", "link", "|", "ciFinder"],
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  plugins: [Essentials, Paragraph, Image, ImageUpload, Link, TheFinder],
+  toolbar: ["bold", "link", "|", "theFinder"],
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });`;
 
-const CK4_SNIPPET = `import { registerCiFinder } from "@ci-finder/ckeditor/v4";
+const CK4_SNIPPET = `import { registerTheFinder } from "@thefinder/ckeditor/v4";
 
-registerCiFinder(window.CKEDITOR);
+registerTheFinder(window.CKEDITOR);
 CKEDITOR.replace("body", {
-  extraPlugins: "cifinder,uploadimage",
-  ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+  extraPlugins: "thefinder,uploadimage",
+  theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
 });`;
 
 const INITIAL_HTML_4 =
-  "<p>CKEditor 4: araç çubuğundaki klasör düğmesine ek olarak <strong>Resim</strong> ve <strong>Bağlantı</strong> pencerelerindeki “Sunucuyu Gözat” düğmeleri de ciFinder'ı açar.</p>";
+  "<p>CKEditor 4: araç çubuğundaki klasör düğmesine ek olarak <strong>Resim</strong> ve <strong>Bağlantı</strong> pencerelerindeki “Sunucuyu Gözat” düğmeleri de theFinder'ı açar.</p>";
 
 const INITIAL_HTML =
   "<h2>Kapadokya notları</h2><p>Araç çubuğundaki <strong>klasör</strong> düğmesiyle dosya yöneticisini açın: görseller görsel olarak, diğer dosyalar bağlantı olarak eklenir. Panodan yapıştırılan görseller <code>/editor</code> klasörüne yüklenir.</p>";
@@ -63,7 +63,7 @@ export function Playground() {
     <div className="page is-scroll">
       <header className="bar">
         <div className="brand">
-          <strong>ciFinder</strong>
+          <strong>theFinder</strong>
           <span>playground</span>
         </div>
         <Nav />
@@ -74,7 +74,7 @@ export function Playground() {
           <header className="panel-head">
             <h2>Form alanı</h2>
             <p>
-              <code>useFilePicker</code> ciFinder&apos;ı seçici olarak açar ve seçilen dosyaları bir <code>Promise</code> ile döndürür. Aşağıdaki alanlar bu
+              <code>useFilePicker</code> theFinder&apos;ı seçici olarak açar ve seçilen dosyaları bir <code>Promise</code> ile döndürür. Aşağıdaki alanlar bu
               hook ile yazılmış küçük bir <code>FileField</code> bileşeni.
             </p>
           </header>
@@ -136,8 +136,8 @@ export function Playground() {
             <header className="panel-head">
               <h2>CKEditor 5</h2>
               <p>
-                <code>@ci-finder/ckeditor</code> connector&apos;ı: araç çubuğuna bir dosya yöneticisi düğmesi ekler ve yapıştırılan / sürüklenen görselleri
-                ciFinder üzerinden yükler (CKFinder&apos;ın yaptığı iş).
+                <code>@thefinder/ckeditor</code> connector&apos;ı: araç çubuğuna bir dosya yöneticisi düğmesi ekler ve yapıştırılan / sürüklenen görselleri
+                theFinder üzerinden yükler (CKFinder&apos;ın yaptığı iş).
               </p>
             </header>
 
@@ -154,8 +154,8 @@ export function Playground() {
             <header className="panel-head">
               <h2>CKEditor 4</h2>
               <p>
-                <code>@ci-finder/ckeditor/v4</code>: global <code>CKEDITOR</code> nesnesine bir <code>cifinder</code> eklentisi kaydeder. Araç çubuğu düğmesi,
-                pencerelerdeki “Sunucuyu Gözat” ve yapıştırılan görseller (<code>uploadimage</code>) ciFinder&apos;a bağlanır.
+                <code>@thefinder/ckeditor/v4</code>: global <code>CKEDITOR</code> nesnesine bir <code>thefinder</code> eklentisi kaydeder. Araç çubuğu düğmesi,
+                pencerelerdeki “Sunucuyu Gözat” ve yapıştırılan görseller (<code>uploadimage</code>) theFinder&apos;a bağlanır.
               </p>
             </header>
 

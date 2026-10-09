@@ -1,4 +1,4 @@
-# `@ci-finder/react`
+# `@thefinder/react`
 
 🌐 [English](../react.md) · **Türkçe**
 
@@ -6,17 +6,17 @@ Dosya yöneticisi arayüzü. Tek bağımlılığı `react` ve `react-dom`'dur (�
 
 ```tsx
 "use client";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 <div style={{ height: "100vh" }}>
-  <CiFinder endpoint="/api/files" locale="tr" />
+  <TheFinder endpoint="/api/files" locale="tr" />
 </div>
 ```
 
 `styles.css` bir kez, uygulamanın herhangi bir yerinde içe aktarılmalıdır. Bileşen ebeveyninin yüksekliğini doldurur (`height` prop'u ile değiştirilebilir).
 
-## `<CiFinder />`
+## `<TheFinder />`
 
 ### Bağlantı
 
@@ -25,7 +25,7 @@ import "@ci-finder/react/styles.css";
 | `endpoint` | `string` | Zorunlu. API adresi, örn. `"/api/files"` |
 | `headers` | `Record<string, string> \| () => Record<string, string>` | Her isteğe eklenecek başlıklar (örn. `Authorization`) |
 | `credentials` | `RequestCredentials` | Cross-origin API'de çerez için `"include"` |
-| `client` | `CiFinderClient` | Kendi yapılandırdığınız istemci. Verilirse `endpoint`/`headers`/`credentials` yerine kullanılır. |
+| `client` | `TheFinderClient` | Kendi yapılandırdığınız istemci. Verilirse `endpoint`/`headers`/`credentials` yerine kullanılır. |
 | `onUnauthorized` | `() => void` | API `401` döndüğünde çağrılır, örn. giriş sayfasına yönlendirmek için |
 
 ### Görünüm
@@ -39,7 +39,7 @@ import "@ci-finder/react/styles.css";
 | `density` | `"comfortable" \| "compact"` | `"comfortable"` | |
 | `settings` | `boolean` | `true` | Başlıkta tema, görünüm ve yoğunluk seçilen ayarlar menüsü. Kullanıcının seçimi `persistKey` altında saklanır ve prop'ları ezer; prop sonradan değişirse prop geçerli olur. |
 | `height` | `number \| string` | `"100%"` | |
-| `className`, `style` | | — | Kök öğeye (`.cf-root`) eklenir |
+| `className`, `style` | | — | Kök öğeye (`.tf-root`) eklenir |
 | `thumbnails` | `boolean` | `true` | Görsellerde küçük resim gösterir |
 
 ### Başlangıç durumu
@@ -48,7 +48,7 @@ import "@ci-finder/react/styles.css";
 |---|---|---|---|
 | `initialFolder` | `string` | ilk volume'ün kökü | İlk açılacak klasörün kimliği |
 | `defaultView` | `Partial<Prefs>` | — | Başlangıç tercihleri. Kullanıcının değiştirdikleri `persistKey` altında saklanır ve bunlardan önceliklidir. |
-| `persistKey` | `string \| false` | `"ci-finder"` | Tercihlerin saklanacağı localStorage anahtarı. `false` saklamaz. |
+| `persistKey` | `string \| false` | `"thefinder"` | Tercihlerin saklanacağı localStorage anahtarı. `false` saklamaz. |
 
 `Prefs`:
 
@@ -132,8 +132,8 @@ Döner: `{ open(overrides?), isOpen }`.
 React dışında (vanilla JS, Vue, zengin metin editörleri) aynı seçici. `<body>` sonuna bir `<dialog>` ekler, kapanınca kaldırır. React ve React DOM sayfada paketlenmiş olmalıdır.
 
 ```ts
-import { openFilePicker } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { openFilePicker } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 
 const files = await openFilePicker({ endpoint: "/api/files", accept: ".pdf" });
 if (files) input.value = files[0].url;
@@ -143,12 +143,12 @@ Sunucu tarafında (`document` yokken) hemen `null` döner.
 
 ### `FilePickerOptions`
 
-`<CiFinder />` prop'larının hepsi (`onSelect`, `onCancel`, `height`, `style` hariç) ve şunlar:
+`<TheFinder />` prop'larının hepsi (`onSelect`, `onCancel`, `height`, `style` hariç) ve şunlar:
 
 | Seçenek | Varsayılan | Açıklama |
 |---|---|---|
 | `absoluteUrls` | `false` | `url` alanında tam adres (`https://site/uploads/a.png`) döner |
-| `persistKey` | `"ci-finder-picker"` | Seçicinin görünüm tercihleri ana dosya yöneticisinden ayrı saklanır |
+| `persistKey` | `"thefinder-picker"` | Seçicinin görünüm tercihleri ana dosya yöneticisinden ayrı saklanır |
 
 Seçici `Escape` ile, arka plana tıklayarak ya da "Vazgeç" düğmesiyle kapanır. `Escape` önce açık menü ya da pencereleri kapatır.
 
@@ -163,7 +163,7 @@ Seçici `Escape` ile, arka plana tıklayarak ya da "Vazgeç" düğmesiyle kapan�
 `editors` prop'u, eşleşen dosyalar için "Birlikte aç" menüsüne bir öğe ekler. Editör, dosya yöneticisinin içinde tam ekran açılır.
 
 ```tsx
-import type { CustomEditor } from "@ci-finder/react";
+import type { CustomEditor } from "@thefinder/react";
 
 const csvViewer: CustomEditor = {
   id: "csv",
@@ -172,7 +172,7 @@ const csvViewer: CustomEditor = {
   render: ({ entry, store, onClose }) => <CsvTable url={store.fileUrl(entry)} title={entry.name} onClose={onClose} />,
 };
 
-<CiFinder endpoint="/api/files" editors={[csvViewer]} />
+<TheFinder endpoint="/api/files" editors={[csvViewer]} />
 ```
 
 | Alan | Açıklama |
@@ -186,7 +186,7 @@ Editör içinden kullanışlı store üyeleri:
 
 | Üye | Açıklama |
 |---|---|
-| `store.client` | Bağlı [`CiFinderClient`](client.md): `getContent`, `putContent`, `putBlob`… |
+| `store.client` | Bağlı [`TheFinderClient`](client.md): `getContent`, `putContent`, `putBlob`… |
 | `store.fileUrl(entry)` | Dosyanın adresi (volume `url`'i ya da API adresi) |
 | `store.updateEntry(entry)` | Kaydettikten sonra listedeki boyut ve tarihi günceller |
 | `store.toast(message, kind?)` | Bildirim; `kind`: `"info" \| "success" \| "error"` |
@@ -205,11 +205,11 @@ store.toast("Kaydedildi", "success");
 
 ## Store ve hook'lar
 
-Bileşen, `useSyncExternalStore` üzerine kurulu küçük bir store (`FinderStore`) kullanır. Store'a yalnızca `<CiFinder />` içinde render edilen bileşenlerden (örneğin özel editörler) erişilebilir.
+Bileşen, `useSyncExternalStore` üzerine kurulu küçük bir store (`FinderStore`) kullanır. Store'a yalnızca `<TheFinder />` içinde render edilen bileşenlerden (örneğin özel editörler) erişilebilir.
 
 | Dışa aktarım | Açıklama |
 |---|---|
-| `useFinder()` | Bağlam: `{ store, t, locale, editors, pickMode, multiple, … }`. `<CiFinder>` dışında çağrılırsa hata fırlatır. |
+| `useFinder()` | Bağlam: `{ store, t, locale, editors, pickMode, multiple, … }`. `<TheFinder>` dışında çağrılırsa hata fırlatır. |
 | `useStore(selector)` | Store'un bir dilimine abone olur: `const cwd = useStore((s) => s.cwd)`. Seçici, değişmeyen durum için aynı değeri dönmelidir. |
 | `FinderStore` | Store sınıfı. Durumu `store.getState()`, değişiklikleri `store.subscribe(fn)` ile izlenir. |
 | `FinderState` | Durum tipi: `cwd`, `selection`, `entries`, `volumes`, `uploads`, `clipboard`, `searchQuery`… |
@@ -228,10 +228,10 @@ Store metotları (`open`, `select`, `upload`, `paste`, `remove`…) arayüzün k
 Yeni bir dil eklemek için tüm anahtarları çevirip verin; eksik kalanlar İngilizce görünür:
 
 ```tsx
-import { locales, type Messages } from "@ci-finder/react";
+import { locales, type Messages } from "@thefinder/react";
 
 const de: Partial<Messages> = { upload: "Hochladen", newFolder: "Neuer Ordner" /* ... */ };
-<CiFinder endpoint="/api/files" locale="de" messages={de} />
+<TheFinder endpoint="/api/files" locale="de" messages={de} />
 ```
 
 Anahtarların tam listesi için `locales.en` nesnesine bakın.
@@ -248,41 +248,41 @@ Arayüzün elle çizilmiş SVG ikonları kendi bileşenlerinizde de kullanılabi
 
 ## Tema
 
-Tüm stiller `@layer ci-finder` içindedir. Katman dışında yazdığınız her kural onları ezer, `!important` gerekmez. Kök öğe `.cf-root`'tur. `data-theme` (`light`, `dark`, `auto`), `data-skin` (`classic`, `macos`) ve `data-density` öznitelikleri taşır.
+Tüm stiller `@layer thefinder` içindedir. Katman dışında yazdığınız her kural onları ezer, `!important` gerekmez. Kök öğe `.tf-root`'tur. `data-theme` (`light`, `dark`, `auto`), `data-skin` (`classic`, `macos`) ve `data-density` öznitelikleri taşır.
 
 ```css
-.cf-root {
-  --cf-accent: #0f766e;
-  --cf-radius: 4px;
-  --cf-font: "Inter", system-ui, sans-serif;
+.tf-root {
+  --tf-accent: #0f766e;
+  --tf-radius: 4px;
+  --tf-font: "Inter", system-ui, sans-serif;
 }
-.cf-root[data-theme="dark"] {
-  --cf-bg: #101418;
+.tf-root[data-theme="dark"] {
+  --tf-bg: #101418;
 }
 ```
 
 | Değişken | Açıklama |
 |---|---|
-| `--cf-font`, `--cf-mono` | Yazı tipleri |
-| `--cf-accent` | Vurgu rengi (seçim, birincil düğme, odak) |
-| `--cf-accent-text` | Vurgu dolgusu üzerindeki metin |
-| `--cf-accent-ink` | Nötr zemin üzerindeki vurgu metni (bağlantılar); kontrast için ayrı tutulur |
-| `--cf-accent-soft`, `--cf-accent-line` | Vurgunun açık dolgu ve çizgi tonları (varsayılan olarak `--cf-accent`'ten türetilir) |
-| `--cf-bg`, `--cf-surface`, `--cf-chrome`, `--cf-field` | Arka plan, paneller, üst/alt çubuklar, giriş alanları |
-| `--cf-line`, `--cf-line-strong` | Çizgiler |
-| `--cf-text`, `--cf-text-2`, `--cf-text-3` | Metin, ikincil metin, soluk metin |
-| `--cf-hover`, `--cf-press`, `--cf-sel`, `--cf-sel-muted` | Üzerine gelme, basma, seçim, odak dışı seçim |
-| `--cf-danger`, `--cf-success`, `--cf-warn` | Durum renkleri |
-| `--cf-folder-back`, `--cf-folder-front`, `--cf-page`, `--cf-page-line` | Klasör ve dosya ikonları |
-| `--cf-code-bg`, `--cf-code-active` | Kod editörü zemini ve aktif satır |
-| `--cf-toast-bg`, `--cf-toast-text` | Bildirimler |
-| `--cf-backdrop`, `--cf-shadow-pop`, `--cf-shadow-dialog` | Modal arka planı ve gölgeler |
-| `--cf-radius`, `--cf-radius-lg` | Köşe yuvarlaklığı |
-| `--cf-header-h`, `--cf-toolbar-h`, `--cf-status-h`, `--cf-details-w` | Çubuk yükseklikleri ve ayrıntılar paneli genişliği |
+| `--tf-font`, `--tf-mono` | Yazı tipleri |
+| `--tf-accent` | Vurgu rengi (seçim, birincil düğme, odak) |
+| `--tf-accent-text` | Vurgu dolgusu üzerindeki metin |
+| `--tf-accent-ink` | Nötr zemin üzerindeki vurgu metni (bağlantılar); kontrast için ayrı tutulur |
+| `--tf-accent-soft`, `--tf-accent-line` | Vurgunun açık dolgu ve çizgi tonları (varsayılan olarak `--tf-accent`'ten türetilir) |
+| `--tf-bg`, `--tf-surface`, `--tf-chrome`, `--tf-field` | Arka plan, paneller, üst/alt çubuklar, giriş alanları |
+| `--tf-line`, `--tf-line-strong` | Çizgiler |
+| `--tf-text`, `--tf-text-2`, `--tf-text-3` | Metin, ikincil metin, soluk metin |
+| `--tf-hover`, `--tf-press`, `--tf-sel`, `--tf-sel-muted` | Üzerine gelme, basma, seçim, odak dışı seçim |
+| `--tf-danger`, `--tf-success`, `--tf-warn` | Durum renkleri |
+| `--tf-folder-back`, `--tf-folder-front`, `--tf-page`, `--tf-page-line` | Klasör ve dosya ikonları |
+| `--tf-code-bg`, `--tf-code-active` | Kod editörü zemini ve aktif satır |
+| `--tf-toast-bg`, `--tf-toast-text` | Bildirimler |
+| `--tf-backdrop`, `--tf-shadow-pop`, `--tf-shadow-dialog` | Modal arka planı ve gölgeler |
+| `--tf-radius`, `--tf-radius-lg` | Köşe yuvarlaklığı |
+| `--tf-header-h`, `--tf-toolbar-h`, `--tf-status-h`, `--tf-details-w` | Çubuk yükseklikleri ve ayrıntılar paneli genişliği |
 | `--tk-*` | Kod editörü sözdizimi renkleri (`--tk-kw`, `--tk-str`, `--tk-com`, `--tk-num`, `--tk-fn`, `--tk-type`, `--tk-prop`…) |
 
-Sınıfların hepsi `cf-` öneklidir. Değişken dışındaki sınıflar iç yapıdır ve küçük sürümlerde değişebilir.
+Sınıfların hepsi `tf-` öneklidir. Değişken dışındaki sınıflar iç yapıdır ve küçük sürümlerde değişebilir.
 
 ## Yeniden dışa aktarımlar
 
-`createClient`, `CiFinderClient`, `ApiError`, `encodeId` ve `Entry`, `VolumeInfo` tipleri `@ci-finder/core/client`'tan aynen gelir.
+`createClient`, `TheFinderClient`, `ApiError`, `encodeId` ve `Entry`, `VolumeInfo` tipleri `@thefinder/core/client`'tan aynen gelir.

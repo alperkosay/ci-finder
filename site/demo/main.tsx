@@ -1,8 +1,8 @@
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { createCiFinder } from "@ci-finder/core";
-import { CiFinder } from "@ci-finder/react";
-import "@ci-finder/react/styles.css";
+import { createTheFinder } from "@thefinder/core";
+import { TheFinder } from "@thefinder/react";
+import "@thefinder/react/styles.css";
 import { MemoryDriver } from "./memory-driver";
 import { seed, teamName, type DemoLang } from "./seed";
 
@@ -13,11 +13,11 @@ const params = new URLSearchParams(location.search);
 const asked = params.get("lang");
 const lang: DemoLang = asked === "tr" || asked === "en" ? asked : navigator.language.toLowerCase().startsWith("tr") ? "tr" : "en";
 document.documentElement.lang = lang;
-if (lang === "tr") document.title = "Canlı demo · ciFinder";
+if (lang === "tr") document.title = "Canlı demo · theFinder";
 
 const demo = new MemoryDriver(200 * MiB);
 const team = new MemoryDriver(20 * MiB);
-const finder = createCiFinder({
+const finder = createTheFinder({
   chunkSize: MiB,
   volumes: [
     { id: "demo", name: "Demo", driver: demo, maxUploadSize: 50 * MiB, denyExtensions: ["exe"] },
@@ -27,7 +27,7 @@ const finder = createCiFinder({
 const seeded = seed(finder, demo, team, lang);
 
 interface WireRequest {
-  type: "ci-finder:request";
+  type: "thefinder:request";
   url: string;
   method: string;
   headers: [string, string][];
@@ -71,7 +71,7 @@ async function connect(): Promise<boolean> {
   if (!("serviceWorker" in navigator)) return false;
   const sw = navigator.serviceWorker;
   sw.onmessage = (e) => {
-    if (e.data?.type === "ci-finder:request") void answer(e.data as WireRequest, e.ports[0]!);
+    if (e.data?.type === "thefinder:request") void answer(e.data as WireRequest, e.ports[0]!);
   };
   const reg = await sw.register("./sw.js", { scope: "./" });
   if (sw.controller) return true;
@@ -93,7 +93,7 @@ function Demo() {
       {!embedded && (
         <header className="bar">
           <a className="bar-back" href={lang === "tr" ? "../tr/" : "../"}>
-            ciFinder
+            theFinder
           </a>
           <p className="bar-note">
             {locale === "tr"
@@ -111,7 +111,7 @@ function Demo() {
         </header>
       )}
       <main className="stage">
-        <CiFinder endpoint="./api/files" locale={locale} persistKey="ci-finder-demo" />
+        <TheFinder endpoint="./api/files" locale={locale} persistKey="thefinder-demo" />
       </main>
     </>
   );

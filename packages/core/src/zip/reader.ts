@@ -1,4 +1,4 @@
-import { CiFinderError } from "../errors";
+import { TheFinderError } from "../errors";
 import { readAll } from "../stream";
 import type { ByteRange } from "../types";
 
@@ -26,7 +26,7 @@ async function readRange(read: RangeReader, start: number, length: number): Prom
 }
 
 function invalid(): never {
-  throw new CiFinderError("INVALID_ARCHIVE", "The file is not a valid ZIP archive");
+  throw new TheFinderError("INVALID_ARCHIVE", "The file is not a valid ZIP archive");
 }
 
 const u64 = (v: DataView, o: number) => Number(v.getBigUint64(o, true));
@@ -114,7 +114,7 @@ export async function readZipEntries(read: RangeReader, fileSize: number): Promi
 /** Returns the decompressed content of one entry as a stream. Supports STORE and DEFLATE. */
 export async function openZipEntry(read: RangeReader, entry: ZipEntry): Promise<ReadableStream<Uint8Array>> {
   if (entry.method !== 0 && entry.method !== 8) {
-    throw new CiFinderError("UNSUPPORTED", `Compression method ${entry.method} is not supported`);
+    throw new TheFinderError("UNSUPPORTED", `Compression method ${entry.method} is not supported`);
   }
   const header = await readRange(read, entry.localHeaderOffset, 30);
   if (header.getUint32(0, true) !== 0x04034b50) invalid();

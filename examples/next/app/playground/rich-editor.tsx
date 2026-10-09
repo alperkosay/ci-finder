@@ -5,7 +5,7 @@ import type { ClassicEditor } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 
 /**
- * CKEditor 5 wired to ciFinder through `@ci-finder/ckeditor`: the folder button in the toolbar
+ * CKEditor 5 wired to theFinder through `@thefinder/ckeditor`: the folder button in the toolbar
  * opens the file manager, pasted / dropped images are uploaded to `/editor`.
  * The editor is loaded on the client only (it needs `window`).
  */
@@ -18,7 +18,7 @@ export function RichEditor({ initialData, onChange }: { initialData: string; onC
     let cancelled = false;
     const created = (async (): Promise<ClassicEditor | null> => {
       const ck = await import("ckeditor5");
-      const { CiFinder } = await import("@ci-finder/ckeditor");
+      const { TheFinder } = await import("@thefinder/ckeditor");
       const tr = (await import("ckeditor5/translations/tr.js")).default;
       if (cancelled || !host.current) return null;
       const editor = await ck.ClassicEditor.create(host.current, {
@@ -43,14 +43,14 @@ export function RichEditor({ initialData, onChange }: { initialData: string; onC
           ck.ImageUpload,
           ck.ImageInsertViaUrl,
           ck.PasteFromOffice,
-          CiFinder,
+          TheFinder,
         ],
-        toolbar: ["heading", "|", "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote", "|", "ciFinder", "|", "undo", "redo"],
+        toolbar: ["heading", "|", "bold", "italic", "link", "bulletedList", "numberedList", "blockQuote", "|", "theFinder", "|", "undo", "redo"],
         image: {
           toolbar: ["imageStyle:inline", "imageStyle:block", "imageStyle:side", "|", "toggleImageCaption", "imageTextAlternative"],
         },
         link: { defaultProtocol: "https://" },
-        ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+        theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
         initialData,
       });
       editor.model.document.on("change:data", () => latest.current(editor.getData()));

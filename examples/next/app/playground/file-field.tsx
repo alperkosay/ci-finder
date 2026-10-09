@@ -1,12 +1,12 @@
 "use client";
 
 import { useId } from "react";
-import { useFilePicker, type Accept, type PickedFile } from "@ci-finder/react";
+import { useFilePicker, type Accept, type PickedFile } from "@thefinder/react";
 
 const IMAGE = /\.(png|jpe?g|gif|webp|avif|svg)(\?|$)/i;
 
 /**
- * A text input with a "Choose" button next to it. The button opens ciFinder as a picker and writes
+ * A text input with a "Choose" button next to it. The button opens theFinder as a picker and writes
  * the chosen file's URL into the input; the input stays editable, so a URL can also be pasted.
  */
 export function FileField({

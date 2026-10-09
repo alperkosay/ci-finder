@@ -1,16 +1,16 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { CiFinder, encodeId } from "../src/index";
+import { TheFinder, encodeId } from "../src/index";
 
 export async function tempDir(): Promise<{ dir: string; cleanup: () => Promise<void> }> {
-  const dir = await mkdtemp(join(tmpdir(), "ci-finder-test-"));
+  const dir = await mkdtemp(join(tmpdir(), "thefinder-test-"));
   return { dir, cleanup: () => rm(dir, { recursive: true, force: true }) };
 }
 
-export function api(finder: CiFinder, role?: string) {
+export function api(finder: TheFinder, role?: string) {
   const roleHeader: Record<string, string> = role ? { "x-role": role } : {};
-  const post = async <T = any>(cmd: string, body: Record<string, unknown> = {}, headers: Record<string, string> = { "x-ci-finder": "1", ...roleHeader }) => {
+  const post = async <T = any>(cmd: string, body: Record<string, unknown> = {}, headers: Record<string, string> = { "x-thefinder": "1", ...roleHeader }) => {
     const res = await finder.handler(
       new Request("http://localhost/api/files", {
         method: "POST",
@@ -54,7 +54,7 @@ export function api(finder: CiFinder, role?: string) {
       if (session) form.set("session", session);
       for (const [k, v] of Object.entries(extra)) form.set(k, v);
       form.set("chunk", new Blob([data.slice(offset, offset + chunkSize)]), name);
-      const res = await finder.handler(new Request("http://localhost/api/files", { method: "POST", headers: { "x-ci-finder": "1" }, body: form }));
+      const res = await finder.handler(new Request("http://localhost/api/files", { method: "POST", headers: { "x-thefinder": "1" }, body: form }));
       last = await res.json();
       if (!last.ok) throw new Error(`upload failed: ${last.error.code} ${last.error.message}`);
       session = last.data.session;

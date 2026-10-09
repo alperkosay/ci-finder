@@ -41,16 +41,16 @@ const STATUS: Record<ErrorCode, number> = {
   INTERNAL: 500,
 };
 
-export class CiFinderError extends Error {
+export class TheFinderError extends Error {
   readonly code: ErrorCode;
   readonly status: number;
 
   constructor(code: ErrorCode, message: string = code) {
     super(message);
-    this.name = "CiFinderError";
+    this.name = "TheFinderError";
     this.code = code;
     this.status = STATUS[code];
   }
 }
 
-export const isCiFinderError = (e: unknown): e is CiFinderError => e instanceof CiFinderError;
+export const isTheFinderError = (e: unknown): e is TheFinderError => e instanceof TheFinderError;

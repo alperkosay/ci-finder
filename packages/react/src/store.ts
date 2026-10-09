@@ -1,4 +1,4 @@
-import { ApiError, type CiFinderClient, type ConflictMode, type Entry, type InitResult, type VolumeInfo } from "@ci-finder/core/client";
+import { ApiError, type TheFinderClient, type ConflictMode, type Entry, type InitResult, type VolumeInfo } from "@thefinder/core/client";
 import { baseOf, categoryOf, createCollator, extOf, isEditableText } from "./format";
 import type { MessageKey, Translate } from "./i18n";
 
@@ -104,7 +104,7 @@ export interface State extends Prefs {
 }
 
 export interface StoreOptions {
-  client: CiFinderClient;
+  client: TheFinderClient;
   t: Translate;
   locale: string;
   persistKey?: string | false;

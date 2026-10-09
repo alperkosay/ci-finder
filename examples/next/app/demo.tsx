@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CiFinder } from "@ci-finder/react";
+import { TheFinder } from "@thefinder/react";
 import { Nav } from "./nav";
 
 type Theme = "auto" | "light" | "dark";
@@ -41,7 +41,7 @@ export function Demo() {
             <circle cx="20" cy="24" r="4.5" fill="none" stroke="#7a5310" strokeWidth="2" />
             <path d="M23.3 27.3 26.5 30.5" stroke="#7a5310" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          <strong>ciFinder</strong>
+          <strong>theFinder</strong>
           <span>0.1</span>
         </div>
         <Nav />
@@ -86,7 +86,7 @@ export function Demo() {
         </div>
       </header>
       <main className="stage">
-        <CiFinder key={locale} endpoint="/api/files" locale={locale} theme={theme} skin={skin} density={density} />
+        <TheFinder key={locale} endpoint="/api/files" locale={locale} theme={theme} skin={skin} density={density} />
       </main>
     </div>
   );

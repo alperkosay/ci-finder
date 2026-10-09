@@ -1,4 +1,4 @@
-# @ci-finder/ckeditor
+# @thefinder/ckeditor
 
 ## 0.1.1
 

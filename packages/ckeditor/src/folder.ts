@@ -1,4 +1,4 @@
-import { ApiError, encodeId, type CiFinderClient } from "@ci-finder/core/client";
+import { ApiError, encodeId, type TheFinderClient } from "@thefinder/core/client";
 
 export type UploadFolder = string | { volume: string; path: string };
 
@@ -6,7 +6,7 @@ export type UploadFolder = string | { volume: string; path: string };
  * Resolves the id of the upload folder, creating missing folders along the path. The usual case
  * (the folder exists) costs one request.
  */
-export async function ensureFolder(client: CiFinderClient, setting: UploadFolder): Promise<string> {
+export async function ensureFolder(client: TheFinderClient, setting: UploadFolder): Promise<string> {
   const { volumes } = await client.init();
   const { volume, path } = typeof setting === "string" ? { volume: volumes[0]!.id, path: setting } : setting;
   const segments = path.split("/").filter(Boolean);

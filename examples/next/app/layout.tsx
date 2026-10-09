@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import "@ci-finder/react/styles.css";
+import "@thefinder/react/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ciFinder",
+  title: "theFinder",
   description: "File manager for React, Next.js, Node.js and Bun",
 };
 

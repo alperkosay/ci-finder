@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, useFinder, useStore, useVisible } from "../context";
 import { categoryOf, formatSize, isEditableImage, isEditableText, kindLabel } from "../format";
 import { FileIcon, Icon, Spinner } from "../icons";
@@ -32,16 +32,16 @@ function TextPreview({ entry, markdown }: { entry: Entry; markdown: boolean }) {
     if (state.content === undefined) return "";
     if (markdown) return renderMarkdown(state.content);
     return toLines(tokenize(state.content.replace(/\r\n/g, "\n"), langOf(entry.name)))
-      .map((l) => `<span class="cf-ln">${l || "​"}</span>`)
+      .map((l) => `<span class="tf-ln">${l || "​"}</span>`)
       .join("");
   }, [state.content, markdown, entry.name]);
 
-  if (state.error) return <div className="cf-ql-empty">{state.error}</div>;
+  if (state.error) return <div className="tf-ql-empty">{state.error}</div>;
   if (state.content === undefined) return <Spinner size={20} />;
   return markdown ? (
-    <div className="cf-md cf-ql-md" dangerouslySetInnerHTML={{ __html: html }} />
+    <div className="tf-md tf-ql-md" dangerouslySetInnerHTML={{ __html: html }} />
   ) : (
-    <pre className="cf-ql-code cf-code-hl" dangerouslySetInnerHTML={{ __html: html }} />
+    <pre className="tf-ql-code tf-code-hl" dangerouslySetInnerHTML={{ __html: html }} />
   );
 }
 
@@ -55,21 +55,21 @@ function Body({ entry }: { entry: Entry }) {
   switch (category) {
     case "image":
       return (
-        <div className={cx("cf-ql-image", zoom && "is-zoomed")} onClick={() => setZoom((z) => !z)}>
+        <div className={cx("tf-ql-image", zoom && "is-zoomed")} onClick={() => setZoom((z) => !z)}>
           <img src={src} alt={entry.name} draggable={false} />
         </div>
       );
     case "video":
-      return <video key={entry.id} className="cf-ql-video" src={src} controls autoPlay playsInline />;
+      return <video key={entry.id} className="tf-ql-video" src={src} controls autoPlay playsInline />;
     case "audio":
       return (
-        <div className="cf-ql-audio">
+        <div className="tf-ql-audio">
           <FileIcon entry={entry} size={120} />
           <audio key={entry.id} src={src} controls autoPlay />
         </div>
       );
     case "pdf":
-      return <iframe key={entry.id} className="cf-ql-frame" src={src} title={entry.name} />;
+      return <iframe key={entry.id} className="tf-ql-frame" src={src} title={entry.name} />;
     case "markdown":
       return <TextPreview entry={entry} markdown />;
     case "code":
@@ -77,14 +77,14 @@ function Body({ entry }: { entry: Entry }) {
       return <TextPreview entry={entry} markdown={false} />;
     default:
       return (
-        <div className="cf-ql-empty">
+        <div className="tf-ql-empty">
           <FileIcon entry={entry} size={120} />
           <strong>{entry.name}</strong>
           <span>
             {kindLabel(entry, t)} · {formatSize(entry.size, locale)}
           </span>
-          <span className="cf-dim">{t("previewUnavailable")}</span>
-          <button type="button" className="cf-btn is-primary" onClick={() => store.download([entry])}>
+          <span className="tf-dim">{t("previewUnavailable")}</span>
+          <button type="button" className="tf-btn is-primary" onClick={() => store.download([entry])}>
             <Icon name="download" />
             <span>{t("download")}</span>
           </button>
@@ -111,9 +111,9 @@ export function QuickLook() {
   };
 
   return (
-    <Modal label={entry.name} onCancel={close} className="cf-quicklook" wide>
+    <Modal label={entry.name} onCancel={close} className="tf-quicklook" wide>
       <div
-        className="cf-ql"
+        className="tf-ql"
         tabIndex={-1}
         onKeyDown={(e) => {
           if ((e.target as HTMLElement).closest("video, audio, input, textarea")) return;
@@ -127,50 +127,50 @@ export function QuickLook() {
           }
         }}
       >
-        <header className="cf-ql-head">
-          <div className="cf-editor-title">
+        <header className="tf-ql-head">
+          <div className="tf-editor-title">
             <strong>{entry.name}</strong>
             <span>
               {formatSize(entry.size, locale)}
               {files.length > 1 && index >= 0 && ` · ${index + 1} / ${files.length}`}
             </span>
           </div>
-          <div className="cf-editor-tools">
+          <div className="tf-editor-tools">
             {files.length > 1 && (
               <>
-                <button type="button" className="cf-btn is-icon" aria-label={t("back")} onClick={() => go(-1)}>
+                <button type="button" className="tf-btn is-icon" aria-label={t("back")} onClick={() => go(-1)}>
                   <Icon name="back" />
                 </button>
-                <button type="button" className="cf-btn is-icon" aria-label={t("forward")} onClick={() => go(1)}>
+                <button type="button" className="tf-btn is-icon" aria-label={t("forward")} onClick={() => go(1)}>
                   <Icon name="forward" />
                 </button>
-                <span className="cf-tool-sep" />
+                <span className="tf-tool-sep" />
               </>
             )}
             {isEditableText(entry) && entry.write && (
-              <button type="button" className="cf-btn" onClick={() => store.set({ preview: null, editor: { id: entry.id, type: "code" } })}>
+              <button type="button" className="tf-btn" onClick={() => store.set({ preview: null, editor: { id: entry.id, type: "code" } })}>
                 <Icon name="code" />
                 <span>{t("edit")}</span>
               </button>
             )}
             {isEditableImage(entry) && entry.write && (
-              <button type="button" className="cf-btn" onClick={() => store.set({ preview: null, editor: { id: entry.id, type: "image" } })}>
+              <button type="button" className="tf-btn" onClick={() => store.set({ preview: null, editor: { id: entry.id, type: "image" } })}>
                 <Icon name="image" />
                 <span>{t("edit")}</span>
               </button>
             )}
-            <a className="cf-btn is-icon" href={store.fileUrl(entry)} target="_blank" rel="noopener noreferrer" aria-label={t("open")} title={t("open")}>
+            <a className="tf-btn is-icon" href={store.fileUrl(entry)} target="_blank" rel="noopener noreferrer" aria-label={t("open")} title={t("open")}>
               <Icon name="external" />
             </a>
-            <button type="button" className="cf-btn is-icon" aria-label={t("download")} title={t("download")} onClick={() => store.download([entry])}>
+            <button type="button" className="tf-btn is-icon" aria-label={t("download")} title={t("download")} onClick={() => store.download([entry])}>
               <Icon name="download" />
             </button>
-            <button type="button" className="cf-btn is-icon" aria-label={t("close")} title={t("close")} onClick={close} autoFocus>
+            <button type="button" className="tf-btn is-icon" aria-label={t("close")} title={t("close")} onClick={close} autoFocus>
               <Icon name="close" />
             </button>
           </div>
         </header>
-        <div className="cf-ql-body">
+        <div className="tf-ql-body">
           <Body entry={entry} />
         </div>
       </div>

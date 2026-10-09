@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { createClient, type CiFinderClient, type Entry } from "@ci-finder/core/client";
+import { createClient, type TheFinderClient, type Entry } from "@thefinder/core/client";
 import { getActions } from "./actions";
 import { cx, FinderContext, isMac, modKey, useAppearance, useElementSize, useFinder, useStore, type CustomEditor, type FinderContextValue } from "./context";
 import { matchesAccept, type Accept } from "./format";
@@ -23,15 +23,15 @@ import { CodeEditor } from "./editors/CodeEditor";
 import { ImageEditor } from "./editors/ImageEditor";
 import { Icon, Spinner } from "./icons";
 
-export interface CiFinderProps {
-  /** URL of the ciFinder API route, e.g. "/api/files". */
+export interface TheFinderProps {
+  /** URL of theFinder's API route, e.g. "/api/files". */
   endpoint: string;
   /** Extra request headers (e.g. Authorization). */
   headers?: Record<string, string> | (() => Record<string, string>);
   /** Fetch credentials mode for cross-origin APIs. */
   credentials?: RequestCredentials;
   /** Bring your own configured client instead of `endpoint`/`headers`. */
-  client?: CiFinderClient;
+  client?: TheFinderClient;
 
   /** "tr" | "en" or any locale with `messages`. Default: browser language when supported, else "en". */
   locale?: string;
@@ -57,7 +57,7 @@ export interface CiFinderProps {
   initialFolder?: string;
   /** Initial view preferences (user changes are remembered under `persistKey`). */
   defaultView?: Partial<Prefs>;
-  /** localStorage key for remembering view/sort/panels. `false` disables. Default: "ci-finder". */
+  /** localStorage key for remembering view/sort/panels. `false` disables. Default: "thefinder". */
   persistKey?: string | false;
   /** Show image thumbnails. Default: true. */
   thumbnails?: boolean;
@@ -113,7 +113,7 @@ function EditorHost() {
   return custom ? <>{custom.render({ entry, store, onClose: close })}</> : null;
 }
 
-function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "className" | "style">) {
+function Shell({ height, className, style }: Pick<TheFinderProps, "height" | "className" | "style">) {
   const ctx = useFinder();
   const { store, t, rootRef } = ctx;
   const { theme, skin, density } = useAppearance();
@@ -161,12 +161,12 @@ function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "cla
     if ((mod && key === "r") || e.key === "F5") return run(actions.refresh);
     if (mod && key === "f") {
       e.preventDefault();
-      rootRef.current?.querySelector<HTMLInputElement>("[data-cf-search]")?.focus();
+      rootRef.current?.querySelector<HTMLInputElement>("[data-tf-search]")?.focus();
       return;
     }
     if (e.key === "/" && !mod) {
       e.preventDefault();
-      rootRef.current?.querySelector<HTMLInputElement>("[data-cf-search]")?.focus();
+      rootRef.current?.querySelector<HTMLInputElement>("[data-tf-search]")?.focus();
       return;
     }
     if (e.key === "F2") return run(actions.rename);
@@ -182,7 +182,7 @@ function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "cla
     }
   };
 
-  const rootStyle = { ...style, height: height ?? style?.height ?? "100%", "--cf-sidebar-w": `${sidebarWidth}px` } as CSSProperties;
+  const rootStyle = { ...style, height: height ?? style?.height ?? "100%", "--tf-sidebar-w": `${sidebarWidth}px` } as CSSProperties;
 
   return (
     <div
@@ -190,7 +190,7 @@ function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "cla
         rootRef.current = el;
         (sizeRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
       }}
-      className={cx("cf-root", narrow && "is-narrow", className)}
+      className={cx("tf-root", narrow && "is-narrow", className)}
       data-theme={theme}
       data-skin={skin}
       data-density={density}
@@ -198,35 +198,35 @@ function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "cla
       onKeyDown={onKeyDown}
     >
       {initError ? (
-        <div className="cf-fatal">
+        <div className="tf-fatal">
           <Icon name="alert" size={28} />
           <strong>{t("errorGeneric")}</strong>
           <span>{initError}</span>
-          <button type="button" className="cf-btn" onClick={() => store.init()}>
+          <button type="button" className="tf-btn" onClick={() => store.init()}>
             {t("retry")}
           </button>
         </div>
       ) : !ready ? (
-        <div className="cf-fatal">
+        <div className="tf-fatal">
           <Spinner size={22} />
         </div>
       ) : (
         <>
           <Header />
           <Toolbar />
-          <div className={cx("cf-body", sidebarOpen && "has-sidebar", detailsOpen && "has-details")}>
+          <div className={cx("tf-body", sidebarOpen && "has-sidebar", detailsOpen && "has-details")}>
             {sidebarOpen && (
               <>
-                {narrow && <div className="cf-scrim" onClick={() => store.set({ sidebarOpen: false })} />}
+                {narrow && <div className="tf-scrim" onClick={() => store.set({ sidebarOpen: false })} />}
                 <Sidebar />
               </>
             )}
-            <div className="cf-main">
+            <div className="tf-main">
               <FileView density={density} />
             </div>
             {detailsOpen && (
               <>
-                {narrow && <div className="cf-scrim" onClick={() => store.set({ detailsOpen: false })} />}
+                {narrow && <div className="tf-scrim" onClick={() => store.set({ detailsOpen: false })} />}
                 <DetailsPanel />
               </>
             )}
@@ -248,17 +248,17 @@ function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "cla
 }
 
 /**
- * ciFinder file manager.
+ * theFinder file manager.
  *
  * ```tsx
- * import { CiFinder } from "@ci-finder/react";
- * import "@ci-finder/react/styles.css";
+ * import { TheFinder } from "@thefinder/react";
+ * import "@thefinder/react/styles.css";
  *
- * <CiFinder endpoint="/api/files" locale="tr" />
+ * <TheFinder endpoint="/api/files" locale="tr" />
  * ```
  */
-export function CiFinder(props: CiFinderProps) {
-  const { endpoint, headers, credentials, locale: localeProp, messages, persistKey = "ci-finder", initialFolder } = props;
+export function TheFinder(props: TheFinderProps) {
+  const { endpoint, headers, credentials, locale: localeProp, messages, persistKey = "thefinder", initialFolder } = props;
   const locale = localeProp ?? defaultLocale();
   const t = useMemo(() => createTranslator(locale, messages), [locale, messages]);
   const rootRef = useRef<HTMLDivElement | null>(null);

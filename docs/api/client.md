@@ -1,18 +1,18 @@
-# `@ci-finder/core/client`
+# `@thefinder/core/client`
 
 🌐 **English** · [Türkçe](tr/client.md)
 
-A dependency-free API client that wraps the [HTTP protocol](protocol.md). The UI uses it, and you can use it to build your own UI in the browser, in Node.js, in Bun or in another framework (Vue, Svelte, vanilla JS). `createClient`, `CiFinderClient`, `ApiError` and `encodeId` can also be imported from `@ci-finder/react`.
+A dependency-free API client that wraps the [HTTP protocol](protocol.md). The UI uses it, and you can use it to build your own UI in the browser, in Node.js, in Bun or in another framework (Vue, Svelte, vanilla JS). `createClient`, `TheFinderClient`, `ApiError` and `encodeId` can also be imported from `@thefinder/react`.
 
 ```ts
-import { createClient, ApiError } from "@ci-finder/core/client";
+import { createClient, ApiError } from "@thefinder/core/client";
 
 const client = createClient({ endpoint: "/api/files" });
 const { volumes } = await client.init();
 const { entries } = await client.ls(volumes[0].root.id);
 ```
 
-## `createClient(options)` / `new CiFinderClient(options)`
+## `createClient(options)` / `new TheFinderClient(options)`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -21,7 +21,7 @@ const { entries } = await client.ls(volumes[0].root.id);
 | `credentials` | `RequestCredentials` | `"same-origin"` | `"include"` to send cookies to a cross-origin API |
 | `fetch` | `typeof fetch` | global `fetch` | A custom `fetch`. When given, uploads also use this `fetch` instead of XHR (no byte-level progress). |
 
-Mutating requests are sent with `POST` and the `x-ci-finder` header.
+Mutating requests are sent with `POST` and the `x-thefinder` header.
 
 ## Methods
 

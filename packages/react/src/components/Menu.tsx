@@ -165,10 +165,10 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
 
   const sub = openSub !== null ? entries[openSub] : undefined;
   return (
-    <div ref={layer} className="cf-menu-layer">
+    <div ref={layer} className="tf-menu-layer">
       <div
         ref={ref}
-        className="cf-menu"
+        className="tf-menu"
         role="menu"
         aria-label={label}
         tabIndex={-1}
@@ -178,13 +178,13 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
           armed.current = true;
         }}
         onContextMenu={(e) => e.preventDefault()}
-        aria-activedescendant={active >= 0 ? `cf-mi-${active}` : undefined}
+        aria-activedescendant={active >= 0 ? `tf-mi-${active}` : undefined}
       >
         {entries.map((e, i) => {
-          if (e.type === "separator") return <div key={`s${i}`} className="cf-menu-sep" role="separator" />;
+          if (e.type === "separator") return <div key={`s${i}`} className="tf-menu-sep" role="separator" />;
           if (e.type === "label")
             return (
-              <div key={`l${i}`} className="cf-menu-label">
+              <div key={`l${i}`} className="tf-menu-label">
                 {e.label}
               </div>
             );
@@ -192,19 +192,19 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
             return (
               <div
                 key={e.id}
-                id={`cf-mi-${i}`}
+                id={`tf-mi-${i}`}
                 role="menuitem"
                 aria-haspopup="menu"
                 aria-expanded={openSub === i}
-                className={cx("cf-menu-item", active === i && "is-active")}
+                className={cx("tf-menu-item", active === i && "is-active")}
                 onPointerEnter={() => {
                   setActive(i);
                   setOpenSub(i);
                 }}
                 onClick={() => setOpenSub(i)}
               >
-                <span className="cf-menu-icon">{e.icon && <Icon name={e.icon} />}</span>
-                <span className="cf-menu-text">{e.label}</span>
+                <span className="tf-menu-icon">{e.icon && <Icon name={e.icon} />}</span>
+                <span className="tf-menu-text">{e.label}</span>
                 <Icon name="chevronRight" size={14} />
               </div>
             );
@@ -213,20 +213,20 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
           return (
             <div
               key={action.id}
-              id={`cf-mi-${i}`}
+              id={`tf-mi-${i}`}
               role={checked === undefined ? "menuitem" : "menuitemradio"}
               aria-checked={checked}
               aria-disabled={!action.enabled || undefined}
-              className={cx("cf-menu-item", active === i && "is-active", action.danger && "is-danger", !action.enabled && "is-disabled")}
+              className={cx("tf-menu-item", active === i && "is-active", action.danger && "is-danger", !action.enabled && "is-disabled")}
               onPointerEnter={() => {
                 setActive(action.enabled ? i : -1);
                 setOpenSub(null);
               }}
               onClick={() => armed.current && activate(i)}
             >
-              <span className="cf-menu-icon">{checked ? <Icon name="check" /> : action.icon && <Icon name={action.icon} />}</span>
-              <span className="cf-menu-text">{action.label}</span>
-              {action.shortcut && <kbd className="cf-menu-kbd">{shortcut(action.shortcut)}</kbd>}
+              <span className="tf-menu-icon">{checked ? <Icon name="check" /> : action.icon && <Icon name={action.icon} />}</span>
+              <span className="tf-menu-text">{action.label}</span>
+              {action.shortcut && <kbd className="tf-menu-kbd">{shortcut(action.shortcut)}</kbd>}
             </div>
           );
         })}
@@ -263,7 +263,7 @@ function SubMenu({
 }) {
   const [pos, setPos] = useState<{ x: number; y: number; flipX: number } | null>(null);
   useIsoLayoutEffect(() => {
-    const row = parent.current?.querySelector<HTMLElement>(`#cf-mi-${index}`);
+    const row = parent.current?.querySelector<HTMLElement>(`#tf-mi-${index}`);
     if (!row) return;
     const r = row.getBoundingClientRect();
     setPos({ x: r.right - 4, y: r.top - 5, flipX: r.left + 4 });
@@ -300,7 +300,7 @@ export function MenuButton({
       <button
         ref={ref}
         type="button"
-        className={cx("cf-btn", !showLabel && "is-icon", pos && "is-on", className)}
+        className={cx("tf-btn", !showLabel && "is-icon", pos && "is-on", className)}
         aria-haspopup="menu"
         aria-expanded={!!pos}
         aria-label={label}
@@ -316,7 +316,7 @@ export function MenuButton({
       >
         {icon && <Icon name={icon} />}
         {showLabel && <span>{label}</span>}
-        {showLabel && <Icon name="chevronDown" size={12} className="cf-caret" />}
+        {showLabel && <Icon name="chevronDown" size={12} className="tf-caret" />}
       </button>
       {pos && (
         <Menu

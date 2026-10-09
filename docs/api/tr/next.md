@@ -1,4 +1,4 @@
-# `@ci-finder/next`
+# `@thefinder/next`
 
 🌐 [English](../next.md) · **Türkçe**
 
@@ -6,10 +6,10 @@ Next.js App Router entegrasyonu. `output: "standalone"` dahil her modda çalış
 
 ## Yeniden dışa aktarımlar
 
-Tek import yeterli olsun diye şunlar `@ci-finder/core`'dan aynen gelir: `createCiFinder`, `CiFinderError`, `localDriver`, `s3Driver` ve core'daki tüm tipler.
+Tek import yeterli olsun diye şunlar `@thefinder/core`'dan aynen gelir: `createTheFinder`, `TheFinderError`, `localDriver`, `s3Driver` ve core'daki tüm tipler.
 
 ```ts
-import { createCiFinder, localDriver, s3Driver, uploadsDir, CiFinderError } from "@ci-finder/next";
+import { createTheFinder, localDriver, s3Driver, uploadsDir, TheFinderError } from "@thefinder/next";
 ```
 
 ## `createNextRoutes(finder)`
@@ -18,7 +18,7 @@ import { createCiFinder, localDriver, s3Driver, uploadsDir, CiFinderError } from
 
 ```ts
 // app/api/files/route.ts
-import { createNextRoutes } from "@ci-finder/next";
+import { createNextRoutes } from "@thefinder/next";
 import { finder } from "@/lib/finder";
 
 export const runtime = "nodejs";
@@ -27,7 +27,7 @@ export const { GET, POST } = createNextRoutes(finder);
 
 | Parametre | Açıklama |
 |---|---|
-| `finder` | Bir `CiFinder` örneği ya da `CiFinderOptions`. Seçenek nesnesi verilirse örnek içeride oluşturulur. |
+| `finder` | Bir `TheFinder` örneği ya da `TheFinderOptions`. Seçenek nesnesi verilirse örnek içeride oluşturulur. |
 
 Döner: `{ GET, POST, HEAD }`. `HEAD`'i de dışa aktarırsanız Range destekli dosya yanıtlarında `HEAD` istekleri de karşılanır.
 
@@ -39,7 +39,7 @@ Döner: `{ GET, POST, HEAD }`. `HEAD`'i de dışa aktarırsanız Range destekli 
 
 ```ts
 // app/uploads/[...path]/route.ts
-import { createUploadsRoute } from "@ci-finder/next";
+import { createUploadsRoute } from "@thefinder/next";
 
 export const runtime = "nodejs";
 export const { GET, HEAD } = createUploadsRoute();
@@ -52,7 +52,7 @@ export const { GET, HEAD } = createUploadsRoute();
 | `param` | `string` | `"path"` | Catch-all segmentin adı (`[...path]`) |
 | `authorize` | `(request, path) => boolean \| Promise<boolean>` | — | `false` → `404`. Özel dosyalar için oturum kontrolü. |
 | `cacheControl` | `string` | `"public, max-age=0, must-revalidate"` | ETag ile her istekte yeniden doğrulanır |
-| `showHidden` | `boolean` | `false` | Nokta dosyalarını sunar. `.cf-*` iç klasörleri asla sunulmaz. |
+| `showHidden` | `boolean` | `false` | Nokta dosyalarını sunar. `.tf-*` iç klasörleri asla sunulmaz. |
 
 Range (video ileri sarma), ETag/`304`, doğru `Content-Type` ve `?download` desteklenir. HTML ve SVG `Content-Security-Policy: sandbox` ile sunulur. Next.js 14 (senkron `params`) ve 15+ (`Promise` `params`) ile çalışır.
 

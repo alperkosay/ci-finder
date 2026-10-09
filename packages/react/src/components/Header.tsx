@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { encodeId, type Entry } from "@ci-finder/core/client";
+import { encodeId, type Entry } from "@thefinder/core/client";
 import { cx, useAppearance, useFinder, useStore } from "../context";
 import { Icon, Spinner } from "../icons";
 import { readDragIds, isInternalDrag } from "./dnd";
@@ -24,10 +24,10 @@ function Crumb({ entry, last }: { entry: Entry; last: boolean }) {
   const { store } = useFinder();
   const [over, setOver] = useState(false);
   return (
-    <li className="cf-crumb">
+    <li className="tf-crumb">
       <button
         type="button"
-        className={cx("cf-crumb-btn", last && "is-current", over && "is-drop")}
+        className={cx("tf-crumb-btn", last && "is-current", over && "is-drop")}
         aria-current={last ? "page" : undefined}
         onClick={() => !last && store.open(entry.id)}
         onDragOver={(e) => {
@@ -48,7 +48,7 @@ function Crumb({ entry, last }: { entry: Entry; last: boolean }) {
         {entry.parent === null && <Icon name={entry.id === TRASH_ID ? "trash" : store.volumeOf(entry)?.kind === "s3" ? "cloud" : "drive"} size={14} />}
         <span>{entry.name}</span>
       </button>
-      {!last && <Icon name="chevronRight" size={12} className="cf-crumb-sep" />}
+      {!last && <Icon name="chevronRight" size={12} className="tf-crumb-sep" />}
     </li>
   );
 }
@@ -86,10 +86,10 @@ function PathBar() {
 
   if (editing) {
     return (
-      <div className="cf-pathbar is-editing">
+      <div className="tf-pathbar is-editing">
         <input
           ref={inputRef}
-          className="cf-path-input"
+          className="tf-path-input"
           defaultValue={cwd?.path ?? "/"}
           aria-label={t("location")}
           spellCheck={false}
@@ -107,8 +107,8 @@ function PathBar() {
   }
 
   return (
-    <nav className="cf-pathbar" aria-label={t("location")} onClick={(e) => e.target === e.currentTarget && setEditing(true)} title={t("editPath")}>
-      <ol ref={listRef} className="cf-crumbs" onClick={(e) => e.target === e.currentTarget && setEditing(true)}>
+    <nav className="tf-pathbar" aria-label={t("location")} onClick={(e) => e.target === e.currentTarget && setEditing(true)} title={t("editPath")}>
+      <ol ref={listRef} className="tf-crumbs" onClick={(e) => e.target === e.currentTarget && setEditing(true)}>
         {crumbs.map((c, i) => (
           <Crumb key={c.id} entry={c} last={i === crumbs.length - 1} />
         ))}
@@ -124,12 +124,12 @@ function SearchBox() {
   const loading = useStore((s) => s.searchLoading);
   const cwdName = useStore((s) => (s.cwd ? s.entries[s.cwd]?.name : "")) ?? "";
   return (
-    <div className={cx("cf-search", q && "has-value")}>
+    <div className={cx("tf-search", q && "has-value")}>
       <Icon name="search" size={14} />
       <input
-        className="cf-search-input"
+        className="tf-search-input"
         type="search"
-        data-cf-search
+        data-tf-search
         value={q}
         placeholder={t("searchIn", { name: cwdName })}
         aria-label={t("search")}
@@ -142,7 +142,7 @@ function SearchBox() {
           }
           if (e.key === "ArrowDown") {
             e.preventDefault();
-            e.currentTarget.closest(".cf-root")?.querySelector<HTMLElement>("[data-cf-view]")?.focus();
+            e.currentTarget.closest(".tf-root")?.querySelector<HTMLElement>("[data-tf-view]")?.focus();
           }
         }}
       />
@@ -150,7 +150,7 @@ function SearchBox() {
         <Spinner size={14} />
       ) : (
         q && (
-          <button type="button" className="cf-search-clear" aria-label={t("clearSearch")} onClick={() => store.clearSearch()}>
+          <button type="button" className="tf-search-clear" aria-label={t("clearSearch")} onClick={() => store.clearSearch()}>
             <Icon name="close" size={12} />
           </button>
         )
@@ -190,11 +190,11 @@ export function Header() {
   const sidebarOpen = useStore((s) => s.sidebarOpen);
 
   return (
-    <div className="cf-header">
-      <div className="cf-nav">
+    <div className="tf-header">
+      <div className="tf-nav">
         <button
           type="button"
-          className={cx("cf-btn is-icon cf-sidebar-toggle", sidebarOpen && "is-on")}
+          className={cx("tf-btn is-icon tf-sidebar-toggle", sidebarOpen && "is-on")}
           aria-label={t("toggleSidebar")}
           title={t("toggleSidebar")}
           aria-pressed={sidebarOpen}
@@ -202,24 +202,24 @@ export function Header() {
         >
           <Icon name="panelLeft" />
         </button>
-        <button type="button" className="cf-btn is-icon" aria-label={t("back")} title={t("back")} disabled={!canBack} onClick={() => store.back()}>
+        <button type="button" className="tf-btn is-icon" aria-label={t("back")} title={t("back")} disabled={!canBack} onClick={() => store.back()}>
           <Icon name="back" />
         </button>
-        <button type="button" className="cf-btn is-icon" aria-label={t("forward")} title={t("forward")} disabled={!canForward} onClick={() => store.forward()}>
+        <button type="button" className="tf-btn is-icon" aria-label={t("forward")} title={t("forward")} disabled={!canForward} onClick={() => store.forward()}>
           <Icon name="forward" />
         </button>
-        <button type="button" className="cf-btn is-icon" aria-label={t("up")} title={t("up")} disabled={!canUp} onClick={() => store.up()}>
+        <button type="button" className="tf-btn is-icon" aria-label={t("up")} title={t("up")} disabled={!canUp} onClick={() => store.up()}>
           <Icon name="up" />
         </button>
       </div>
       <PathBar />
-      <button type="button" className="cf-btn is-icon" aria-label={t("refresh")} title={t("refresh")} onClick={() => store.refresh()}>
+      <button type="button" className="tf-btn is-icon" aria-label={t("refresh")} title={t("refresh")} onClick={() => store.refresh()}>
         <Icon name="refresh" />
       </button>
       <SearchBox />
       <button
         type="button"
-        className="cf-btn is-icon cf-storage-btn"
+        className="tf-btn is-icon tf-storage-btn"
         aria-label={t("storage")}
         title={t("storage")}
         aria-haspopup="dialog"

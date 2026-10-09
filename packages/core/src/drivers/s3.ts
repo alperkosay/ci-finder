@@ -1,4 +1,4 @@
-import { CiFinderError } from "../errors";
+import { TheFinderError } from "../errors";
 import { mimeOf } from "../mime";
 import { contentDisposition } from "../serve";
 import { concatBytes, mapLimit, toUint8 } from "../stream";
@@ -97,7 +97,7 @@ export class S3Driver implements StorageDriver {
 
   constructor(options: S3DriverOptions) {
     for (const k of ["bucket", "accessKeyId", "secretAccessKey"] as const) {
-      if (!options?.[k]) throw new Error(`ciFinder s3Driver: \`${k}\` is required`);
+      if (!options?.[k]) throw new Error(`theFinder s3Driver: \`${k}\` is required`);
     }
     this.bucket = options.bucket;
     this.region = options.region ?? "us-east-1";
@@ -152,20 +152,20 @@ export class S3Driver implements StorageDriver {
     throw await this.error(res);
   }
 
-  private async error(res: Response): Promise<CiFinderError> {
+  private async error(res: Response): Promise<TheFinderError> {
     const text = await res.text().catch(() => "");
     const code = value(text, "Code") ?? String(res.status);
     const message = value(text, "Message") ?? res.statusText;
-    if (res.status === 404 || code === "NoSuchKey") return new CiFinderError("NOT_FOUND", "File not found");
-    if (res.status === 403) return new CiFinderError("FORBIDDEN", `S3 denied the request: ${message}`);
-    return new CiFinderError("STORAGE", `S3 error ${code}: ${message}`);
+    if (res.status === 404 || code === "NoSuchKey") return new TheFinderError("NOT_FOUND", "File not found");
+    if (res.status === 403) return new TheFinderError("FORBIDDEN", `S3 denied the request: ${message}`);
+    return new TheFinderError("STORAGE", `S3 error ${code}: ${message}`);
   }
 
   /** Some S3 operations (CopyObject, CompleteMultipartUpload) report errors inside a 200 body. */
   private async checkedXml(res: Response): Promise<string> {
     const text = await res.text();
     if (/<Error>/.test(text)) {
-      throw new CiFinderError("STORAGE", `S3 error ${value(text, "Code")}: ${value(text, "Message")}`);
+      throw new TheFinderError("STORAGE", `S3 error ${value(text, "Code")}: ${value(text, "Message")}`);
     }
     return text;
   }
@@ -329,8 +329,8 @@ export class S3Driver implements StorageDriver {
 
   async copy(from: VolumePath, to: VolumePath): Promise<void> {
     const stat = await this.stat(from);
-    if (!stat) throw new CiFinderError("NOT_FOUND", "File not found");
-    if (await this.stat(to)) throw new CiFinderError("EXISTS", "Target already exists");
+    if (!stat) throw new TheFinderError("NOT_FOUND", "File not found");
+    if (await this.stat(to)) throw new TheFinderError("EXISTS", "Target already exists");
     if (stat.kind === "file") {
       await this.copyObject(this.key(from), this.key(to), stat.size);
       return;
@@ -347,7 +347,7 @@ export class S3Driver implements StorageDriver {
     if (from === to) return;
     // Case-only renames would make copy() see the target as existing on case-insensitive gateways.
     if (from.toLowerCase() === to.toLowerCase()) {
-      const tmp = `${to}.cf-move-${Math.random().toString(36).slice(2, 8)}`;
+      const tmp = `${to}.tf-move-${Math.random().toString(36).slice(2, 8)}`;
       await this.move(from, tmp);
       await this.move(tmp, to);
       return;
@@ -361,7 +361,7 @@ export class S3Driver implements StorageDriver {
   private async createMultipart(key: string, contentType: string): Promise<string> {
     const res = await this.send("POST", key, { query: { uploads: "" }, headers: { "content-type": contentType } });
     const id = value(await res.text(), "UploadId");
-    if (!id) throw new CiFinderError("STORAGE", "S3 did not return an upload id");
+    if (!id) throw new TheFinderError("STORAGE", "S3 did not return an upload id");
     return id;
   }
 
@@ -401,7 +401,7 @@ export class S3Driver implements StorageDriver {
     const key = this.key(chunk.path);
     const contentType = mimeOf(chunk.path);
     if (chunk.total === 1) {
-      if (chunk.data.byteLength !== chunk.size) throw new CiFinderError("BAD_REQUEST", "Upload incomplete");
+      if (chunk.data.byteLength !== chunk.size) throw new TheFinderError("BAD_REQUEST", "Upload incomplete");
       await this.send("PUT", key, { body: chunk.data, headers: { "content-type": contentType } });
       return { session: "single", done: true };
     }
@@ -412,7 +412,7 @@ export class S3Driver implements StorageDriver {
       const parts = await this.listParts(key, uploadId);
       if (parts.length !== chunk.total) {
         await this.abortUpload(chunk.path, uploadId);
-        throw new CiFinderError("BAD_REQUEST", `Upload incomplete: ${parts.length} of ${chunk.total} parts received`);
+        throw new TheFinderError("BAD_REQUEST", `Upload incomplete: ${parts.length} of ${chunk.total} parts received`);
       }
       await this.completeMultipart(key, uploadId, parts);
     }

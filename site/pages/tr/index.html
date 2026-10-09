@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ciFinder · Web için dosya yöneticisi</title>
+    <title>theFinder · Web için dosya yöneticisi</title>
     <meta
       name="description"
-      content="ciFinder: React için dosya yöneticisi. Saf CSS, sıfır bağımlılıklı çekirdek, Next.js, Bun, Node ve S3 desteği. elFinder'a modern bir alternatif."
+      content="theFinder: React için dosya yöneticisi. Saf CSS, sıfır bağımlılıklı çekirdek, Next.js, Bun, Node ve S3 desteği. elFinder'a modern bir alternatif."
     />
-    <meta property="og:title" content="ciFinder" />
+    <meta property="og:title" content="theFinder" />
     <meta property="og:description" content="Web uygulamanız için gerçek bir dosya yöneticisi." />
-    <meta property="og:image" content="../media/cifinder-hero.tr.png" />
+    <meta property="og:image" content="../media/thefinder-hero.tr.png" />
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="alternate" hreflang="en" href="../" />
     <link rel="stylesheet" href="../assets/site.css" />
@@ -18,12 +18,12 @@
   <body>
     <nav class="localnav" aria-label="Site">
       <div class="localnav-in">
-        <a class="wordmark" href="./" aria-label="ciFinder ana sayfa"><span>ci</span>Finder</a>
+        <a class="wordmark" href="./" aria-label="theFinder ana sayfa"><span>the</span>Finder</a>
         <div class="localnav-links">
           <a href="#genel-bakis">Genel bakış</a>
           <a href="#elfinder">elFinder ile karşılaştırma</a>
           <a href="../docs/tr/">Belgeler</a>
-          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
+          <a href="https://github.com/alperkosay/thefinder">GitHub</a>
           <div class="langs" role="group" aria-label="Dil">
             <a href="../" hreflang="en" lang="en">EN</a><a href="./" hreflang="tr" lang="tr" aria-current="true">TR</a>
           </div>
@@ -35,7 +35,7 @@
     <main>
       <!-- Hero -->
       <header class="hero">
-        <p class="eyebrow">Açık kaynak · MIT · v0.1</p>
+        <p class="eyebrow">Açık kaynak · MIT · v0.2</p>
         <h1 class="hero-title">Web için bir Finder.</h1>
         <p class="hero-lede">React uygulamanıza tek bileşenle gelen, gerçek bir masaüstü dosya yöneticisi kadar hızlı ve klavye dostu bir arayüz.</p>
         <div class="cta-row">
@@ -50,10 +50,10 @@
             <i></i><i></i><i></i>
             <span>Bu bir ekran görüntüsü değil. Dosyaları sürükleyin, sağ tıklayın, Space'e basın.</span>
           </div>
-          <iframe class="window-frame" src="../demo/?embed&amp;lang=tr" title="ciFinder canlı demo" allow="clipboard-write"></iframe>
+          <iframe class="window-frame" src="../demo/?embed&amp;lang=tr" title="theFinder canlı demo" allow="clipboard-write"></iframe>
         </div>
         <p class="stage-note">
-          Arkada sunucu yok: <code>@ci-finder/core</code> motorunun kendisi bu sayfada, bellekte tutulan bir sürücüyle çalışıyor. Yenileyince her şey baştan
+          Arkada sunucu yok: <code>@thefinder/core</code> motorunun kendisi bu sayfada, bellekte tutulan bir sürücüyle çalışıyor. Yenileyince her şey baştan
           başlar.
         </p>
       </section>
@@ -62,7 +62,7 @@
       <section class="section" id="genel-bakis">
         <div class="wrap">
           <p class="statement">
-            ciFinder bir <b>React bileşeni</b>, bir <b>CSS dosyası</b> ve <b>tek bir API ucu</b>. Arayüz hiçbir UI kütüphanesine bağlı değil. Sunucu tarafı Web
+            theFinder bir <b>React bileşeni</b>, bir <b>CSS dosyası</b> ve <b>tek bir API ucu</b>. Arayüz hiçbir UI kütüphanesine bağlı değil. Sunucu tarafı Web
             standardı <b>Request → Response</b> üzerine kurulu, bu yüzden <b>Next.js, Bun, Node, Express, Fastify, Koa</b> ve <b>Hono</b> ile aynı kodla
             çalışıyor. Dosyalar <b>yerel diskte, S3'te</b> ya da ikisinde birden duruyor. Çekirdeğin çalışma zamanı bağımlılığı: <b>sıfır</b>.
           </p>
@@ -99,7 +99,7 @@
               <h3 class="tile-title">Delete onay sormaz. Çünkü geri alınabilir.</h3>
               <div class="viz viz-toast">
                 <div class="toast"><span>“kapak.jpg” çöpe taşındı</span><button type="button" tabindex="-1">Geri al</button></div>
-                <p>Silinen öğeler volume içindeki <code>.cf-trash</code> klasöründe 30 gün bekler. Yerel diskte de S3'te de.</p>
+                <p>Silinen öğeler volume içindeki <code>.tf-trash</code> klasöründe 30 gün bekler. Yerel diskte de S3'te de.</p>
               </div>
             </li>
             <li class="tile tile-dark">
@@ -154,23 +154,6 @@
         </div>
       </section>
 
-      <!-- Film -->
-      <section class="section">
-        <div class="wrap">
-          <h2 class="section-title">50 saniyede ciFinder.</h2>
-          <p class="section-lede">
-            Hızlı bakış, görsel ve kod editörleri, sürükle-bırak, çöp kutusu, depolama paneli ve macOS görünümü, sessiz bir kısa filmde.
-          </p>
-          <div class="film" data-film>
-            <video src="../media/cifinder-film.tr.mp4" poster="../media/cifinder-film-poster.tr.jpg" preload="none" playsinline></video>
-            <button type="button" class="film-play" aria-label="Filmi oynat">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
-              <span>Filmi izle</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
       <!-- Backends -->
       <section class="section section-alt" id="backend">
         <div class="wrap split">
@@ -196,10 +179,10 @@
             <div class="code-panel" role="tabpanel" id="tab-next" aria-labelledby="t-next">
               <p class="code-file">app/api/files/route.ts</p>
               <pre><code><span class="tk-kw">import</span> {
-  createCiFinder, createNextRoutes, localDriver, uploadsDir,
-} <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/next"</span>;
+  createTheFinder, createNextRoutes, localDriver, uploadsDir,
+} <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/next"</span>;
 
-<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createTheFinder</span>({
   volumes: [{
     id: <span class="tk-str">"uploads"</span>,
     driver: <span class="tk-fn">localDriver</span>({ root: <span class="tk-fn">uploadsDir</span>() }),
@@ -213,7 +196,7 @@
             <div class="code-panel" role="tabpanel" id="tab-bun" aria-labelledby="t-bun" hidden>
               <p class="code-file">server.ts</p>
               <pre><code><span class="tk-kw">const</span> driver = <span class="tk-fn">localDriver</span>({ root: <span class="tk-str">"./uploads"</span> });
-<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createTheFinder</span>({
   volumes: [{ id: <span class="tk-str">"files"</span>, driver, url: <span class="tk-str">"/uploads"</span> }],
 });
 
@@ -226,7 +209,7 @@ Bun.<span class="tk-fn">serve</span>({
             </div>
             <div class="code-panel" role="tabpanel" id="tab-express" aria-labelledby="t-express" hidden>
               <p class="code-file">server.mjs</p>
-              <pre><code><span class="tk-kw">import</span> { toExpress } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toExpress } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toExpress</span>(finder.handler));
 app.<span class="tk-fn">get</span>(<span class="tk-str">"/uploads/*"</span>, <span class="tk-fn">toExpress</span>(
@@ -238,7 +221,7 @@ app.<span class="tk-fn">get</span>(<span class="tk-str">"/uploads/*"</span>, <sp
             </div>
             <div class="code-panel" role="tabpanel" id="tab-fastify" aria-labelledby="t-fastify" hidden>
               <p class="code-file">server.ts</p>
-              <pre><code><span class="tk-kw">import</span> { toFastify } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toFastify } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 fastify.<span class="tk-fn">register</span>(<span class="tk-fn">toFastify</span>(finder.handler), { prefix: <span class="tk-str">"/api/files"</span> });
 
@@ -246,7 +229,7 @@ fastify.<span class="tk-fn">register</span>(<span class="tk-fn">toFastify</span>
             </div>
             <div class="code-panel" role="tabpanel" id="tab-koa" aria-labelledby="t-koa" hidden>
               <p class="code-file">server.ts</p>
-              <pre><code><span class="tk-kw">import</span> { toKoa } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toKoa } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 router.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toKoa</span>(finder.handler));</code></pre>
             </div>
@@ -272,7 +255,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
             </div>
             <div class="vol-link"><span>kopyala · taşı</span></div>
             <div class="vol vol-core">
-              <span class="vol-kind">@ci-finder/core</span>
+              <span class="vol-kind">@thefinder/core</span>
               <b>Motor</b>
               <span>yetki · sürümler · çöp · küçük resimler</span>
             </div>
@@ -286,7 +269,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
           <ul class="facts">
             <li><b>Kendi sürücünüzü yazın.</b> FTP, Azure Blob, Google Drive… <code>StorageDriver</code> arayüzündeki dokuz metodu uygulamak yeterli.</li>
             <li><b>Sunucu durum tutmaz.</b> Yükleme oturumu istemcide taşınır; her parçada hedef, izin ve uzantı yeniden doğrulanır.</li>
-            <li><b>Veritabanı gerekmez.</b> Çöp kutusu, sürümler ve küçük resimler volume içindeki gizli <code>.cf-*</code> klasörlerinde durur.</li>
+            <li><b>Veritabanı gerekmez.</b> Çöp kutusu, sürümler ve küçük resimler volume içindeki gizli <code>.tf-*</code> klasörlerinde durur.</li>
           </ul>
         </div>
       </section>
@@ -332,7 +315,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
       <section class="section section-ink">
         <div class="wrap">
           <h2 class="section-title">Güvenlik, varsayılan olarak açık.</h2>
-          <p class="section-lede">Bir dosya yöneticisi sunucunuza yazma izni demektir. ciFinder bunu ilk günden ciddiye alır.</p>
+          <p class="section-lede">Bir dosya yöneticisi sunucunuza yazma izni demektir. theFinder bunu ilk günden ciddiye alır.</p>
           <dl class="sec-grid">
             <div>
               <dt>Path traversal</dt>
@@ -340,7 +323,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
             </div>
             <div>
               <dt>CSRF</dt>
-              <dd>Değişiklik yapan her istek POST olmak ve <code>x-ci-finder</code> başlığını taşımak zorunda.</dd>
+              <dd>Değişiklik yapan her istek POST olmak ve <code>x-thefinder</code> başlığını taşımak zorunda.</dd>
             </div>
             <div>
               <dt>Arşivler</dt>
@@ -365,17 +348,17 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
       <!-- Comparison -->
       <section class="section" id="elfinder">
         <div class="wrap">
-          <h2 class="section-title center">ciFinder ve elFinder.</h2>
+          <h2 class="section-title center">theFinder ve elFinder.</h2>
           <p class="section-lede center narrow">
-            elFinder, web dosya yöneticileri denince akla gelen ilk isim ve on beş yılı aşkın süredir sahada. ciFinder aynı işi bugünün yığınıyla yeniden
+            elFinder, web dosya yöneticileri denince akla gelen ilk isim ve on beş yılı aşkın süredir sahada. theFinder aynı işi bugünün yığınıyla yeniden
             düşünüyor. İkisi de iyi araçlar; hangisinin size uyduğu, projenizin nasıl kurulduğuna bağlı.
           </p>
 
-          <div class="compare" role="table" aria-label="ciFinder ve elFinder karşılaştırması">
+          <div class="compare" role="table" aria-label="theFinder ve elFinder karşılaştırması">
             <div class="compare-head" role="row">
               <span role="columnheader"><span class="sr">Özellik</span></span>
               <div class="compare-model" role="columnheader">
-                <b class="wordmark wordmark-sm"><span>ci</span>Finder</b>
+                <b class="wordmark wordmark-sm"><span>the</span>Finder</b>
                 <span>React · TypeScript · 2026</span>
               </div>
               <div class="compare-model" role="columnheader">
@@ -408,7 +391,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
               </div>
               <div class="compare-row" role="row">
                 <span role="rowheader">Protokol</span>
-                <span role="cell">Tek uç, JSON zarfı, tipli istemci (<code>@ci-finder/core/client</code>)</span>
+                <span role="cell">Tek uç, JSON zarfı, tipli istemci (<code>@thefinder/core/client</code>)</span>
                 <span role="cell">Tek uç, elFinder protokolü (<code>cmd=open</code>…)</span>
               </div>
             </div>
@@ -532,7 +515,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
 
           <div class="choose">
             <div>
-              <h3>ciFinder'ı seçin, eğer</h3>
+              <h3>theFinder'ı seçin, eğer</h3>
               <ul>
                 <li>Uygulamanız React, Next.js ya da bir JavaScript sunucusu üzerindeyse,</li>
                 <li>dosyalar S3 ya da R2'de duruyorsa veya serverless'ta çalışıyorsanız,</li>
@@ -552,7 +535,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
           </div>
           <p class="footnote">
             elFinder bilgileri 2.1 serisinin belgelerine göre derlendi. Yanlış ya da eskimiş bir satır görürseniz
-            <a href="https://github.com/alperkosay/ci-finder/issues">bir issue açın</a>.
+            <a href="https://github.com/alperkosay/thefinder/issues">bir issue açın</a>.
           </p>
         </div>
       </section>
@@ -562,27 +545,27 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
         <div class="wrap">
           <h2 class="section-title">Dört paket. İhtiyacınız kadarını kurun.</h2>
           <div class="install">
-            <code id="install-cmd">npm i @ci-finder/core @ci-finder/react @ci-finder/next</code>
+            <code id="install-cmd">npm i @thefinder/core @thefinder/react @thefinder/next</code>
             <button type="button" class="copy" data-copy="#install-cmd">Kopyala</button>
           </div>
           <dl class="packages">
             <div>
-              <dt><code>@ci-finder/core</code></dt>
+              <dt><code>@thefinder/core</code></dt>
               <dd>Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok.</dd>
               <a class="more" href="../docs/tr/core.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/react</code></dt>
-              <dd><code>&lt;CiFinder /&gt;</code> bileşeni, <code>useFilePicker</code>, <code>openFilePicker</code> ve <code>styles.css</code>.</dd>
+              <dt><code>@thefinder/react</code></dt>
+              <dd><code>&lt;TheFinder /&gt;</code> bileşeni, <code>useFilePicker</code>, <code>openFilePicker</code> ve <code>styles.css</code>.</dd>
               <a class="more" href="../docs/tr/react.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/next</code></dt>
+              <dt><code>@thefinder/next</code></dt>
               <dd>Next.js route'ları ve standalone uyumlu proje kökü tespiti.</dd>
               <a class="more" href="../docs/tr/next.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/ckeditor</code></dt>
+              <dt><code>@thefinder/ckeditor</code></dt>
               <dd>CKEditor 5 eklentisi ve CKEditor 4 connector'ı.</dd>
               <a class="more" href="../docs/tr/ckeditor.html">API</a>
             </div>
@@ -604,12 +587,12 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
 
     <footer class="footer">
       <div class="wrap footer-in">
-        <p>ciFinder, MIT lisansıyla açık kaynak. Alper Koşay tarafından geliştiriliyor.</p>
+        <p>theFinder, MIT lisansıyla açık kaynak. Alper Koşay tarafından geliştiriliyor.</p>
         <p class="footer-links">
           <a href="../docs/tr/">Belgeler</a>
           <a href="../docs/tr/protocol.html">HTTP protokolü</a>
-          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
-          <a href="https://github.com/alperkosay/ci-finder/blob/main/ROADMAP.md">Yol haritası</a>
+          <a href="https://github.com/alperkosay/thefinder">GitHub</a>
+          <a href="https://github.com/alperkosay/thefinder/blob/main/ROADMAP.md">Yol haritası</a>
         </p>
       </div>
     </footer>

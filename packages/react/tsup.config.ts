@@ -7,7 +7,7 @@ export default defineConfig({
   clean: true,
   target: "es2020",
   platform: "browser",
-  external: ["react", "react-dom", "react/jsx-runtime", /^@ci-finder\//],
+  external: ["react", "react-dom", "react/jsx-runtime", /^@thefinder\//],
   // Next.js App Router: the whole UI is a client component.
   banner: { js: '"use client";' },
   esbuildOptions(options) {

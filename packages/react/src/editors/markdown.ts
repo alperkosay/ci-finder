@@ -81,7 +81,7 @@ export function renderMarkdown(src: string): string {
       i++;
       const lang = fence[2] ? langOf(`x.${fence[2]}`) : "plain";
       const html = toLines(tokenize(body.join("\n"), lang)).join("\n");
-      out.push(`<pre class="cf-md-code"><code>${html}</code></pre>`);
+      out.push(`<pre class="tf-md-code"><code>${html}</code></pre>`);
       continue;
     }
 

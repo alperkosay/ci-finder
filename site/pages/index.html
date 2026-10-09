@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ciFinder · A file manager for the web</title>
+    <title>theFinder · A file manager for the web</title>
     <meta
       name="description"
-      content="ciFinder: a file manager for React. Native CSS, a zero-dependency core, Next.js, Bun, Node and S3 support. A modern alternative to elFinder."
+      content="theFinder: a file manager for React. Native CSS, a zero-dependency core, Next.js, Bun, Node and S3 support. A modern alternative to elFinder."
     />
-    <meta property="og:title" content="ciFinder" />
+    <meta property="og:title" content="theFinder" />
     <meta property="og:description" content="A real file manager for your web app." />
-    <meta property="og:image" content="media/cifinder-hero.png" />
+    <meta property="og:image" content="media/thefinder-hero.png" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="alternate" hreflang="tr" href="tr/" />
     <link rel="stylesheet" href="assets/site.css" />
@@ -18,12 +18,12 @@
   <body>
     <nav class="localnav" aria-label="Site">
       <div class="localnav-in">
-        <a class="wordmark" href="./" aria-label="ciFinder home"><span>ci</span>Finder</a>
+        <a class="wordmark" href="./" aria-label="theFinder home"><span>the</span>Finder</a>
         <div class="localnav-links">
           <a href="#overview">Overview</a>
           <a href="#elfinder">Compared to elFinder</a>
           <a href="docs/">Docs</a>
-          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
+          <a href="https://github.com/alperkosay/thefinder">GitHub</a>
           <div class="langs" role="group" aria-label="Language">
             <a href="./" hreflang="en" lang="en" aria-current="true">EN</a><a href="tr/" hreflang="tr" lang="tr">TR</a>
           </div>
@@ -35,7 +35,7 @@
     <main>
       <!-- Hero -->
       <header class="hero">
-        <p class="eyebrow">Open source · MIT · v0.1</p>
+        <p class="eyebrow">Open source · MIT · v0.2</p>
         <h1 class="hero-title">A Finder for the web.</h1>
         <p class="hero-lede">One component gives your React app a file manager that feels as fast and keyboard-friendly as the one on your desktop.</p>
         <div class="cta-row">
@@ -50,10 +50,10 @@
             <i></i><i></i><i></i>
             <span>This is not a screenshot. Drag files, right-click, press Space.</span>
           </div>
-          <iframe class="window-frame" src="demo/?embed&amp;lang=en" title="ciFinder live demo" allow="clipboard-write"></iframe>
+          <iframe class="window-frame" src="demo/?embed&amp;lang=en" title="theFinder live demo" allow="clipboard-write"></iframe>
         </div>
         <p class="stage-note">
-          There is no server behind it: the <code>@ci-finder/core</code> engine itself runs on this page, with a driver that keeps files in memory. Reload and
+          There is no server behind it: the <code>@thefinder/core</code> engine itself runs on this page, with a driver that keeps files in memory. Reload and
           everything starts over.
         </p>
       </section>
@@ -62,8 +62,8 @@
       <section class="section" id="overview">
         <div class="wrap">
           <p class="statement">
-            ciFinder is a <b>React component</b>, a <b>CSS file</b> and <b>a single API endpoint</b>. The interface depends on no UI library. The server side is
-            built on the web-standard <b>Request → Response</b>, so the same code runs on <b>Next.js, Bun, Node, Express, Fastify, Koa</b> and <b>Hono</b>.
+            theFinder is a <b>React component</b>, a <b>CSS file</b> and <b>a single API endpoint</b>. The interface depends on no UI library. The server side
+            is built on the web-standard <b>Request → Response</b>, so the same code runs on <b>Next.js, Bun, Node, Express, Fastify, Koa</b> and <b>Hono</b>.
             Files live <b>on local disk, in S3</b>, or both. Runtime dependencies of the core: <b>zero</b>.
           </p>
         </div>
@@ -99,7 +99,7 @@
               <h3 class="tile-title">Delete never asks. Because it can be undone.</h3>
               <div class="viz viz-toast">
                 <div class="toast"><span>“cover.jpg” moved to Trash</span><button type="button" tabindex="-1">Undo</button></div>
-                <p>Deleted items wait 30 days in the <code>.cf-trash</code> folder inside the volume. On local disk and on S3 alike.</p>
+                <p>Deleted items wait 30 days in the <code>.tf-trash</code> folder inside the volume. On local disk and on S3 alike.</p>
               </div>
             </li>
             <li class="tile tile-dark">
@@ -154,23 +154,6 @@
         </div>
       </section>
 
-      <!-- Film -->
-      <section class="section">
-        <div class="wrap">
-          <h2 class="section-title">ciFinder in 50 seconds.</h2>
-          <p class="section-lede">
-            Quick Look, the image and code editors, drag and drop, the trash, the storage dashboard and the macOS look, in one silent short.
-          </p>
-          <div class="film" data-film>
-            <video src="media/cifinder-film.mp4" poster="media/cifinder-film-poster.jpg" preload="none" playsinline></video>
-            <button type="button" class="film-play" aria-label="Play the film">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
-              <span>Watch the film</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
       <!-- Backends -->
       <section class="section section-alt" id="backend">
         <div class="wrap split">
@@ -196,10 +179,10 @@
             <div class="code-panel" role="tabpanel" id="tab-next" aria-labelledby="t-next">
               <p class="code-file">app/api/files/route.ts</p>
               <pre><code><span class="tk-kw">import</span> {
-  createCiFinder, createNextRoutes, localDriver, uploadsDir,
-} <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/next"</span>;
+  createTheFinder, createNextRoutes, localDriver, uploadsDir,
+} <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/next"</span>;
 
-<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createTheFinder</span>({
   volumes: [{
     id: <span class="tk-str">"uploads"</span>,
     driver: <span class="tk-fn">localDriver</span>({ root: <span class="tk-fn">uploadsDir</span>() }),
@@ -213,7 +196,7 @@
             <div class="code-panel" role="tabpanel" id="tab-bun" aria-labelledby="t-bun" hidden>
               <p class="code-file">server.ts</p>
               <pre><code><span class="tk-kw">const</span> driver = <span class="tk-fn">localDriver</span>({ root: <span class="tk-str">"./uploads"</span> });
-<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createTheFinder</span>({
   volumes: [{ id: <span class="tk-str">"files"</span>, driver, url: <span class="tk-str">"/uploads"</span> }],
 });
 
@@ -226,7 +209,7 @@ Bun.<span class="tk-fn">serve</span>({
             </div>
             <div class="code-panel" role="tabpanel" id="tab-express" aria-labelledby="t-express" hidden>
               <p class="code-file">server.mjs</p>
-              <pre><code><span class="tk-kw">import</span> { toExpress } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toExpress } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toExpress</span>(finder.handler));
 app.<span class="tk-fn">get</span>(<span class="tk-str">"/uploads/*"</span>, <span class="tk-fn">toExpress</span>(
@@ -238,7 +221,7 @@ app.<span class="tk-fn">get</span>(<span class="tk-str">"/uploads/*"</span>, <sp
             </div>
             <div class="code-panel" role="tabpanel" id="tab-fastify" aria-labelledby="t-fastify" hidden>
               <p class="code-file">server.ts</p>
-              <pre><code><span class="tk-kw">import</span> { toFastify } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toFastify } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 fastify.<span class="tk-fn">register</span>(<span class="tk-fn">toFastify</span>(finder.handler), { prefix: <span class="tk-str">"/api/files"</span> });
 
@@ -246,7 +229,7 @@ fastify.<span class="tk-fn">register</span>(<span class="tk-fn">toFastify</span>
             </div>
             <div class="code-panel" role="tabpanel" id="tab-koa" aria-labelledby="t-koa" hidden>
               <p class="code-file">server.ts</p>
-              <pre><code><span class="tk-kw">import</span> { toKoa } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+              <pre><code><span class="tk-kw">import</span> { toKoa } <span class="tk-kw">from</span> <span class="tk-str">"@thefinder/core/node"</span>;
 
 router.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toKoa</span>(finder.handler));</code></pre>
             </div>
@@ -272,7 +255,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
             </div>
             <div class="vol-link"><span>copy · move</span></div>
             <div class="vol vol-core">
-              <span class="vol-kind">@ci-finder/core</span>
+              <span class="vol-kind">@thefinder/core</span>
               <b>Engine</b>
               <span>auth · versions · trash · thumbnails</span>
             </div>
@@ -290,7 +273,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
             <li>
               <b>The server keeps no state.</b> The upload session travels with the client; target, permissions and extension are checked again on every chunk.
             </li>
-            <li><b>No database needed.</b> Trash, versions and thumbnails live in hidden <code>.cf-*</code> folders inside the volume.</li>
+            <li><b>No database needed.</b> Trash, versions and thumbnails live in hidden <code>.tf-*</code> folders inside the volume.</li>
           </ul>
         </div>
       </section>
@@ -341,7 +324,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
       <section class="section section-ink">
         <div class="wrap">
           <h2 class="section-title">Secure by default.</h2>
-          <p class="section-lede">A file manager means write access to your server. ciFinder has taken that seriously from day one.</p>
+          <p class="section-lede">A file manager means write access to your server. theFinder has taken that seriously from day one.</p>
           <dl class="sec-grid">
             <div>
               <dt>Path traversal</dt>
@@ -349,7 +332,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
             </div>
             <div>
               <dt>CSRF</dt>
-              <dd>Every request that changes something must be a POST and carry the <code>x-ci-finder</code> header.</dd>
+              <dd>Every request that changes something must be a POST and carry the <code>x-thefinder</code> header.</dd>
             </div>
             <div>
               <dt>Archives</dt>
@@ -374,17 +357,17 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
       <!-- Comparison -->
       <section class="section" id="elfinder">
         <div class="wrap">
-          <h2 class="section-title center">ciFinder and elFinder.</h2>
+          <h2 class="section-title center">theFinder and elFinder.</h2>
           <p class="section-lede center narrow">
-            elFinder is the first name that comes to mind for web file managers, and it has been in the field for more than fifteen years. ciFinder rethinks the
-            same job with today's stack. Both are good tools; which one suits you depends on how your project is built.
+            elFinder is the first name that comes to mind for web file managers, and it has been in the field for more than fifteen years. theFinder rethinks
+            the same job with today's stack. Both are good tools; which one suits you depends on how your project is built.
           </p>
 
-          <div class="compare" role="table" aria-label="ciFinder and elFinder compared">
+          <div class="compare" role="table" aria-label="theFinder and elFinder compared">
             <div class="compare-head" role="row">
               <span role="columnheader"><span class="sr">Feature</span></span>
               <div class="compare-model" role="columnheader">
-                <b class="wordmark wordmark-sm"><span>ci</span>Finder</b>
+                <b class="wordmark wordmark-sm"><span>the</span>Finder</b>
                 <span>React · TypeScript · 2026</span>
               </div>
               <div class="compare-model" role="columnheader">
@@ -417,7 +400,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
               </div>
               <div class="compare-row" role="row">
                 <span role="rowheader">Protocol</span>
-                <span role="cell">One endpoint, JSON envelope, typed client (<code>@ci-finder/core/client</code>)</span>
+                <span role="cell">One endpoint, JSON envelope, typed client (<code>@thefinder/core/client</code>)</span>
                 <span role="cell">One endpoint, elFinder protocol (<code>cmd=open</code>…)</span>
               </div>
             </div>
@@ -541,7 +524,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
 
           <div class="choose">
             <div>
-              <h3>Choose ciFinder if</h3>
+              <h3>Choose theFinder if</h3>
               <ul>
                 <li>your app runs on React, Next.js or a JavaScript server,</li>
                 <li>your files live in S3 or R2, or you run on serverless,</li>
@@ -561,7 +544,7 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
           </div>
           <p class="footnote">
             elFinder details are based on the documentation of the 2.1 series. If you spot a wrong or outdated row,
-            <a href="https://github.com/alperkosay/ci-finder/issues">open an issue</a>.
+            <a href="https://github.com/alperkosay/thefinder/issues">open an issue</a>.
           </p>
         </div>
       </section>
@@ -571,27 +554,27 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
         <div class="wrap">
           <h2 class="section-title">Four packages. Install what you need.</h2>
           <div class="install">
-            <code id="install-cmd">npm i @ci-finder/core @ci-finder/react @ci-finder/next</code>
+            <code id="install-cmd">npm i @thefinder/core @thefinder/react @thefinder/next</code>
             <button type="button" class="copy" data-copy="#install-cmd">Copy</button>
           </div>
           <dl class="packages">
             <div>
-              <dt><code>@ci-finder/core</code></dt>
+              <dt><code>@thefinder/core</code></dt>
               <dd>Server engine, local and S3 drivers, Node adapters, browser client. No runtime dependencies.</dd>
               <a class="more" href="docs/core.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/react</code></dt>
-              <dd>The <code>&lt;CiFinder /&gt;</code> component, <code>useFilePicker</code>, <code>openFilePicker</code> and <code>styles.css</code>.</dd>
+              <dt><code>@thefinder/react</code></dt>
+              <dd>The <code>&lt;TheFinder /&gt;</code> component, <code>useFilePicker</code>, <code>openFilePicker</code> and <code>styles.css</code>.</dd>
               <a class="more" href="docs/react.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/next</code></dt>
+              <dt><code>@thefinder/next</code></dt>
               <dd>Next.js routes and standalone-safe project root detection.</dd>
               <a class="more" href="docs/next.html">API</a>
             </div>
             <div>
-              <dt><code>@ci-finder/ckeditor</code></dt>
+              <dt><code>@thefinder/ckeditor</code></dt>
               <dd>A CKEditor 5 plugin and a CKEditor 4 connector.</dd>
               <a class="more" href="docs/ckeditor.html">API</a>
             </div>
@@ -613,12 +596,12 @@ app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c)
 
     <footer class="footer">
       <div class="wrap footer-in">
-        <p>ciFinder is open source under the MIT license. Built by Alper Koşay.</p>
+        <p>theFinder is open source under the MIT license. Built by Alper Koşay.</p>
         <p class="footer-links">
           <a href="docs/">Docs</a>
           <a href="docs/protocol.html">HTTP protocol</a>
-          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
-          <a href="https://github.com/alperkosay/ci-finder/blob/main/ROADMAP.md">Roadmap</a>
+          <a href="https://github.com/alperkosay/thefinder">GitHub</a>
+          <a href="https://github.com/alperkosay/thefinder/blob/main/ROADMAP.md">Roadmap</a>
         </p>
       </div>
     </footer>

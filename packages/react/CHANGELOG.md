@@ -1,4 +1,4 @@
-# @ci-finder/react
+# @thefinder/react
 
 ## 0.1.1
 

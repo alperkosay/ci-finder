@@ -1,33 +1,33 @@
-import { ApiError, createClient, type CiFinderClient } from "@ci-finder/core/client";
-import { openFilePicker, pickedUrl, type FilePickerOptions, type PickedFile } from "@ci-finder/react";
+import { ApiError, createClient, type TheFinderClient } from "@thefinder/core/client";
+import { openFilePicker, pickedUrl, type FilePickerOptions, type PickedFile } from "@thefinder/react";
 import { ensureFolder } from "./folder";
 
 /**
  * CKEditor 4 connector. CKEditor 4 is configured through a global `CKEDITOR` object, so instead
- * of importing it this module registers a `cifinder` plugin on the instance you pass in:
+ * of importing it this module registers a `thefinder` plugin on the instance you pass in:
  *
  * ```ts
- * import { registerCiFinder } from "@ci-finder/ckeditor/v4";
+ * import { registerTheFinder } from "@thefinder/ckeditor/v4";
  *
- * registerCiFinder(window.CKEDITOR);
+ * registerTheFinder(window.CKEDITOR);
  * CKEDITOR.replace("body", {
- *   extraPlugins: "cifinder,uploadimage",
- *   ciFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
+ *   extraPlugins: "thefinder,uploadimage",
+ *   theFinder: { endpoint: "/api/files", uploadFolder: "/editor" },
  * });
  * ```
  *
  * What it does:
- * - adds a `CiFinder` toolbar button (images are inserted as images, other files as links);
- * - turns the "Browse Server" buttons of the image and link dialogs into the ciFinder picker;
- * - uploads pasted and dropped images (the `uploadimage` plugin) through ciFinder.
+ * - adds a `TheFinder` toolbar button (images are inserted as images, other files as links);
+ * - turns the "Browse Server" buttons of the image and link dialogs into theFinder's picker;
+ * - uploads pasted and dropped images (the `uploadimage` plugin) through theFinder.
  */
 
-export interface CiFinderEditor4Config {
-  /** URL of the ciFinder API route. Default: "/api/files". */
+export interface TheFinderEditor4Config {
+  /** URL of theFinder's API route. Default: "/api/files". */
   endpoint?: string;
   headers?: Record<string, string> | (() => Record<string, string>);
   credentials?: RequestCredentials;
-  client?: CiFinderClient;
+  client?: TheFinderClient;
   /** Folder for pasted / dropped images: a path in the first volume, or `{ volume, path }`. `false` disables. Default: "/editor". */
   uploadFolder?: string | { volume: string; path: string } | false;
   /** Insert absolute URLs. Default: false. */
@@ -56,7 +56,7 @@ interface CKFileLoader {
   on(event: "abort", listener: () => void): void;
 }
 interface CKEditor4 {
-  config: Record<string, unknown> & { ciFinder?: CiFinderEditor4Config; language?: string; defaultLanguage?: string };
+  config: Record<string, unknown> & { theFinder?: TheFinderEditor4Config; language?: string; defaultLanguage?: string };
   langCode: string;
   readOnly: boolean;
   popup?: (url: string, width?: number | string, height?: number | string, features?: string) => unknown;
@@ -78,8 +78,8 @@ export interface CKEditorStatic {
   tools: { callFunction(ref: number | string, ...args: unknown[]): unknown; htmlEncodeAttr(text: string): string; htmlEncode(text: string): string };
 }
 
-const MARKER = "#cifinder";
-const IMAGE_MARKER = "#cifinder-image";
+const MARKER = "#thefinder";
+const IMAGE_MARKER = "#thefinder-image";
 
 const LABELS: Record<string, { browse: string; insert: string; uploadFailed: string }> = {
   en: { browse: "Browse files", insert: "Insert", uploadFailed: "Upload failed" },
@@ -97,26 +97,26 @@ const ICON =
   );
 
 function injectIconStyle(): void {
-  if (typeof document === "undefined" || document.getElementById("cifinder-cke4")) return;
+  if (typeof document === "undefined" || document.getElementById("thefinder-cke4")) return;
   const style = document.createElement("style");
-  style.id = "cifinder-cke4";
-  style.textContent = `.cke_button__cifinder_icon{background:url("${ICON}") center/16px 16px no-repeat !important}`;
+  style.id = "thefinder-cke4";
+  style.textContent = `.cke_button__thefinder_icon{background:url("${ICON}") center/16px 16px no-repeat !important}`;
   document.head.appendChild(style);
 }
 
-/** Registers the `cifinder` plugin on a CKEditor 4 global. Safe to call more than once. */
-export function registerCiFinder(CKEDITOR: CKEditorStatic): void {
-  if (CKEDITOR.plugins.registered.cifinder) return;
+/** Registers the `thefinder` plugin on a CKEditor 4 global. Safe to call more than once. */
+export function registerTheFinder(CKEDITOR: CKEditorStatic): void {
+  if (CKEDITOR.plugins.registered.thefinder) return;
   injectIconStyle();
 
-  CKEDITOR.plugins.add("cifinder", {
+  CKEDITOR.plugins.add("thefinder", {
     requires: "filebrowser",
 
     // Runs before every plugin's `init`: turn on the browse buttons and the upload path the
     // filebrowser / uploadimage plugins look for, unless the app set its own.
     beforeInit(editor) {
       const c = editor.config;
-      const settings = c.ciFinder ?? {};
+      const settings = c.theFinder ?? {};
       c.filebrowserBrowseUrl ??= MARKER;
       c.filebrowserImageBrowseUrl ??= IMAGE_MARKER;
       if (settings.uploadFolder !== false) {
@@ -126,7 +126,7 @@ export function registerCiFinder(CKEDITOR: CKEditorStatic): void {
     },
 
     init(editor) {
-      const settings: CiFinderEditor4Config = editor.config.ciFinder ?? {};
+      const settings: TheFinderEditor4Config = editor.config.theFinder ?? {};
       const endpoint = settings.endpoint ?? "/api/files";
       const client = settings.client ?? createClient({ endpoint, headers: settings.headers, credentials: settings.credentials });
       const lang = LABELS[(editor.langCode || "en").split("-")[0]!] ?? LABELS.en!;
@@ -154,7 +154,7 @@ export function registerCiFinder(CKEDITOR: CKEditorStatic): void {
       };
 
       // Toolbar button: insert straight into the content.
-      editor.addCommand("cifinder", {
+      editor.addCommand("thefinder", {
         canUndo: true,
         exec(ed) {
           void pick(false, true).then((files) => {
@@ -171,7 +171,7 @@ export function registerCiFinder(CKEDITOR: CKEditorStatic): void {
           });
         },
       });
-      editor.ui.addButton?.("CiFinder", { label: lang.browse, command: "cifinder", toolbar: "insert,5" });
+      editor.ui.addButton?.("TheFinder", { label: lang.browse, command: "thefinder", toolbar: "insert,5" });
 
       // "Browse Server" in dialogs: the filebrowser plugin opens `editor.popup(url)` with the
       // callback number in the URL; answer it with the picked file instead of a popup window.
@@ -234,4 +234,4 @@ export function registerCiFinder(CKEDITOR: CKEditorStatic): void {
   });
 }
 
-export type { PickedFile } from "@ci-finder/react";
+export type { PickedFile } from "@thefinder/react";

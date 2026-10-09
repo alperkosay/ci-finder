@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createCiFinder, type CiFinder } from "../src/index";
+import { createTheFinder, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { s3Driver } from "../src/drivers/s3";
 import { presignUrl, signRequest } from "../src/drivers/sigv4";
@@ -43,7 +43,7 @@ describe("SigV4 (AWS documentation test vectors)", () => {
 
 describe("S3 driver (in-memory S3)", () => {
   let s3: ReturnType<typeof fakeS3>;
-  let finder: CiFinder;
+  let finder: TheFinder;
   let a: ReturnType<typeof api>;
   let dir: string;
   let cleanup: () => Promise<void>;
@@ -52,7 +52,7 @@ describe("S3 driver (in-memory S3)", () => {
   beforeEach(async () => {
     ({ dir, cleanup } = await tempDir());
     s3 = fakeS3("bucket");
-    finder = createCiFinder({
+    finder = createTheFinder({
       volumes: [
         {
           id: "s3",
@@ -151,7 +151,7 @@ describe("S3 driver (in-memory S3)", () => {
 
   it("refuses a chunk size below the S3 minimum", () => {
     expect(() =>
-      createCiFinder({
+      createTheFinder({
         volumes: [{ id: "s3", driver: s3Driver({ bucket: "b", accessKeyId: "k", secretAccessKey: "s", fetch: s3.fetch }) }],
         chunkSize: 1024,
       }),

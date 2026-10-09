@@ -1,5 +1,5 @@
-import { CiFinderError, basename, dirname, isInside } from "@ci-finder/core";
-import type { ByteRange, DriverStat, StorageDriver, UploadChunk, UploadChunkResult, VolumePath, WriteData } from "@ci-finder/core";
+import { TheFinderError, basename, dirname, isInside } from "@thefinder/core";
+import type { ByteRange, DriverStat, StorageDriver, UploadChunk, UploadChunkResult, VolumePath, WriteData } from "@thefinder/core";
 
 /**
  * In-memory storage for the live demo. Everything lives in a Map keyed by volume path, so a page
@@ -34,13 +34,13 @@ export class MemoryDriver implements StorageDriver {
 
   private need(path: VolumePath): Node {
     const node = this.nodes.get(path);
-    if (!node) throw new CiFinderError("NOT_FOUND", "File not found");
+    if (!node) throw new TheFinderError("NOT_FOUND", "File not found");
     return node;
   }
 
   private parentOf(path: VolumePath): Node {
     const parent = this.nodes.get(dirname(path));
-    if (!parent || parent.kind !== "dir") throw new CiFinderError("NOT_FOUND", "Parent folder not found");
+    if (!parent || parent.kind !== "dir") throw new TheFinderError("NOT_FOUND", "Parent folder not found");
     return parent;
   }
 
@@ -62,7 +62,7 @@ export class MemoryDriver implements StorageDriver {
   }
 
   private reserve(bytes: number) {
-    if (this.used() + bytes > this.quota) throw new CiFinderError("TOO_LARGE", "The demo storage is full");
+    if (this.used() + bytes > this.quota) throw new TheFinderError("TOO_LARGE", "The demo storage is full");
   }
 
   async stat(path: VolumePath): Promise<DriverStat | null> {
@@ -71,7 +71,7 @@ export class MemoryDriver implements StorageDriver {
   }
 
   async list(path: VolumePath): Promise<DriverStat[]> {
-    if (this.need(path).kind !== "dir") throw new CiFinderError("NOT_A_DIRECTORY", "Not a directory");
+    if (this.need(path).kind !== "dir") throw new TheFinderError("NOT_A_DIRECTORY", "Not a directory");
     const out: DriverStat[] = [];
     for (const [p, node] of this.nodes) if (p !== "/" && dirname(p) === path) out.push(this.stats(p, node));
     return out;
@@ -84,14 +84,14 @@ export class MemoryDriver implements StorageDriver {
 
   async mkdir(path: VolumePath): Promise<void> {
     this.parentOf(path);
-    if (this.nodes.has(path)) throw new CiFinderError("EXISTS", "Already exists");
+    if (this.nodes.has(path)) throw new TheFinderError("EXISTS", "Already exists");
     this.nodes.set(path, { kind: "dir", mtime: Date.now() });
     this.touch(path);
   }
 
   async read(path: VolumePath, range?: ByteRange): Promise<ReadableStream<Uint8Array>> {
     const node = this.need(path);
-    if (node.kind !== "file") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (node.kind !== "file") throw new TheFinderError("NOT_A_FILE", "Not a file");
     const data = range ? node.data!.subarray(range.start, range.end + 1) : node.data!;
     return new ReadableStream({
       start(controller) {
@@ -104,7 +104,7 @@ export class MemoryDriver implements StorageDriver {
   async write(path: VolumePath, input: WriteData): Promise<void> {
     this.parentOf(path);
     const existing = this.nodes.get(path);
-    if (existing?.kind === "dir") throw new CiFinderError("NOT_A_FILE", "Not a file");
+    if (existing?.kind === "dir") throw new TheFinderError("NOT_A_FILE", "Not a file");
     const data = await toBytes(input);
     this.reserve(data.byteLength - (existing?.data?.byteLength ?? 0));
     this.nodes.set(path, { kind: "file", mtime: Date.now(), data });
@@ -120,7 +120,7 @@ export class MemoryDriver implements StorageDriver {
   async copy(from: VolumePath, to: VolumePath): Promise<void> {
     this.need(from);
     this.parentOf(to);
-    if (this.nodes.has(to)) throw new CiFinderError("EXISTS", "Already exists");
+    if (this.nodes.has(to)) throw new TheFinderError("EXISTS", "Already exists");
     const items = this.subtree(from);
     this.reserve(items.reduce((n, [, node]) => n + (node.data?.byteLength ?? 0), 0));
     const now = Date.now();
@@ -134,7 +134,7 @@ export class MemoryDriver implements StorageDriver {
     this.need(from);
     this.parentOf(to);
     const caseOnly = from.toLowerCase() === to.toLowerCase();
-    if (this.nodes.has(to) && !caseOnly) throw new CiFinderError("EXISTS", "Already exists");
+    if (this.nodes.has(to) && !caseOnly) throw new TheFinderError("EXISTS", "Already exists");
     const items = this.subtree(from);
     for (const [p] of items) this.nodes.delete(p);
     for (const [p, node] of items) this.nodes.set(to + p.slice(from.length), node);
@@ -152,9 +152,9 @@ export class MemoryDriver implements StorageDriver {
       this.uploads.set(session, buffer);
     } else {
       buffer = this.uploads.get(session);
-      if (!buffer) throw new CiFinderError("BAD_REQUEST", "Upload session expired");
+      if (!buffer) throw new TheFinderError("BAD_REQUEST", "Upload session expired");
     }
-    if (chunk.offset + chunk.data.byteLength > buffer.byteLength) throw new CiFinderError("BAD_REQUEST", "Chunk out of range");
+    if (chunk.offset + chunk.data.byteLength > buffer.byteLength) throw new TheFinderError("BAD_REQUEST", "Chunk out of range");
     buffer.set(chunk.data, chunk.offset);
 
     const done = chunk.index === chunk.total - 1;

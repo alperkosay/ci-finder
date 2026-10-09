@@ -4,7 +4,7 @@
 //   node site/build.mjs --serve   build and serve on http://localhost:4173
 //
 // The docs pages are generated from README.md / README.tr.md and docs/api/**/*.md, so the markdown
-// stays the single source. English docs go to /docs/, Turkish ones to /docs/tr/. The live demo bundles the real @ci-finder/core and @ci-finder/react packages,
+// stays the single source. English docs go to /docs/, Turkish ones to /docs/tr/. The live demo bundles the real @thefinder/core and @thefinder/react packages,
 // so run `npm run build` first.
 
 import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
@@ -17,9 +17,9 @@ import * as esbuild from "esbuild";
 const site = dirname(fileURLToPath(import.meta.url));
 const repo = join(site, "..");
 const out = join(site, "dist");
-const GITHUB = "https://github.com/alperkosay/ci-finder";
+const GITHUB = "https://github.com/alperkosay/thefinder";
 
-// Syntax highlighting reuses the editor's own tokenizer from @ci-finder/react.
+// Syntax highlighting reuses the editor's own tokenizer from @thefinder/react.
 const { outputFiles } = await esbuild.build({
   entryPoints: [join(repo, "packages/react/src/editors/highlight.ts")],
   bundle: true,
@@ -49,9 +49,9 @@ const LANGS = [
       prev: "Previous",
       next: "Next",
       generated: (link) => `This page is generated from ${link}.`,
-      docs: "ciFinder docs",
+      docs: "theFinder docs",
       anchor: "Link to this heading",
-      home: "ciFinder home",
+      home: "theFinder home",
       navOverview: "Overview",
       navCompare: "Compared to elFinder",
       navDocs: "Docs",
@@ -77,9 +77,9 @@ const LANGS = [
       prev: "Önceki",
       next: "Sonraki",
       generated: (link) => `Bu sayfa ${link} dosyasından üretildi.`,
-      docs: "ciFinder belgeleri",
+      docs: "theFinder belgeleri",
       anchor: "Bu başlığa bağlantı",
-      home: "ciFinder ana sayfa",
+      home: "theFinder ana sayfa",
       navOverview: "Genel bakış",
       navCompare: "elFinder ile karşılaştırma",
       navDocs: "Belgeler",
@@ -333,7 +333,7 @@ const nav = (prefix, page, twin) => {
   const demo = `${prefix}demo/?lang=${page.lang.code}`;
   return `<nav class="localnav" aria-label="Site">
       <div class="localnav-in">
-        <a class="wordmark" href="${prefix}${home}" aria-label="${t.home}"><span>ci</span>Finder</a>
+        <a class="wordmark" href="${prefix}${home}" aria-label="${t.home}"><span>the</span>Finder</a>
         <div class="localnav-links">
           <a href="${prefix}${home}#${anchors.overview}">${t.navOverview}</a>
           <a href="${prefix}${home}#${anchors.compare}">${t.navCompare}</a>

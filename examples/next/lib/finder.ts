@@ -1,8 +1,8 @@
-import { sharpImages, sharpThumbnailer } from "@ci-finder/core/sharp";
-import { createCiFinder, localDriver, s3Driver, uploadsDir, type VolumeOptions } from "@ci-finder/next";
+import { sharpImages, sharpThumbnailer } from "@thefinder/core/sharp";
+import { createTheFinder, localDriver, s3Driver, uploadsDir, type VolumeOptions } from "@thefinder/next";
 
 /**
- * One shared ciFinder instance for the app.
+ * One shared theFinder instance for the app.
  * Files are stored in `<project root>/uploads` (also under `output: "standalone"`)
  * and served by `app/uploads/[...path]/route.ts`.
  */
@@ -34,7 +34,7 @@ if (process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECR
   });
 }
 
-export const finder = createCiFinder({
+export const finder = createTheFinder({
   volumes,
   // sharp ships with Next.js (next/image), so thumbnails need no extra install here.
   thumbnails: { generator: sharpThumbnailer() },
@@ -43,7 +43,7 @@ export const finder = createCiFinder({
   // Plug in your app's session here, e.g.:
   // authorize: async ({ request }) => {
   //   const session = await getSession(request);
-  //   if (!session) throw new CiFinderError("UNAUTHORIZED");
+  //   if (!session) throw new TheFinderError("UNAUTHORIZED");
   //   return session.role === "viewer" ? { readOnly: true } : true;
   // },
 });

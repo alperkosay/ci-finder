@@ -1,4 +1,4 @@
-# @ci-finder/next
+# @thefinder/next
 
 ## 0.1.1
 

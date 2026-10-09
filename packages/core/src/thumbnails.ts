@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import { sha1Hex } from "./id";
 import { dirname, extname } from "./path";
 import { readAll } from "./stream";
@@ -7,11 +7,11 @@ import type { Volume } from "./volume";
 
 /**
  * Server-side thumbnails. Generated on first request by a pluggable `Thumbnailer` (e.g. sharp) and
- * cached inside the volume under `/.cf-thumbs/<size>/<sha1(path)>.<ext>`, so they work on local
+ * cached inside the volume under `/.tf-thumbs/<size>/<sha1(path)>.<ext>`, so they work on local
  * disk and S3 alike. A cached thumbnail is reused while it is newer than its source.
  */
-export const THUMBS_ROOT = "/.cf-thumbs";
-export const THUMBS_NAME = ".cf-thumbs";
+export const THUMBS_ROOT = "/.tf-thumbs";
+export const THUMBS_NAME = ".tf-thumbs";
 
 export function isThumbsPath(path: VolumePath): boolean {
   return path === THUMBS_ROOT || path.startsWith(THUMBS_ROOT + "/");
@@ -71,13 +71,13 @@ export class ThumbnailService {
     if (pending) return pending;
 
     const job = this.limit(async () => {
-      if (source.size > this.maxInputSize) throw new CiFinderError("TOO_LARGE", "Image is too large for a thumbnail");
+      if (source.size > this.maxInputSize) throw new TheFinderError("TOO_LARGE", "Image is too large for a thumbnail");
       const input = await readAll(await vol.driver.read(source.path), this.maxInputSize);
       const output = await this.options.generator.generate(input, size);
       await vol.mkdirp(dirname(path));
       await vol.driver.write(path, output);
       const stat = await vol.driver.stat(path);
-      if (!stat) throw new CiFinderError("STORAGE", "Thumbnail was not stored");
+      if (!stat) throw new TheFinderError("STORAGE", "Thumbnail was not stored");
       return stat;
     }).finally(() => this.inflight.delete(key));
     this.inflight.set(key, job);

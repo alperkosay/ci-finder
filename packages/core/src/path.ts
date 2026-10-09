@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import type { VolumePath } from "./types";
 
 /**
@@ -6,12 +6,12 @@ import type { VolumePath } from "./types";
  * resolving them, so a crafted path can never point outside the volume.
  */
 export function normalizePath(input: string): VolumePath {
-  if (typeof input !== "string") throw new CiFinderError("BAD_REQUEST", "Path must be a string");
-  if (input.includes("\0")) throw new CiFinderError("BAD_REQUEST", "Invalid path");
+  if (typeof input !== "string") throw new TheFinderError("BAD_REQUEST", "Path must be a string");
+  if (input.includes("\0")) throw new TheFinderError("BAD_REQUEST", "Invalid path");
   const parts: string[] = [];
   for (const part of input.split("/")) {
     if (part === "" || part === ".") continue;
-    if (part === ".." || part.includes("\\")) throw new CiFinderError("BAD_REQUEST", "Invalid path");
+    if (part === ".." || part.includes("\\")) throw new TheFinderError("BAD_REQUEST", "Invalid path");
     parts.push(part);
   }
   return "/" + parts.join("/");
@@ -48,14 +48,14 @@ const RESERVED = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
 
 /** Validates a single file/folder name. Strict enough to be portable across Windows, macOS, Linux and S3. */
 export function assertValidName(name: unknown): asserts name is string {
-  if (typeof name !== "string") throw new CiFinderError("INVALID_NAME", "Name is required");
+  if (typeof name !== "string") throw new TheFinderError("INVALID_NAME", "Name is required");
   const trimmed = name.trim();
-  if (!trimmed || trimmed === "." || trimmed === "..") throw new CiFinderError("INVALID_NAME", "Name is required");
-  if (trimmed !== name) throw new CiFinderError("INVALID_NAME", "Name cannot start or end with spaces");
-  if (name.length > 255) throw new CiFinderError("INVALID_NAME", "Name is too long");
-  if (INVALID_CHARS.test(name)) throw new CiFinderError("INVALID_NAME", 'Name cannot contain \\ / : * ? " < > |');
-  if (name.endsWith(".")) throw new CiFinderError("INVALID_NAME", "Name cannot end with a dot");
-  if (RESERVED.test(name)) throw new CiFinderError("INVALID_NAME", "This name is reserved by the system");
+  if (!trimmed || trimmed === "." || trimmed === "..") throw new TheFinderError("INVALID_NAME", "Name is required");
+  if (trimmed !== name) throw new TheFinderError("INVALID_NAME", "Name cannot start or end with spaces");
+  if (name.length > 255) throw new TheFinderError("INVALID_NAME", "Name is too long");
+  if (INVALID_CHARS.test(name)) throw new TheFinderError("INVALID_NAME", 'Name cannot contain \\ / : * ? " < > |');
+  if (name.endsWith(".")) throw new TheFinderError("INVALID_NAME", "Name cannot end with a dot");
+  if (RESERVED.test(name)) throw new TheFinderError("INVALID_NAME", "This name is reserved by the system");
 }
 
 /** "report.pdf" -> "report (2).pdf"; "archive.tar.gz" -> "archive (2).tar.gz". */

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { createClient, type CiFinderClient, type Entry } from "@ci-finder/core/client";
-import { CiFinder, type CiFinderProps } from "./CiFinder";
+import { createClient, type TheFinderClient, type Entry } from "@thefinder/core/client";
+import { TheFinder, type TheFinderProps } from "./TheFinder";
 
 /** A chosen file, with a URL ready to put in a form field, an `<img src>` or an editor. */
 export interface PickedFile extends Entry {
@@ -9,15 +9,15 @@ export interface PickedFile extends Entry {
   url: string;
 }
 
-export interface FilePickerOptions extends Omit<CiFinderProps, "onSelect" | "onCancel" | "height" | "style" | "persistKey"> {
+export interface FilePickerOptions extends Omit<TheFinderProps, "onSelect" | "onCancel" | "height" | "style" | "persistKey"> {
   /** Return absolute URLs ("https://site/uploads/a.png") instead of server-relative ones. Default: false. */
   absoluteUrls?: boolean;
-  /** localStorage key for the picker's view preferences. Default: "ci-finder-picker". */
+  /** localStorage key for the picker's view preferences. Default: "thefinder-picker". */
   persistKey?: string | false;
 }
 
 /** The URL a picked entry is reachable at. */
-export function pickedUrl(entry: Entry, client: CiFinderClient, absolute = false): string {
+export function pickedUrl(entry: Entry, client: TheFinderClient, absolute = false): string {
   const url = entry.url ?? client.fileUrl(entry);
   return absolute && typeof location !== "undefined" ? new URL(url, location.href).toString() : url;
 }
@@ -49,8 +49,8 @@ function PickerDialog({ onDone, absoluteUrls, ...props }: FilePickerOptions & { 
   return (
     <dialog
       ref={ref}
-      className="cf-picker"
-      aria-label={props.selectLabel ?? "ciFinder"}
+      className="tf-picker"
+      aria-label={props.selectLabel ?? "theFinder"}
       // Escape is handled below so it can first close menus and dialogs inside the file manager.
       onCancel={(e) => e.preventDefault()}
       onClose={() => finish(null)}
@@ -61,8 +61,8 @@ function PickerDialog({ onDone, absoluteUrls, ...props }: FilePickerOptions & { 
         if (e.target === ref.current) finish(null); // backdrop click
       }}
     >
-      <CiFinder
-        persistKey="ci-finder-picker"
+      <TheFinder
+        persistKey="thefinder-picker"
         {...props}
         client={client}
         height="100%"
@@ -74,7 +74,7 @@ function PickerDialog({ onDone, absoluteUrls, ...props }: FilePickerOptions & { 
 }
 
 /**
- * Opens ciFinder as a modal file picker and resolves with the chosen files, or `null` when the
+ * Opens theFinder as a modal file picker and resolves with the chosen files, or `null` when the
  * user cancels. Works outside React too (vanilla JS, Vue, rich text editors):
  *
  * ```ts
@@ -86,7 +86,7 @@ export function openFilePicker(options: FilePickerOptions): Promise<PickedFile[]
   if (typeof document === "undefined") return Promise.resolve(null);
   return new Promise((resolve) => {
     const host = document.createElement("div");
-    host.className = "cf-picker-host";
+    host.className = "tf-picker-host";
     document.body.appendChild(host);
     const root = createRoot(host);
     const onDone = (files: PickedFile[] | null) => {

@@ -9,7 +9,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, modKey, useElementSize, useFinder, useIsoLayoutEffect, useStore, useVisible } from "../context";
 import { baseOf, categoryOf, formatDate, formatSize, kindLabel, locationOf } from "../format";
 import { FileIcon, FolderIcon, Icon, Spinner } from "../icons";
@@ -67,7 +67,7 @@ function RenameInput({ entry, multiline }: { entry: Entry; multiline: boolean })
 
   const props = {
     ref,
-    className: "cf-rename",
+    className: "tf-rename",
     defaultValue: entry.name,
     spellCheck: false,
     "aria-label": entry.name,
@@ -97,7 +97,7 @@ function Thumb({ entry, size, pixels }: { entry: Entry; size: number; pixels: nu
   if (entry.kind === "dir") return <FolderIcon size={size} />;
   if (thumbnails && category === "image" && !failed && entry.size > 0 && !entry.trash) {
     return (
-      <span className="cf-thumb" style={{ width: size, height: size }}>
+      <span className="tf-thumb" style={{ width: size, height: size }}>
         <img src={store.previewUrl(entry, pixels)} alt="" loading="lazy" decoding="async" draggable={false} onError={() => setFailed(true)} />
       </span>
     );
@@ -176,14 +176,14 @@ const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renam
   };
 
   const common = {
-    id: `cf-item-${entry.id}`,
+    id: `tf-item-${entry.id}`,
     role: view === "list" ? "row" : "option",
     "aria-rowindex": view === "list" ? rowIndex : undefined,
     "aria-selected": selected,
     "data-id": entry.id,
     draggable: !renaming && !entry.locked && !entry.trash,
     className: cx(
-      "cf-item",
+      "tf-item",
       // Odd list rows by absolute position, so striping stays put while the virtual window scrolls.
       view === "list" && rowIndex % 2 === 1 && "is-alt",
       selected && "is-selected",
@@ -216,10 +216,10 @@ const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renam
   if (view === "grid") {
     return (
       <div {...common} title={entry.name}>
-        <div className="cf-item-icon">
+        <div className="tf-item-icon">
           <Thumb entry={entry} size={iconSize} pixels={256} />
         </div>
-        {renaming ? <RenameInput entry={entry} multiline /> : <div className="cf-item-name">{entry.name}</div>}
+        {renaming ? <RenameInput entry={entry} multiline /> : <div className="tf-item-name">{entry.name}</div>}
       </div>
     );
   }
@@ -227,17 +227,17 @@ const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renam
   const location = showLocation ? locationOf(entry, store.volumeOf(entry)?.name ?? entry.volume) : "";
   return (
     <div {...common}>
-      <div className="cf-col cf-col-name" role="gridcell">
+      <div className="tf-col tf-col-name" role="gridcell">
         <Thumb entry={entry} size={18} pixels={128} />
-        {renaming ? <RenameInput entry={entry} multiline={false} /> : <span className="cf-item-name">{entry.name}</span>}
+        {renaming ? <RenameInput entry={entry} multiline={false} /> : <span className="tf-item-name">{entry.name}</span>}
       </div>
-      <div className="cf-col cf-col-date" role="gridcell">
+      <div className="tf-col tf-col-date" role="gridcell">
         {formatDate(entry.mtime, locale, t)}
       </div>
-      <div className="cf-col cf-col-size" role="gridcell">
+      <div className="tf-col tf-col-size" role="gridcell">
         {entry.kind === "dir" ? "—" : formatSize(entry.size, locale)}
       </div>
-      <div className="cf-col cf-col-kind" role="gridcell" title={location || undefined}>
+      <div className="tf-col tf-col-kind" role="gridcell" title={location || undefined}>
         {showLocation ? location : kindLabel(entry, t)}
       </div>
     </div>
@@ -249,24 +249,24 @@ function ListHeader({ showLocation, inTrash }: { showLocation: boolean; inTrash:
   const sortKey = useStore((s) => s.sortKey);
   const sortDir = useStore((s) => s.sortDir);
   const col = (key: "name" | "mtime" | "size" | "kind", label: string, cls: string) => (
-    <div role="columnheader" aria-sort={sortKey === key ? (sortDir === 1 ? "ascending" : "descending") : "none"} className={cx("cf-col-head", cls)}>
-      <button type="button" className={cx("cf-col", sortKey === key && "is-sorted")} onClick={() => store.setSort(key)}>
+    <div role="columnheader" aria-sort={sortKey === key ? (sortDir === 1 ? "ascending" : "descending") : "none"} className={cx("tf-col-head", cls)}>
+      <button type="button" className={cx("tf-col", sortKey === key && "is-sorted")} onClick={() => store.setSort(key)}>
         <span>{label}</span>
         {sortKey === key && <Icon name={sortDir === 1 ? "chevronUp" : "chevronDown"} size={12} />}
       </button>
     </div>
   );
   return (
-    <div className="cf-list-head" role="row" aria-rowindex={1} onMouseDown={(e) => e.stopPropagation()}>
-      {col("name", t("name"), "cf-col-name")}
-      {col("mtime", inTrash ? t("deletedAt") : t("modified"), "cf-col-date")}
-      {col("size", t("size"), "cf-col-size")}
+    <div className="tf-list-head" role="row" aria-rowindex={1} onMouseDown={(e) => e.stopPropagation()}>
+      {col("name", t("name"), "tf-col-name")}
+      {col("mtime", inTrash ? t("deletedAt") : t("modified"), "tf-col-date")}
+      {col("size", t("size"), "tf-col-size")}
       {showLocation ? (
-        <div role="columnheader" className="cf-col-head cf-col-kind">
-          <span className="cf-col">{inTrash ? t("originalLocation") : t("location")}</span>
+        <div role="columnheader" className="tf-col-head tf-col-kind">
+          <span className="tf-col">{inTrash ? t("originalLocation") : t("location")}</span>
         </div>
       ) : (
-        col("kind", t("kind"), "cf-col-kind")
+        col("kind", t("kind"), "tf-col-kind")
       )}
     </div>
   );
@@ -282,11 +282,11 @@ function EmptyState() {
   if (loading) return null;
   if (error) {
     return (
-      <div className="cf-empty is-error">
+      <div className="tf-empty is-error">
         <Icon name="alert" size={28} />
         <strong>{t("errorLoad")}</strong>
         <span>{error}</span>
-        <button type="button" className="cf-btn" onClick={() => store.refresh()}>
+        <button type="button" className="tf-btn" onClick={() => store.refresh()}>
           {t("retry")}
         </button>
       </div>
@@ -294,7 +294,7 @@ function EmptyState() {
   }
   if (inTrash && !searching) {
     return (
-      <div className="cf-empty">
+      <div className="tf-empty">
         <Icon name="trash" size={32} />
         <strong>{t("trashEmpty")}</strong>
         <span>{t("trashEmptyHint", { days: retention })}</span>
@@ -302,7 +302,7 @@ function EmptyState() {
     );
   }
   return (
-    <div className="cf-empty">
+    <div className="tf-empty">
       {searching ? <Icon name="search" size={28} /> : <FolderIcon size={64} open />}
       <strong>{searching ? t("noResults") : t("emptyFolder")}</strong>
       <span>{searching ? t("noResultsHint") : t("emptyFolderHint")}</span>
@@ -493,10 +493,10 @@ export function FileView({ density }: { density: Density }) {
 
   const onPointerDown = (e: ReactPointerEvent) => {
     // Track every pointer type so a later mouse click is never mistaken for a tap.
-    if (!(e.target as HTMLElement).closest(".cf-item, .cf-list-head")) bgTouch.handlers.onPointerDown(e);
+    if (!(e.target as HTMLElement).closest(".tf-item, .tf-list-head")) bgTouch.handlers.onPointerDown(e);
     if (e.pointerType === "touch" || e.button !== 0) return;
     const el = scrollRef.current!;
-    if ((e.target as HTMLElement).closest(".cf-item, .cf-list-head")) return;
+    if ((e.target as HTMLElement).closest(".tf-item, .tf-list-head")) return;
     if (e.clientX > el.getBoundingClientRect().left + el.clientWidth) return; // scrollbar
     el.focus({ preventScroll: true });
     const additive = e.shiftKey || modKey(e);
@@ -603,29 +603,29 @@ export function FileView({ density }: { density: Density }) {
   const blockTop = view === "list" ? geometry.headH + firstRow * geometry.rowH : geometry.pad + firstRow * (geometry.cellH + geometry.gap);
 
   return (
-    <div className="cf-view-wrap" {...dropHandlers}>
+    <div className="tf-view-wrap" {...dropHandlers}>
       <div
         ref={scrollRef}
-        className={cx("cf-view", `is-${view}`)}
-        data-cf-view
+        className={cx("tf-view", `is-${view}`)}
+        data-tf-view
         tabIndex={0}
         role={view === "list" ? "grid" : "listbox"}
         aria-multiselectable="true"
         aria-rowcount={view === "list" ? ids.length + 1 : undefined}
         aria-label={searching ? t("search") : (cwdEntry?.name ?? "")}
-        aria-activedescendant={focus && ids.includes(focus) ? `cf-item-${focus}` : undefined}
+        aria-activedescendant={focus && ids.includes(focus) ? `tf-item-${focus}` : undefined}
         onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
         onPointerMove={bgTouch.handlers.onPointerMove}
         onPointerUp={bgTouch.handlers.onPointerUp}
         onPointerCancel={bgTouch.handlers.onPointerCancel}
         onClick={(e) => {
           // Tapping empty space ends a touch selection.
-          if (bgTouch.wasTouch() && !bgTouch.consumeLongPress() && !(e.target as HTMLElement).closest(".cf-item")) store.clearSelection();
+          if (bgTouch.wasTouch() && !bgTouch.consumeLongPress() && !(e.target as HTMLElement).closest(".tf-item")) store.clearSelection();
         }}
         onKeyDown={onKeyDown}
         onPointerDown={onPointerDown}
         onContextMenu={(e) => {
-          if ((e.target as HTMLElement).closest(".cf-item")) return;
+          if ((e.target as HTMLElement).closest(".tf-item")) return;
           if (bgTouch.wasTouch()) return e.preventDefault();
           e.preventDefault();
           store.clearSelection();
@@ -633,17 +633,17 @@ export function FileView({ density }: { density: Density }) {
         }}
         style={
           {
-            "--cf-cols": geometry.cols,
-            "--cf-cell-h": `${L.cellH}px`,
-            "--cf-row-h": `${L.rowH}px`,
-            "--cf-gap": `${L.gap}px`,
-            "--cf-pad": `${L.pad}px`,
+            "--tf-cols": geometry.cols,
+            "--tf-cell-h": `${L.cellH}px`,
+            "--tf-row-h": `${L.rowH}px`,
+            "--tf-gap": `${L.gap}px`,
+            "--tf-pad": `${L.pad}px`,
           } as React.CSSProperties
         }
       >
-        <div className="cf-view-canvas" style={{ height: geometry.height }}>
+        <div className="tf-view-canvas" style={{ height: geometry.height }}>
           {view === "list" && ids.length > 0 && <ListHeader showLocation={searching || inTrash} inTrash={inTrash} />}
-          <div className={cx("cf-view-block", `is-${view}`)} style={{ transform: `translateY(${blockTop}px)` }}>
+          <div className={cx("tf-view-block", `is-${view}`)} style={{ transform: `translateY(${blockTop}px)` }}>
             {slice.map((id, k) => {
               const entry = entries[id];
               if (!entry) return null;
@@ -663,18 +663,18 @@ export function FileView({ density }: { density: Density }) {
               );
             })}
           </div>
-          {lasso && <div className="cf-lasso" style={{ left: lasso.x, top: lasso.y, width: lasso.w, height: lasso.h }} />}
+          {lasso && <div className="tf-lasso" style={{ left: lasso.x, top: lasso.y, width: lasso.w, height: lasso.h }} />}
         </div>
         {!ids.length && !loading && <EmptyState />}
         {loading && (
-          <div className="cf-view-loading">
+          <div className="tf-view-loading">
             <Spinner size={20} />
           </div>
         )}
       </div>
       {fileDrag && (
-        <div className="cf-drop-overlay" aria-hidden="true">
-          <div className="cf-drop-card">
+        <div className="tf-drop-overlay" aria-hidden="true">
+          <div className="tf-drop-card">
             <Icon name="upload" size={22} />
             <span>{t("dropInto", { name: cwdEntry?.name ?? "" })}</span>
           </div>

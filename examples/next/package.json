@@ -11,10 +11,10 @@
     "seed": "node scripts/seed-demo.mjs"
   },
   "dependencies": {
-    "@ci-finder/ckeditor": "*",
-    "@ci-finder/core": "*",
-    "@ci-finder/next": "*",
-    "@ci-finder/react": "*",
+    "@thefinder/ckeditor": "*",
+    "@thefinder/core": "*",
+    "@thefinder/next": "*",
+    "@thefinder/react": "*",
     "ckeditor5": "^49.0.0",
     "next": "^16.4.0",
     "react": "^19.3.0",

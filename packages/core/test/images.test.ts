@@ -2,14 +2,14 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createCiFinder, type CiFinder } from "../src/index";
+import { createTheFinder, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { sharpImages } from "../src/sharp";
 import { api, id, tempDir } from "./helpers";
 
 let dir: string;
 let cleanup: () => Promise<void>;
-let finder: CiFinder;
+let finder: TheFinder;
 let a: ReturnType<typeof api>;
 
 /** A noisy photo-like PNG: compresses badly, so every conversion makes it smaller. */
@@ -29,7 +29,7 @@ const meta = async (name: string) => sharp(await readFile(join(dir, name))).meta
 
 beforeEach(async () => {
   ({ dir, cleanup } = await tempDir());
-  finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], images: sharpImages() });
+  finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], images: sharpImages() });
   a = api(finder);
   await writeFile(join(dir, "foto.png"), await photo(1600, 900));
   await writeFile(
@@ -91,7 +91,7 @@ describe("bulk image processing", () => {
     await writeFile(join(dir, "ikon.png"), tiny);
     const { results } = await a.ok("transform", { ids: [id("local", "/ikon.png")], width: 4000, format: "keep", quality: 100 });
     expect(results[0]).toMatchObject({ skipped: "larger", width: 8, height: 8 });
-    expect(await readdir(dir)).not.toContain(".cf-versions");
+    expect(await readdir(dir)).not.toContain(".tf-versions");
   });
 
   it("reports each file separately", async () => {
@@ -116,10 +116,10 @@ describe("bulk image processing", () => {
   });
 
   it("is refused when no processor is configured or the user is read-only", async () => {
-    const plain = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
+    const plain = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
     expect(await api(plain).fail("transform", { ids: [id("local", "/foto.png")], format: "webp" })).toBe("UNSUPPORTED");
     expect((await api(plain).ok("init")).images).toBeNull();
-    const viewer = createCiFinder({
+    const viewer = createTheFinder({
       volumes: [{ id: "local", driver: localDriver({ root: dir }) }],
       images: sharpImages(),
       authorize: () => ({ readOnly: true }),

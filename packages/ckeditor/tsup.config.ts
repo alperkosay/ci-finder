@@ -7,5 +7,5 @@ export default defineConfig({
   clean: true,
   target: "es2020",
   platform: "browser",
-  external: ["ckeditor5", /^@ckeditor\//, /^@ci-finder\//, "react", "react-dom"],
+  external: ["ckeditor5", /^@ckeditor\//, /^@thefinder\//, "react", "react-dom"],
 });

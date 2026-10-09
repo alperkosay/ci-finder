@@ -1,4 +1,4 @@
-import { CiFinderError } from "./errors";
+import { TheFinderError } from "./errors";
 import type { ImageFormat, ImageProcessor, ImageTransformOptions, Thumbnailer } from "./types";
 
 export interface SharpThumbnailerOptions {
@@ -22,7 +22,7 @@ function loadSharp(): Promise<Sharp | null> {
     (mod) => (mod as unknown as { default?: Sharp }).default ?? (mod as unknown as Sharp),
     (error: unknown) => {
       console.warn(
-        `[ci-finder] sharp could not be loaded, serving original images instead of thumbnails: ${(error as Error)?.message?.split("\n")[0] ?? error}`,
+        `[thefinder] sharp could not be loaded, serving original images instead of thumbnails: ${(error as Error)?.message?.split("\n")[0] ?? error}`,
       );
       return null;
     },
@@ -42,7 +42,7 @@ export function sharpThumbnailer(options: SharpThumbnailerOptions = {}): Thumbna
     extension: "webp",
     async generate(input, size) {
       const sharp = await loadSharp();
-      if (!sharp) throw new CiFinderError("UNSUPPORTED", "Thumbnails are unavailable");
+      if (!sharp) throw new TheFinderError("UNSUPPORTED", "Thumbnails are unavailable");
       const buffer = await sharp(input, { limitInputPixels, failOn: "none" })
         .rotate()
         .resize(size, size, { fit: "inside", withoutEnlargement: true })
@@ -74,14 +74,14 @@ export function sharpImages(options: SharpImagesOptions = {}): ImageProcessor {
     formats: ["jpeg", "png", "webp", "avif", "gif"],
     async transform(input, options) {
       const sharp = await loadSharp();
-      if (!sharp) throw new CiFinderError("UNSUPPORTED", "Image processing is unavailable");
+      if (!sharp) throw new TheFinderError("UNSUPPORTED", "Image processing is unavailable");
       try {
         return await run(sharp, input, options);
       } catch (e) {
-        if (e instanceof CiFinderError) throw e;
+        if (e instanceof TheFinderError) throw e;
         const message = String((e as Error)?.message ?? e).split("\n")[0]!;
         // Corrupt or unknown input is a property of the file, not a server failure.
-        throw new CiFinderError(/pixel limit/i.test(message) ? "TOO_LARGE" : "INVALID_IMAGE", message);
+        throw new TheFinderError(/pixel limit/i.test(message) ? "TOO_LARGE" : "INVALID_IMAGE", message);
       }
     },
   };
@@ -109,7 +109,7 @@ export function sharpImages(options: SharpImagesOptions = {}): ImageProcessor {
         pipeline = pipeline.gif({ effort: 7 });
         break;
       default:
-        throw new CiFinderError("UNSUPPORTED", `Cannot write ${String(format)} images`);
+        throw new TheFinderError("UNSUPPORTED", `Cannot write ${String(format)} images`);
     }
     const { data, info } = await pipeline.toBuffer({ resolveWithObject: true });
     return {

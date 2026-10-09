@@ -2,7 +2,7 @@ import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { base64UrlDecode, base64UrlEncode } from "../src/id";
-import { createCiFinder, type CiFinder } from "../src/index";
+import { createTheFinder, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { s3Driver } from "../src/drivers/s3";
 import { fakeS3 } from "./fake-s3";
@@ -19,18 +19,18 @@ afterEach(() => cleanup());
 const forge = (p: string, s: string) => base64UrlEncode(new TextEncoder().encode(JSON.stringify({ p, s })));
 const sessionOf = (token: string) => JSON.parse(new TextDecoder().decode(base64UrlDecode(token))) as { p: string; s: string };
 
-async function uploadChunk(finder: CiFinder, fields: Record<string, string>, data: Uint8Array) {
+async function uploadChunk(finder: TheFinder, fields: Record<string, string>, data: Uint8Array) {
   const form = new FormData();
   form.set("cmd", "upload");
   for (const [k, v] of Object.entries(fields)) form.set(k, v);
   form.set("chunk", new Blob([data.slice()]), "chunk");
-  const res = await finder.handler(new Request("http://localhost/api/files", { method: "POST", headers: { "x-ci-finder": "1" }, body: form }));
+  const res = await finder.handler(new Request("http://localhost/api/files", { method: "POST", headers: { "x-thefinder": "1" }, body: form }));
   return (await res.json()) as { ok: boolean; data: { session: string; done: boolean }; error: { code: string } };
 }
 
 describe("hidden and reserved names", () => {
   it("does not create dot files through any command", async () => {
-    const finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
+    const finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
     const a = api(finder);
     await writeFile(join(dir, "a.txt"), "a");
     expect(await a.fail("mkfile", { id: id("local", "/"), name: ".htaccess", content: "x" })).toBe("INVALID_NAME");
@@ -41,27 +41,27 @@ describe("hidden and reserved names", () => {
   });
 
   it("still creates dot files when the volume shows them", async () => {
-    const a = api(createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] }));
+    const a = api(createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] }));
     await a.ok("mkfile", { id: id("local", "/"), name: ".editorconfig", content: "x" });
-    expect(await a.fail("mkdir", { id: id("local", "/"), name: ".cf-trash" })).toBe("INVALID_NAME");
+    expect(await a.fail("mkdir", { id: id("local", "/"), name: ".tf-trash" })).toBe("INVALID_NAME");
   });
 
   it("treats internal folders case-insensitively", async () => {
-    const a = api(createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] }));
-    await mkdir(join(dir, ".cf-trash"));
-    await writeFile(join(dir, ".cf-trash", "x.txt"), "secret");
-    expect(await a.fail("ls", { id: id("local", "/.CF-TRASH") })).toBe("NOT_FOUND");
-    expect(await a.fail("get", { id: id("local", "/.Cf-Trash/x.txt") })).toBe("NOT_FOUND");
+    const a = api(createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] }));
+    await mkdir(join(dir, ".tf-trash"));
+    await writeFile(join(dir, ".tf-trash", "x.txt"), "secret");
+    expect(await a.fail("ls", { id: id("local", "/.TF-TRASH") })).toBe("NOT_FOUND");
+    expect(await a.fail("get", { id: id("local", "/.Tf-Trash/x.txt") })).toBe("NOT_FOUND");
   });
 
   it("skips dot files inside archives", async () => {
-    const finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] });
+    const finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), showHidden: true }] });
     const a = api(finder);
     await mkdir(join(dir, "src"));
     await writeFile(join(dir, "src", ".htaccess"), "deny");
     await writeFile(join(dir, "src", "ok.txt"), "ok");
     const zip = (await a.ok("archive", { ids: [id("local", "/src")], name: "src.zip" })).entry;
-    const hidden = api(createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] }));
+    const hidden = api(createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] }));
     const out = await hidden.ok("extract", { id: zip.id });
     expect(out.skipped).toBe(1);
     expect(await readdir(join(dir, "src (2)", "src"))).toEqual(["ok.txt"]);
@@ -69,9 +69,9 @@ describe("hidden and reserved names", () => {
 });
 
 describe("client-held upload sessions", () => {
-  let finder: CiFinder;
+  let finder: TheFinder;
   beforeEach(() => {
-    finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), denyExtensions: ["php"] }], chunkSize: 1024 });
+    finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), denyExtensions: ["php"] }], chunkSize: 1024 });
   });
 
   async function startUpload(): Promise<string> {
@@ -80,7 +80,7 @@ describe("client-held upload sessions", () => {
     return sessionOf(r.data.session).s;
   }
 
-  for (const target of ["/.htaccess", "/shell.php.", "/a:b.txt", "/.cf-trash/aaaaaaaa-bbbbbbbb.json"]) {
+  for (const target of ["/.htaccess", "/shell.php.", "/a:b.txt", "/.tf-trash/aaaaaaaa-bbbbbbbb.json"]) {
     it(`rejects a forged target ${target}`, async () => {
       const s = await startUpload();
       const r = await uploadChunk(
@@ -95,23 +95,23 @@ describe("client-held upload sessions", () => {
 
   it("cannot write into internal folders on S3 either", async () => {
     const s3 = fakeS3("bucket");
-    const f = createCiFinder({
+    const f = createTheFinder({
       volumes: [{ id: "s3", driver: s3Driver({ bucket: "bucket", endpoint: "http://s3.test", accessKeyId: "k", secretAccessKey: "s", fetch: s3.fetch }) }],
     });
     const r = await uploadChunk(
       f,
-      { dst: id("s3", "/"), session: forge("/.cf-versions/x/file.json", "single"), size: "4", index: "0", total: "1", offset: "0" },
+      { dst: id("s3", "/"), session: forge("/.tf-versions/x/file.json", "single"), size: "4", index: "0", total: "1", offset: "0" },
       bytes(4),
     );
     expect(r.ok).toBe(false);
-    expect([...s3.objects.keys()].some((k) => k.includes(".cf-versions"))).toBe(false);
+    expect([...s3.objects.keys()].some((k) => k.includes(".tf-versions"))).toBe(false);
   });
 
   it("abort needs write permission", async () => {
     const s = await startUpload();
-    const ro = api(createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), readOnly: true }] }));
+    const ro = api(createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), readOnly: true }] }));
     expect(await ro.fail("abort", { dst: id("local", "/"), session: forge("/big.txt", s) })).toBe("READ_ONLY");
-    expect((await readdir(dir)).some((n) => n.endsWith(".cf-upload"))).toBe(true);
+    expect((await readdir(dir)).some((n) => n.endsWith(".tf-upload"))).toBe(true);
   });
 });
 
@@ -122,7 +122,7 @@ describe("fine-grained read permissions", () => {
     await mkdir(join(dir, "secret"));
     await writeFile(join(dir, "public", "report.txt"), "public");
     await writeFile(join(dir, "secret", "report-salaries.txt"), "secret");
-    const finder = createCiFinder({
+    const finder = createTheFinder({
       volumes: [
         {
           id: "local",
@@ -161,7 +161,7 @@ it("cross-volume copies respect the target's extension rules", async () => {
   await mkdir(join(dir, "b"));
   await writeFile(join(dir, "a", "pkg", "shell.php"), "<?php");
   const a = api(
-    createCiFinder({
+    createTheFinder({
       volumes: [
         { id: "a", driver: localDriver({ root: join(dir, "a") }) },
         { id: "b", driver: localDriver({ root: join(dir, "b") }), denyExtensions: ["php"] },
@@ -174,7 +174,7 @@ it("cross-volume copies respect the target's extension rules", async () => {
 
 it("active content on S3 is proxied with a sandbox instead of redirected", async () => {
   const s3 = fakeS3("bucket");
-  const finder = createCiFinder({
+  const finder = createTheFinder({
     volumes: [{ id: "s3", driver: s3Driver({ bucket: "bucket", endpoint: "http://s3.test", accessKeyId: "k", secretAccessKey: "s", fetch: s3.fetch }) }],
   });
   const a = api(finder);
@@ -185,11 +185,11 @@ it("active content on S3 is proxied with a sandbox instead of redirected", async
 });
 
 it("a JSON body cannot replace the parameter prototype", async () => {
-  const finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
+  const finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] });
   const res = await finder.handler(
     new Request("http://localhost/api/files", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-ci-finder": "1" },
+      headers: { "content-type": "application/json", "x-thefinder": "1" },
       body: `{"cmd":"mkdir","id":"${id("local", "/")}","__proto__":{"name":"injected"}}`,
     }),
   );
@@ -199,7 +199,7 @@ it("a JSON body cannot replace the parameter prototype", async () => {
 
 it.skipIf(process.platform !== "win32")("refuses Windows path aliases (streams, trailing dots, devices)", async () => {
   await writeFile(join(dir, "secret.txt"), "secret");
-  const a = api(createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] }));
+  const a = api(createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }] }));
   for (const path of ["/secret.txt::$DATA", "/secret.txt.", "/secret.txt ", "/nul", "/CON.txt"]) {
     expect(await a.fail("get", { id: id("local", path) })).toBe("NOT_FOUND");
   }

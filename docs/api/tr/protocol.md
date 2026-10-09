@@ -2,7 +2,7 @@
 
 🌐 [English](../protocol.md) · **Türkçe**
 
-ciFinder tek bir endpoint üzerinden RPC tarzında çalışır (örneğin `/api/files`). Arayüz bu protokolü [`CiFinderClient`](client.md) ile kullanır. Kendi istemcinizi yazacaksanız ya da API'yi başka bir dilden çağıracaksanız bu belge yeterlidir.
+theFinder tek bir endpoint üzerinden RPC tarzında çalışır (örneğin `/api/files`). Arayüz bu protokolü [`TheFinderClient`](client.md) ile kullanır. Kendi istemcinizi yazacaksanız ya da API'yi başka bir dilden çağıracaksanız bu belge yeterlidir.
 
 ## İstek biçimi
 
@@ -12,7 +12,7 @@ ciFinder tek bir endpoint üzerinden RPC tarzında çalışır (örneğin `/api/
 | Yöntemler | `GET`, `HEAD`, `POST`. Diğerleri `405` döner. |
 | Yalnızca okuyan komutlar | `init`, `ls`, `tree`, `parents`, `info`, `size`, `search`, `file`, `thumb`, `download`, `get`, `trash`, `versions`, `version`, `stats`. Bunlar `GET` ve `POST` ile çağrılabilir. |
 | Değişiklik yapan komutlar | Geri kalan her şey yalnızca `POST` ile çalışır; `GET` ile çağrılırsa `BAD_REQUEST` döner. |
-| CSRF başlığı | Her `POST` isteğinde `x-ci-finder` başlığı bulunmalıdır (değeri önemsizdir, istemci `1` gönderir). Yoksa `403 FORBIDDEN`. `csrfProtection: false` ile kapatılabilir. |
+| CSRF başlığı | Her `POST` isteğinde `x-thefinder` başlığı bulunmalıdır (değeri önemsizdir, istemci `1` gönderir). Yoksa `403 FORBIDDEN`. `csrfProtection: false` ile kapatılabilir. |
 | Gövde | `application/json`, `multipart/form-data` ya da `application/x-www-form-urlencoded`. Sorgu dizesindeki parametreler de okunur; aynı ad gövdede de varsa gövdedeki kullanılır. |
 | Listeler (`ids`, `vids`) | JSON dizisi, virgülle ayrılmış metin (`ids=a,b`) ya da tekrarlanan sorgu parametresi (`ids=a&ids=b`). En fazla 10.000 öğe. |
 | Mantıksal değerler | `true`, `"true"`, `"1"` ve `1` doğru sayılır. |
@@ -69,7 +69,7 @@ Tablolarda `Entry`, `VolumeInfo` gibi tipler [core.md › Tipler](core.md#tipler
 | `restore` | `ids` (çöp öğesi kimlikleri) | `{ restored: Entry[], removed: string[] }`: eski yerine döner; klasör yoksa oluşturulur, ad doluysa "ad (2)" olur |
 | `purge` | `ids` ya da `all: true` (+ `volume?`) | `{ removed: string[], all: boolean }`: kalıcı siler |
 
-Çöp öğesi kimlikleri de `<volume>_<base64url>` biçimindedir ama `.cf-trash` içini gösterir. Bu kimlikler yalnızca `restore` ve `purge` ile kullanılabilir.
+Çöp öğesi kimlikleri de `<volume>_<base64url>` biçimindedir ama `.tf-trash` içini gösterir. Bu kimlikler yalnızca `restore` ve `purge` ile kullanılabilir.
 
 ### Yükleme
 
@@ -170,7 +170,7 @@ Yanıt: `{ results: TransformResult[] }`. Her dosya kendi sonucunu bildirir; bir
 | Kod | HTTP | Ne zaman |
 |---|---|---|
 | `BAD_REQUEST` | 400 | Eksik ya da geçersiz parametre, geçersiz kimlik/yol, GET ile değişiklik komutu |
-| `UNAUTHORIZED` | 401 | `authorize` hook'u `CiFinderError("UNAUTHORIZED")` fırlattı |
+| `UNAUTHORIZED` | 401 | `authorize` hook'u `TheFinderError("UNAUTHORIZED")` fırlattı |
 | `UNKNOWN_COMMAND` | 400 | Bilinmeyen `cmd` |
 | `NOT_FOUND` | 404 | Öğe, volume ya da çöp öğesi yok |
 | `EXISTS` | 409 | Aynı adla öğe var |
@@ -187,7 +187,7 @@ Yanıt: `{ results: TransformResult[] }`. Her dosya kendi sonucunu bildirir; bir
 | `INVALID_ARCHIVE` | 400 | Bozuk zip |
 | `INVALID_IMAGE` | 400 | Görsel çözülemedi |
 | `STORAGE` | 502 | Depolama hatası (S3 yanıtı, disk dolu) |
-| `INTERNAL` | 500 | Beklenmeyen hata; ayrıntı sunucu günlüğüne `[ci-finder]` önekiyle yazılır |
+| `INTERNAL` | 500 | Beklenmeyen hata; ayrıntı sunucu günlüğüne `[thefinder]` önekiyle yazılır |
 
 Dosya sistemi hataları da bu kodlara çevrilir: `ENOENT` → `NOT_FOUND`, `EEXIST`/`ENOTEMPTY` → `EXISTS`, `EACCES`/`EPERM` → `FORBIDDEN`, `ENOSPC` → `STORAGE`, `ENAMETOOLONG` → `INVALID_NAME`.
 

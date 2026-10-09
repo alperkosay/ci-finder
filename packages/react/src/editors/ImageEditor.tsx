@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { cx, useFinder } from "../context";
 import { baseOf, extOf } from "../format";
 import { FileIcon, Icon, Spinner } from "../icons";
@@ -245,20 +245,20 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
   };
 
   return (
-    <Modal label={entry.name} onCancel={onClose} className="cf-editor-dialog" wide>
-      <div className="cf-editor cf-image-editor">
-        <header className="cf-editor-head">
+    <Modal label={entry.name} onCancel={onClose} className="tf-editor-dialog" wide>
+      <div className="tf-editor tf-image-editor">
+        <header className="tf-editor-head">
           <FileIcon entry={entry} size={20} />
-          <div className="cf-editor-title">
+          <div className="tf-editor-title">
             <strong>{entry.name}</strong>
             <span>{img ? `${img.naturalWidth} × ${img.naturalHeight}` : entry.path}</span>
           </div>
-          <div className="cf-editor-tools">
+          <div className="tf-editor-tools">
             {store.hasVersions(entry) && (
               <>
                 <button
                   type="button"
-                  className="cf-btn is-icon"
+                  className="tf-btn is-icon"
                   title={t("versions")}
                   aria-label={t("versions")}
                   disabled={!!saving}
@@ -269,52 +269,52 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 >
                   <Icon name="history" />
                 </button>
-                <span className="cf-tool-sep" />
+                <span className="tf-tool-sep" />
               </>
             )}
-            <button type="button" className="cf-btn" disabled={!changed || !!saving || !entry.parent} onClick={() => void save("copy")}>
+            <button type="button" className="tf-btn" disabled={!changed || !!saving || !entry.parent} onClick={() => void save("copy")}>
               {saving === "copy" ? <Spinner size={14} /> : <Icon name="duplicate" />}
               <span>{t("saveAs")}</span>
             </button>
             <button
               type="button"
-              className="cf-btn is-primary"
+              className="tf-btn is-primary"
               disabled={!changed || !!saving || !entry.write || !sameFormat}
               onClick={() => void save("overwrite")}
             >
               {saving === "overwrite" ? <Spinner size={14} /> : <Icon name="save" />}
               <span>{t("save")}</span>
             </button>
-            <button type="button" className="cf-btn is-icon" aria-label={t("close")} onClick={onClose}>
+            <button type="button" className="tf-btn is-icon" aria-label={t("close")} onClick={onClose}>
               <Icon name="close" />
             </button>
           </div>
         </header>
 
-        <div className="cf-image-body">
-          <div ref={stageRef} className="cf-image-stage">
+        <div className="tf-image-body">
+          <div ref={stageRef} className="tf-image-stage">
             {error ? (
-              <div className="cf-editor-state is-error">
+              <div className="tf-editor-state is-error">
                 <Icon name="alert" size={24} />
                 <span>{error}</span>
               </div>
             ) : !img ? (
-              <div className="cf-editor-state">
+              <div className="tf-editor-state">
                 <Spinner size={20} />
               </div>
             ) : (
-              <div className="cf-image-frame">
-                <canvas ref={canvasRef} className="cf-image-canvas" />
+              <div className="tf-image-frame">
+                <canvas ref={canvasRef} className="tf-image-canvas" />
                 {cropping && (
-                  <div className="cf-crop-layer" onPointerDown={startDrag("new")}>
+                  <div className="tf-crop-layer" onPointerDown={startDrag("new")}>
                     <div
-                      className="cf-crop-box"
+                      className="tf-crop-box"
                       style={{ left: pct(area.x, tw), top: pct(area.y, th), width: pct(area.w, tw), height: pct(area.h, th) }}
                       onPointerDown={startDrag("move")}
                     >
-                      <span className="cf-crop-grid" />
+                      <span className="tf-crop-grid" />
                       {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as const).map((h) => (
-                        <span key={h} className={`cf-crop-handle is-${h}`} onPointerDown={startDrag(h)} />
+                        <span key={h} className={`tf-crop-handle is-${h}`} onPointerDown={startDrag(h)} />
                       ))}
                     </div>
                   </div>
@@ -323,19 +323,19 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
             )}
           </div>
 
-          <aside className="cf-image-panel">
+          <aside className="tf-image-panel">
             <section>
               <h4>{t("edit")}</h4>
-              <div className="cf-icon-row">
-                <button type="button" className="cf-btn is-icon" title={t("rotateLeft")} aria-label={t("rotateLeft")} onClick={() => rotate(-90)}>
+              <div className="tf-icon-row">
+                <button type="button" className="tf-btn is-icon" title={t("rotateLeft")} aria-label={t("rotateLeft")} onClick={() => rotate(-90)}>
                   <Icon name="rotateLeft" />
                 </button>
-                <button type="button" className="cf-btn is-icon" title={t("rotateRight")} aria-label={t("rotateRight")} onClick={() => rotate(90)}>
+                <button type="button" className="tf-btn is-icon" title={t("rotateRight")} aria-label={t("rotateRight")} onClick={() => rotate(90)}>
                   <Icon name="rotateRight" />
                 </button>
                 <button
                   type="button"
-                  className={cx("cf-btn is-icon", flipX && "is-on")}
+                  className={cx("tf-btn is-icon", flipX && "is-on")}
                   title={t("flipH")}
                   aria-label={t("flipH")}
                   aria-pressed={flipX}
@@ -345,7 +345,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 </button>
                 <button
                   type="button"
-                  className={cx("cf-btn is-icon", flipY && "is-on")}
+                  className={cx("tf-btn is-icon", flipY && "is-on")}
                   title={t("flipV")}
                   aria-label={t("flipV")}
                   aria-pressed={flipY}
@@ -360,12 +360,12 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
               <h4>
                 <Icon name="crop" size={14} /> {t("crop")}
               </h4>
-              <div className="cf-chips">
+              <div className="tf-chips">
                 {ASPECTS.map((a) => (
                   <button
                     key={a.label}
                     type="button"
-                    className={cx("cf-chip", cropping && aspect === a.value && "is-on")}
+                    className={cx("tf-chip", cropping && aspect === a.value && "is-on")}
                     onClick={() => {
                       setCropping(true);
                       if (a.value) applyAspect(a.value);
@@ -377,7 +377,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 ))}
               </div>
               {crop && (
-                <p className="cf-dim cf-small">
+                <p className="tf-dim tf-small">
                   {Math.round(crop.w)} × {Math.round(crop.h)} px
                 </p>
               )}
@@ -387,18 +387,18 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
               <h4>
                 <Icon name="resize" size={14} /> {t("resize")}
               </h4>
-              <div className="cf-size-row">
+              <div className="tf-size-row">
                 <label>
                   <span>{t("width")}</span>
-                  <input className="cf-input is-small" type="number" min={1} value={out.w} onChange={(e) => setWidth(Number(e.target.value))} />
+                  <input className="tf-input is-small" type="number" min={1} value={out.w} onChange={(e) => setWidth(Number(e.target.value))} />
                 </label>
-                <span className="cf-times">×</span>
+                <span className="tf-times">×</span>
                 <label>
                   <span>{t("height")}</span>
-                  <input className="cf-input is-small" type="number" min={1} value={out.h} onChange={(e) => setHeight(Number(e.target.value))} />
+                  <input className="tf-input is-small" type="number" min={1} value={out.h} onChange={(e) => setHeight(Number(e.target.value))} />
                 </label>
               </div>
-              <label className="cf-check">
+              <label className="tf-check">
                 <input type="checkbox" checked={lockRatio} onChange={(e) => setLockRatio(e.target.checked)} />
                 <span>{t("lockRatio")}</span>
               </label>
@@ -406,7 +406,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
 
             <section>
               <h4>{t("format")}</h4>
-              <select className="cf-input is-small" aria-label={t("format")} value={format} onChange={(e) => setFormat(e.target.value)}>
+              <select className="tf-input is-small" aria-label={t("format")} value={format} onChange={(e) => setFormat(e.target.value)}>
                 {Object.values(FORMATS).map((f) => (
                   <option key={f.mime} value={f.mime}>
                     {f.ext.toUpperCase()}
@@ -415,7 +415,7 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
                 ))}
               </select>
               {format !== "image/png" && (
-                <label className="cf-range">
+                <label className="tf-range">
                   <span>
                     {t("quality")} <b>{Math.round(quality * 100)}</b>
                   </span>
@@ -424,11 +424,11 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
               )}
             </section>
 
-            <button type="button" className="cf-btn cf-reset" disabled={!changed} onClick={reset}>
+            <button type="button" className="tf-btn tf-reset" disabled={!changed} onClick={reset}>
               <Icon name="refresh" />
               <span>{t("reset")}</span>
             </button>
-            <p className="cf-dim cf-small">
+            <p className="tf-dim tf-small">
               {out.w.toLocaleString(locale)} × {out.h.toLocaleString(locale)} px
             </p>
           </aside>

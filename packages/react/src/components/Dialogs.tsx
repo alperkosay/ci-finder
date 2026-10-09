@@ -3,7 +3,7 @@ import { cx, useFinder, useStore } from "../context";
 import { baseOf } from "../format";
 import { Icon } from "../icons";
 
-/** Native <dialog> (focus trap, top layer, Esc) with ciFinder styling. */
+/** Native <dialog> (focus trap, top layer, Esc) with theFinder styling. */
 export function Modal({
   children,
   onCancel,
@@ -37,7 +37,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className={cx("cf-dialog", wide && "is-wide", className)}
+      className={cx("tf-dialog", wide && "is-wide", className)}
       aria-label={label}
       onKeyDown={(e) => e.stopPropagation()}
       onMouseDown={(e) => {
@@ -71,22 +71,22 @@ export function Dialogs() {
   if (dialog.type === "confirm") {
     return (
       <Modal label={dialog.title} onCancel={() => dialog.resolve(false)}>
-        <div className="cf-dialog-body">
+        <div className="tf-dialog-body">
           {dialog.danger && (
-            <span className="cf-dialog-icon is-danger">
+            <span className="tf-dialog-icon is-danger">
               <Icon name="trash" size={18} />
             </span>
           )}
           <div>
-            <h2 className="cf-dialog-title">{dialog.title}</h2>
-            {dialog.body && <p className="cf-dialog-text">{dialog.body}</p>}
+            <h2 className="tf-dialog-title">{dialog.title}</h2>
+            {dialog.body && <p className="tf-dialog-text">{dialog.body}</p>}
           </div>
         </div>
-        <div className="cf-dialog-actions">
-          <button type="button" className="cf-btn" onClick={() => dialog.resolve(false)}>
+        <div className="tf-dialog-actions">
+          <button type="button" className="tf-btn" onClick={() => dialog.resolve(false)}>
             {t("cancel")}
           </button>
-          <button type="button" className={cx("cf-btn", dialog.danger ? "is-danger" : "is-primary")} autoFocus onClick={() => dialog.resolve(true)}>
+          <button type="button" className={cx("tf-btn", dialog.danger ? "is-danger" : "is-primary")} autoFocus onClick={() => dialog.resolve(true)}>
             {dialog.confirmLabel}
           </button>
         </div>
@@ -104,15 +104,15 @@ export function Dialogs() {
             dialog.resolve(value || null);
           }}
         >
-          <div className="cf-dialog-body is-stacked">
-            <h2 className="cf-dialog-title">{dialog.title}</h2>
-            <input ref={inputRef} className="cf-input" defaultValue={dialog.value} spellCheck={false} aria-label={dialog.title} />
+          <div className="tf-dialog-body is-stacked">
+            <h2 className="tf-dialog-title">{dialog.title}</h2>
+            <input ref={inputRef} className="tf-input" defaultValue={dialog.value} spellCheck={false} aria-label={dialog.title} />
           </div>
-          <div className="cf-dialog-actions">
-            <button type="button" className="cf-btn" onClick={() => dialog.resolve(null)}>
+          <div className="tf-dialog-actions">
+            <button type="button" className="tf-btn" onClick={() => dialog.resolve(null)}>
               {t("cancel")}
             </button>
-            <button type="submit" className="cf-btn is-primary">
+            <button type="submit" className="tf-btn is-primary">
               {dialog.confirmLabel}
             </button>
           </div>
@@ -125,15 +125,15 @@ export function Dialogs() {
   const title = one ? t("conflictTitleOne", { name: dialog.names[0]! }) : t("conflictTitle", { n: dialog.names.length });
   return (
     <Modal label={title} onCancel={() => dialog.resolve(null)}>
-      <div className="cf-dialog-body">
-        <span className="cf-dialog-icon">
+      <div className="tf-dialog-body">
+        <span className="tf-dialog-icon">
           <Icon name="copy" size={18} />
         </span>
         <div>
-          <h2 className="cf-dialog-title">{title}</h2>
-          <p className="cf-dialog-text">{t("conflictBody")}</p>
+          <h2 className="tf-dialog-title">{title}</h2>
+          <p className="tf-dialog-text">{t("conflictBody")}</p>
           {!one && (
-            <ul className="cf-dialog-list">
+            <ul className="tf-dialog-list">
               {dialog.names.slice(0, 5).map((n) => (
                 <li key={n}>{n}</li>
               ))}
@@ -142,15 +142,15 @@ export function Dialogs() {
           )}
         </div>
       </div>
-      <div className="cf-dialog-actions">
-        <button type="button" className="cf-btn" onClick={() => dialog.resolve("skip")}>
+      <div className="tf-dialog-actions">
+        <button type="button" className="tf-btn" onClick={() => dialog.resolve("skip")}>
           {t("skip")}
         </button>
-        <span className="cf-dialog-spacer" />
-        <button type="button" className="cf-btn" onClick={() => dialog.resolve("rename")}>
+        <span className="tf-dialog-spacer" />
+        <button type="button" className="tf-btn" onClick={() => dialog.resolve("rename")}>
           {t("keepBoth")}
         </button>
-        <button type="button" className="cf-btn is-primary" autoFocus onClick={() => dialog.resolve("overwrite")}>
+        <button type="button" className="tf-btn is-primary" autoFocus onClick={() => dialog.resolve("overwrite")}>
           {t("replace")}
         </button>
       </div>

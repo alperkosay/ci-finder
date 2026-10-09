@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createCiFinder, createFileServer, type CiFinder } from "../src/index";
+import { createTheFinder, createFileServer, type TheFinder } from "../src/index";
 import { localDriver } from "../src/drivers/local";
 import { s3Driver } from "../src/drivers/s3";
 import { fakeS3 } from "./fake-s3";
@@ -9,7 +9,7 @@ import { api, id, tempDir } from "./helpers";
 
 let dir: string;
 let cleanup: () => Promise<void>;
-let finder: CiFinder;
+let finder: TheFinder;
 let a: ReturnType<typeof api>;
 const NOT = id("local", "/not.txt");
 
@@ -19,7 +19,7 @@ const versionsOf = async (target: string) =>
 
 beforeEach(async () => {
   ({ dir, cleanup } = await tempDir());
-  finder = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), versions: { maxPerFile: 3 } }], chunkSize: 1024 });
+  finder = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), versions: { maxPerFile: 3 } }], chunkSize: 1024 });
   a = api(finder);
   await mkdir(join(dir, "Belgeler"));
   await writeFile(join(dir, "not.txt"), "v1");
@@ -43,12 +43,12 @@ describe("version history (local)", () => {
     await save(NOT, "v2");
     const { volumes } = await a.ok("init");
     expect(volumes[0].versions).toEqual({ maxPerFile: 3, retentionDays: 0 });
-    expect((await a.ok("ls", { id: id("local", "/") })).entries.map((e: any) => e.name)).not.toContain(".cf-versions");
-    expect(await a.fail("ls", { id: id("local", "/.cf-versions") })).toBe("NOT_FOUND");
-    expect(await a.fail("mkdir", { id: id("local", "/"), name: ".cf-versions" })).toBe("INVALID_NAME");
+    expect((await a.ok("ls", { id: id("local", "/") })).entries.map((e: any) => e.name)).not.toContain(".tf-versions");
+    expect(await a.fail("ls", { id: id("local", "/.tf-versions") })).toBe("NOT_FOUND");
+    expect(await a.fail("mkdir", { id: id("local", "/"), name: ".tf-versions" })).toBe("INVALID_NAME");
     const server = createFileServer({ driver: localDriver({ root: dir }), prefix: "/u", showHidden: true });
-    const [group] = await readdir(join(dir, ".cf-versions"));
-    expect((await server(new Request(`http://x/u/.cf-versions/${group}/file.json`))).status).toBe(404);
+    const [group] = await readdir(join(dir, ".tf-versions"));
+    expect((await server(new Request(`http://x/u/.tf-versions/${group}/file.json`))).status).toBe(404);
   });
 
   it("limits the number of versions per file", async () => {
@@ -118,7 +118,7 @@ describe("version history (local)", () => {
     await save(NOT, "v2");
     const [v] = await versionsOf(NOT);
     const { rm } = await import("node:fs/promises");
-    await rm(join(dir, "not.txt")); // deleted outside ciFinder: the history is orphaned
+    await rm(join(dir, "not.txt")); // deleted outside theFinder: the history is orphaned
     const { versions, entry } = await a.ok("versions", { id: NOT });
     expect(entry).toBeNull();
     expect(versions).toHaveLength(1);
@@ -149,7 +149,7 @@ describe("version history (local)", () => {
     expect(await versionsOf(NOT)).toHaveLength(1);
     expect(await a.ok("rmVersions", { id: NOT })).toEqual({ removed: 1, freed: 2 });
     expect(await versionsOf(NOT)).toHaveLength(0);
-    expect(await readdir(join(dir, ".cf-versions"))).toHaveLength(0);
+    expect(await readdir(join(dir, ".tf-versions"))).toHaveLength(0);
   });
 
   it("rejects bad version ids", async () => {
@@ -158,12 +158,12 @@ describe("version history (local)", () => {
   });
 
   it("can be disabled per volume, and is off for read-only viewers", async () => {
-    const off = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), versions: false }] });
+    const off = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }), versions: false }] });
     await api(off).ok("put", { id: NOT, content: "v2" });
     expect((await api(off).ok("versions", { id: NOT })).versions).toHaveLength(0);
     expect((await api(off).ok("init")).volumes[0].versions).toBeNull();
 
-    const viewer = createCiFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], authorize: () => ({ readOnly: true }) });
+    const viewer = createTheFinder({ volumes: [{ id: "local", driver: localDriver({ root: dir }) }], authorize: () => ({ readOnly: true }) });
     expect(await api(viewer).fail("rmVersions", { id: NOT })).toBe("READ_ONLY");
   });
 });
@@ -215,7 +215,7 @@ describe("version history (s3)", () => {
   it("works the same on S3", async () => {
     const s3 = fakeS3("b");
     const driver = s3Driver({ bucket: "b", region: "us-east-1", endpoint: "http://s3.test", accessKeyId: "k", secretAccessKey: "s", fetch: s3.fetch });
-    const f = createCiFinder({ volumes: [{ id: "s3", driver }] });
+    const f = createTheFinder({ volumes: [{ id: "s3", driver }] });
     const s = api(f);
     await s.ok("mkfile", { id: id("s3", "/"), name: "a.txt", content: "v1" });
     await s.ok("put", { id: id("s3", "/a.txt"), content: "v2" });

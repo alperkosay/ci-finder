@@ -1,5 +1,5 @@
 import type { ReactNode, SVGProps } from "react";
-import type { Entry } from "@ci-finder/core/client";
+import type { Entry } from "@thefinder/core/client";
 import { categoryOf, extOf, type FileCategory } from "./format";
 
 /** UI glyphs drawn on a 16px grid with a 1.5px stroke. */
@@ -231,7 +231,7 @@ export function Icon({ name, size = 16, ...rest }: { name: IconName; size?: numb
       strokeLinejoin="round"
       aria-hidden="true"
       focusable="false"
-      className="cf-icon"
+      className="tf-icon"
       {...rest}
     >
       {PATHS[name]}
@@ -241,7 +241,7 @@ export function Icon({ name, size = 16, ...rest }: { name: IconName; size?: numb
 
 export function Spinner({ size = 16 }: { size?: number }) {
   return (
-    <svg className="cf-spinner" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
+    <svg className="tf-spinner" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true">
       <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" strokeOpacity=".2" strokeWidth="2" />
       <path d="M14 8a6 6 0 0 0-6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
@@ -348,20 +348,20 @@ function Glyph({ category }: { category: FileCategory }) {
 
 export function FolderIcon({ size = 48, open = false }: { size?: number; open?: boolean }) {
   return (
-    <svg className="cf-folder-icon" width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+    <svg className="tf-folder-icon" width={size} height={size} viewBox="0 0 40 40" aria-hidden="true" focusable="false">
       <path
-        className="cf-folder-back"
+        className="tf-folder-back"
         d="M3 9.5A2.5 2.5 0 0 1 5.5 7h9.4a2.5 2.5 0 0 1 1.85.82L19.1 10.5H34.5A2.5 2.5 0 0 1 37 13v19.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z"
       />
       {open ? (
         <path
-          className="cf-folder-front"
+          className="tf-folder-front"
           d="M5.2 16.6A2.5 2.5 0 0 1 7.6 14.75h29.1a1.6 1.6 0 0 1 1.55 2l-3.9 16.4A2.5 2.5 0 0 1 31.9 35H5.3a1.6 1.6 0 0 1-1.55-1.95z"
         />
       ) : (
-        <path className="cf-folder-front" d="M3 15.75a2.5 2.5 0 0 1 2.5-2.5h29a2.5 2.5 0 0 1 2.5 2.5V32.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z" />
+        <path className="tf-folder-front" d="M3 15.75a2.5 2.5 0 0 1 2.5-2.5h29a2.5 2.5 0 0 1 2.5 2.5V32.5a2.5 2.5 0 0 1-2.5 2.5h-29A2.5 2.5 0 0 1 3 32.5z" />
       )}
-      <path className="cf-folder-shine" d="M5 15.75a1 1 0 0 1 1-1h28a1 1 0 0 1 1 1" fill="none" />
+      <path className="tf-folder-shine" d="M5 15.75a1 1 0 0 1 1-1h28a1 1 0 0 1 1 1" fill="none" />
     </svg>
   );
 }
@@ -378,23 +378,23 @@ export function FileIcon({ entry, size = 48 }: { entry: Pick<Entry, "kind" | "na
   const label = LABELS[category] ?? ext.slice(0, 4).toUpperCase();
 
   return (
-    <svg className="cf-file-icon" data-category={category} width={size} height={size} viewBox="0 0 32 40" aria-hidden="true" focusable="false">
+    <svg className="tf-file-icon" data-category={category} width={size} height={size} viewBox="0 0 32 40" aria-hidden="true" focusable="false">
       <path
-        className="cf-page"
+        className="tf-page"
         d="M6 1.5h13.4c.4 0 .78.16 1.06.44l7.6 7.6c.28.28.44.66.44 1.06V36a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 36V4A2.5 2.5 0 0 1 6 1.5z"
       />
-      <path className="cf-fold" d="M19.5 1.75V8a2 2 0 0 0 2 2h6.25" />
+      <path className="tf-fold" d="M19.5 1.75V8a2 2 0 0 0 2 2h6.25" />
       {small ? (
-        <rect className="cf-band" x="3.5" y="27" width="25" height="9" rx="0" />
+        <rect className="tf-band" x="3.5" y="27" width="25" height="9" rx="0" />
       ) : (
         <>
-          <g className="cf-glyph">
+          <g className="tf-glyph">
             <Glyph category={category} />
           </g>
           {label && (
             <g>
-              <rect className="cf-band" x="1" y="27" width={Math.max(15, label.length * 5.4 + 6)} height="8.5" rx="1.5" />
-              <text className="cf-label" x="4" y="33.4">
+              <rect className="tf-band" x="1" y="27" width={Math.max(15, label.length * 5.4 + 6)} height="8.5" rx="1.5" />
+              <text className="tf-label" x="4" y="33.4">
                 {label}
               </text>
             </g>

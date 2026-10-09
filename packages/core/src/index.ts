@@ -1,5 +1,5 @@
-export { CiFinder, createCiFinder, CSRF_HEADER, VERSION } from "./engine";
-export { CiFinderError, isCiFinderError, type ErrorCode } from "./errors";
+export { TheFinder, createTheFinder, CSRF_HEADER, VERSION } from "./engine";
+export { TheFinderError, isTheFinderError, type ErrorCode } from "./errors";
 export { encodeId, decodeId } from "./id";
 export { mimeOf, isActiveContent } from "./mime";
 export { normalizePath, joinPath, dirname, basename, extname, isInside } from "./path";

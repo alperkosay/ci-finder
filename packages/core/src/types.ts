@@ -102,13 +102,13 @@ export interface VolumeOptions {
   /** Fine grained permission check. Return false to deny the action on that path. */
   permission?: (action: Action, path: VolumePath) => boolean;
   /**
-   * Trash: deleted items are moved to a hidden `.cf-trash` folder inside the volume and can be
+   * Trash: deleted items are moved to a hidden `.tf-trash` folder inside the volume and can be
    * restored. No database involved. `false` deletes permanently. Default: enabled, kept 30 days.
    */
   trash?: boolean | { retentionDays?: number };
   /**
    * Version history: before a file is overwritten (editor save, image optimization, upload with
-   * "replace") its previous content is kept in a hidden `.cf-versions` folder of the volume and can
+   * "replace") its previous content is kept in a hidden `.tf-versions` folder of the volume and can
    * be restored. No database involved. `false` disables. Default: enabled, 20 versions per file,
    * kept until removed from the storage dashboard.
    */
@@ -185,7 +185,7 @@ export interface VersionedFile {
   id: string;
   path: VolumePath;
   name: string;
-  /** False when the file was deleted or moved outside ciFinder; its versions are "orphaned". */
+  /** False when the file was deleted or moved outside theFinder; its versions are "orphaned". */
   exists: boolean;
   count: number;
   size: number;
@@ -246,7 +246,7 @@ export interface TransformResult {
   error?: string;
 }
 
-/** Resizes, recompresses and converts images. See `sharpImages` in `@ci-finder/core/sharp`. */
+/** Resizes, recompresses and converts images. See `sharpImages` in `@thefinder/core/sharp`. */
 export interface ImageProcessor {
   /** Lowercase file extensions it can read. */
   extensions: string[];
@@ -255,7 +255,7 @@ export interface ImageProcessor {
   transform(input: Uint8Array, options: ImageTransformOptions): Promise<{ data: Uint8Array; width: number; height: number }>;
 }
 
-/** Turns image bytes into a small preview. See `sharpThumbnailer` in `@ci-finder/core/sharp`. */
+/** Turns image bytes into a small preview. See `sharpThumbnailer` in `@thefinder/core/sharp`. */
 export interface Thumbnailer {
   /** Lowercase file extensions the generator can read. */
   extensions: string[];
@@ -283,7 +283,7 @@ export interface CommandContext {
   params: Record<string, unknown>;
 }
 
-export interface CiFinderOptions {
+export interface TheFinderOptions {
   volumes: VolumeOptions[];
   /**
    * Upload chunk size in bytes. Must be >= 5 MiB when an S3 volume is used (S3 multipart minimum).
@@ -292,7 +292,7 @@ export interface CiFinderOptions {
   chunkSize?: number;
   /**
    * Called before every command.
-   * - `false` rejects the request with 403; throw `new CiFinderError("UNAUTHORIZED")` for 401.
+   * - `false` rejects the request with 403; throw `new TheFinderError("UNAUTHORIZED")` for 401.
    * - `{ readOnly: true }` lets the request through but makes every volume read-only for it
    *   (e.g. a "viewer" role); the UI hides write actions automatically.
    */
@@ -303,7 +303,7 @@ export interface CiFinderOptions {
   maxEditSize?: number;
   /** Max number of results returned by `search`. Default: 500. */
   searchLimit?: number;
-  /** Server-side thumbnails, cached in a hidden `.cf-thumbs` folder of each volume. */
+  /** Server-side thumbnails, cached in a hidden `.tf-thumbs` folder of each volume. */
   thumbnails?: ThumbnailOptions;
   /** Server-side image processing for the bulk resize / compress / convert dialog. */
   images?: ImageProcessor;
@@ -312,7 +312,7 @@ export interface CiFinderOptions {
   /** Max total uncompressed size when extracting an archive (zip bomb guard). Default: 4 GiB. */
   maxExtractSize?: number;
   /**
-   * Require the `x-ci-finder` header on POST requests. Browsers cannot attach custom headers to
+   * Require the `x-thefinder` header on POST requests. Browsers cannot attach custom headers to
    * cross-site form submissions, so this blocks CSRF. Default: true.
    */
   csrfProtection?: boolean;

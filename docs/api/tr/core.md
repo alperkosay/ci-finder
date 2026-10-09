@@ -1,4 +1,4 @@
-# `@ci-finder/core`
+# `@thefinder/core`
 
 🌐 [English](../core.md) · **Türkçe**
 
@@ -8,29 +8,29 @@ Sunucu motoru. Çalışma zamanı bağımlılığı yoktur; Web standardı `Requ
 
 | Alt yol | İçerik | Ortam |
 |---|---|---|
-| `@ci-finder/core` | Motor, dosya sunucusu, hatalar, yardımcılar, tipler | Her yerde |
-| `@ci-finder/core/local` | `localDriver`, `LocalDriver` | Node.js, Bun (`node:fs`) |
-| `@ci-finder/core/s3` | `s3Driver`, `S3Driver` | Her yerde (Web Crypto + `fetch`) |
-| `@ci-finder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa`, `toWebRequest`, `sendWebResponse` | Node.js |
-| `@ci-finder/core/sharp` | `sharpThumbnailer`, `sharpImages` | Node.js, Bun; `sharp` (≥ 0.33) kurulu olmalı |
-| `@ci-finder/core/client` | `createClient`, `CiFinderClient`, `ApiError`. Bkz. [client.md](client.md) | Tarayıcı ve sunucu |
+| `@thefinder/core` | Motor, dosya sunucusu, hatalar, yardımcılar, tipler | Her yerde |
+| `@thefinder/core/local` | `localDriver`, `LocalDriver` | Node.js, Bun (`node:fs`) |
+| `@thefinder/core/s3` | `s3Driver`, `S3Driver` | Her yerde (Web Crypto + `fetch`) |
+| `@thefinder/core/node` | `toNodeHandler`, `toExpress`, `toFastify`, `toKoa`, `toWebRequest`, `sendWebResponse` | Node.js |
+| `@thefinder/core/sharp` | `sharpThumbnailer`, `sharpImages` | Node.js, Bun; `sharp` (≥ 0.33) kurulu olmalı |
+| `@thefinder/core/client` | `createClient`, `TheFinderClient`, `ApiError`. Bkz. [client.md](client.md) | Tarayıcı ve sunucu |
 
 ---
 
-## `createCiFinder(options)`
+## `createTheFinder(options)`
 
 ```ts
-import { createCiFinder } from "@ci-finder/core";
-import { localDriver } from "@ci-finder/core/local";
+import { createTheFinder } from "@thefinder/core";
+import { localDriver } from "@thefinder/core/local";
 
-const finder = createCiFinder({
+const finder = createTheFinder({
   volumes: [{ id: "files", name: "Dosyalar", driver: localDriver({ root: "./uploads" }), url: "/uploads" }],
 });
 ```
 
-`new CiFinder(options)` ile aynıdır. Hatalı yapılandırmada (volume yok, aynı volume kimliği iki kez, S3 varken `chunkSize` < 5 MiB) hemen `Error` fırlatır.
+`new TheFinder(options)` ile aynıdır. Hatalı yapılandırmada (volume yok, aynı volume kimliği iki kez, S3 varken `chunkSize` < 5 MiB) hemen `Error` fırlatır.
 
-### `CiFinderOptions`
+### `TheFinderOptions`
 
 | Seçenek | Tip | Varsayılan | Açıklama |
 |---|---|---|---|
@@ -45,7 +45,7 @@ const finder = createCiFinder({
 | `images` | `ImageProcessor` | — | Toplu görsel işleme. Bkz. [Görsel işleme](#görsel-işleme). |
 | `maxImageSize` | `number` | 60 MiB | `transform` için en büyük girdi |
 | `maxExtractSize` | `number` | 4 GiB | `extract` ile açılabilecek toplam boyut (zip bombası koruması) |
-| `csrfProtection` | `boolean` | `true` | `POST` isteklerinde `x-ci-finder` başlığını zorunlu tutar |
+| `csrfProtection` | `boolean` | `true` | `POST` isteklerinde `x-thefinder` başlığını zorunlu tutar |
 
 ### `VolumeOptions`
 
@@ -56,7 +56,7 @@ const finder = createCiFinder({
 | `driver` | `StorageDriver` | — | Zorunlu |
 | `url` | `string` | — | Dosyaların herkese açık temel adresi (`"/uploads"`, `"https://cdn.example.com"`). Verilirse her dosyada `url` alanı olur; arayüz önizlemede ve seçicide bunu kullanır. |
 | `readOnly` | `boolean` | `false` | Tüm yazma işlemlerini `READ_ONLY` ile reddeder. Çöp kutusu ve sürüm geçmişi de kapanır. |
-| `showHidden` | `boolean` | `false` | Nokta ile başlayan dosyaları gösterir. Kapalıyken nokta ile başlayan isimler (`.htaccess`, `.env`...) oluşturulamaz, yüklenemez ve zip'ten çıkarılmaz. İç klasörler (`.cf-*`) her durumda gizli kalır. |
+| `showHidden` | `boolean` | `false` | Nokta ile başlayan dosyaları gösterir. Kapalıyken nokta ile başlayan isimler (`.htaccess`, `.env`...) oluşturulamaz, yüklenemez ve zip'ten çıkarılmaz. İç klasörler (`.tf-*`) her durumda gizli kalır. |
 | `allowExtensions` | `string[]` | — | Yalnızca bu uzantılar (küçük harf, noktasız). Boş ya da yoksa hepsi. |
 | `denyExtensions` | `string[]` | — | Yükleme, oluşturma, yeniden adlandırma, yapıştırma ve arşiv açmada reddedilen uzantılar |
 | `maxUploadSize` | `number` | — | Tek dosya için bayt sınırı (yükleme ve ikili `put`) |
@@ -64,12 +64,12 @@ const finder = createCiFinder({
 | `trash` | `boolean \| { retentionDays? }` | `true`, 30 gün | `false`: silinen öğeler doğrudan silinir |
 | `versions` | `boolean \| { maxPerFile?, retentionDays? }` | `true`, 20 sürüm, süresiz | `retentionDays: 0` süresiz saklar. `false`: sürüm alınmaz. |
 
-### `CiFinder` örneği
+### `TheFinder` örneği
 
 | Üye | Açıklama |
 |---|---|
 | `handler(request): Promise<Response>` | Web standardı istek işleyici. Bun, Deno, Hono, Next.js route'ları ve Cloudflare Workers'ta doğrudan kullanılır; Node framework'leri için [adaptörlere](#node-adaptörleri) bakın. Bağlamı korumak için ok fonksiyonu olarak tanımlıdır: `Bun.serve({ fetch: finder.handler })` güvenlidir. |
-| `execute<T>(cmd, params?, request?)` | Bir komutu HTTP olmadan çalıştırır; hook'lar ve `authorize` yine çalışır. Hata durumunda `CiFinderError` fırlatır. `request` verilmezse boş bir `Request` kullanılır. |
+| `execute<T>(cmd, params?, request?)` | Bir komutu HTTP olmadan çalıştırır; hook'lar ve `authorize` yine çalışır. Hata durumunda `TheFinderError` fırlatır. `request` verilmezse boş bir `Request` kullanılır. |
 | `getVolume(id)` | `Volume` örneğini döner (ileri düzey kullanım) |
 | `options` | Varsayılanları uygulanmış seçenekler |
 
@@ -95,13 +95,13 @@ interface CommandContext {
 | `true` ya da `undefined` | İstek geçer |
 | `false` | `403 FORBIDDEN` |
 | `{ readOnly: true }` | İstek geçer ama bu istek için tüm volume'ler salt okunur olur. `init` yanıtında `readOnly: true` geldiği için arayüz yazma eylemlerini kendiliğinden gizler. |
-| `throw new CiFinderError("UNAUTHORIZED")` | `401`; arayüzde `onUnauthorized` çağrılır |
+| `throw new TheFinderError("UNAUTHORIZED")` | `401`; arayüzde `onUnauthorized` çağrılır |
 
 ---
 
 ## Sürücüler
 
-### `localDriver(options)`, `@ci-finder/core/local`
+### `localDriver(options)`, `@thefinder/core/local`
 
 | Seçenek | Tip | Varsayılan | Açıklama |
 |---|---|---|---|
@@ -113,7 +113,7 @@ interface CommandContext {
 - `capacity()` disk boyutunu bildirir (depolama paneli için).
 - `driver.root`: çözülmüş mutlak kök yolu. `driver.abs(path)`: volume yolunu işletim sistemi yoluna çevirir.
 
-### `s3Driver(options)`, `@ci-finder/core/s3`
+### `s3Driver(options)`, `@thefinder/core/s3`
 
 | Seçenek | Tip | Varsayılan | Açıklama |
 |---|---|---|---|
@@ -175,9 +175,9 @@ interface UploadChunk {
 ## Küçük resimler
 
 ```ts
-import { sharpThumbnailer } from "@ci-finder/core/sharp";
+import { sharpThumbnailer } from "@thefinder/core/sharp";
 
-createCiFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [128, 256, 512] } });
+createTheFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [128, 256, 512] } });
 ```
 
 ### `ThumbnailOptions`
@@ -189,7 +189,7 @@ createCiFinder({ volumes, thumbnails: { generator: sharpThumbnailer(), sizes: [1
 | `maxInputSize` | `number` | 40 MiB | Daha büyük dosyalar küçük resme çevrilmez, orijinal gönderilir |
 | `concurrency` | `number` | 2 | Aynı anda en fazla kaç üretim yapılacağı |
 
-Küçük resimler volume'ün `.cf-thumbs/` klasöründe tutulur. Kaynak değişince yeniden üretilir; dosya silinince, taşınınca ya da adı değişince temizlenir.
+Küçük resimler volume'ün `.tf-thumbs/` klasöründe tutulur. Kaynak değişince yeniden üretilir; dosya silinince, taşınınca ya da adı değişince temizlenir.
 
 ### `sharpThumbnailer(options?)`
 
@@ -213,9 +213,9 @@ interface Thumbnailer {
 ## Görsel işleme
 
 ```ts
-import { sharpImages } from "@ci-finder/core/sharp";
+import { sharpImages } from "@thefinder/core/sharp";
 
-createCiFinder({ volumes, images: sharpImages() });
+createTheFinder({ volumes, images: sharpImages() });
 ```
 
 ### `sharpImages(options?)`
@@ -255,7 +255,7 @@ Bun.serve({ routes: { "/uploads/*": createFileServer({ driver, prefix: "/uploads
 |---|---|---|---|
 | `driver` | `StorageDriver` | — | Zorunlu |
 | `prefix` | `string` | `""` | URL öneki |
-| `showHidden` | `boolean` | `false` | Nokta dosyalarını sunar (`.cf-*` asla sunulmaz) |
+| `showHidden` | `boolean` | `false` | Nokta dosyalarını sunar (`.tf-*` asla sunulmaz) |
 | `authorize` | `(request, path) => boolean \| Promise<boolean>` | — | `false` → `404` (özel dosyaların varlığı da gizlenir) |
 | `cacheControl` | `string` | `"public, max-age=0, must-revalidate"` | |
 
@@ -281,7 +281,7 @@ Diğer yardımcılar: `contentDisposition(type, filename)` (RFC 6266/5987, UTF-8
 
 ## Node adaptörleri
 
-`@ci-finder/core/node`. `express.json()` ya da `koa-bodyparser` gibi bir ayrıştırıcı gövdeyi önceden okumuşsa adaptör gövdeyi yeniden oluşturur.
+`@thefinder/core/node`. `express.json()` ya da `koa-bodyparser` gibi bir ayrıştırıcı gövdeyi önceden okumuşsa adaptör gövdeyi yeniden oluşturur.
 
 | Fonksiyon | Kullanım |
 |---|---|
@@ -299,19 +299,19 @@ Bir dosya sunucusunu da aynı şekilde bağlayabilirsiniz: `app.get("/uploads/*"
 ## Hatalar
 
 ```ts
-import { CiFinderError, isCiFinderError } from "@ci-finder/core";
+import { TheFinderError, isTheFinderError } from "@thefinder/core";
 
-throw new CiFinderError("UNAUTHORIZED");           // mesaj varsayılanı kodun kendisi
-throw new CiFinderError("FORBIDDEN", "Bu klasör size kapalı");
+throw new TheFinderError("UNAUTHORIZED");           // mesaj varsayılanı kodun kendisi
+throw new TheFinderError("FORBIDDEN", "Bu klasör size kapalı");
 ```
 
 | Üye | Açıklama |
 |---|---|
 | `code: ErrorCode` | Kodların tam listesi ve HTTP karşılıkları: [protocol.md › Hata kodları](protocol.md#hata-kodları) |
 | `status: number` | Koddan türetilen HTTP durumu |
-| `isCiFinderError(e)` | Tip koruyucu |
+| `isTheFinderError(e)` | Tip koruyucu |
 
-Hook'larda ya da sürücülerde fırlatılan `CiFinderError` istemciye kendi kodu ve mesajıyla iletilir. Diğer hatalar `INTERNAL` olur ve ayrıntıları yalnızca sunucu günlüğüne yazılır.
+Hook'larda ya da sürücülerde fırlatılan `TheFinderError` istemciye kendi kodu ve mesajıyla iletilir. Diğer hatalar `INTERNAL` olur ve ayrıntıları yalnızca sunucu günlüğüne yazılır.
 
 ## Yardımcılar
 
@@ -326,9 +326,9 @@ Hook'larda ya da sürücülerde fırlatılan `CiFinderError` istemciye kendi kod
 | `isActiveContent(mime)` | Tarayıcıda script çalıştırabilecek tipler (HTML, SVG, XML, JS) |
 | `createZipStream(sources)` | Bağımlılıksız, akışlı zip yazıcı (zip64 dahil). Zaten sıkıştırılmış biçimler sıkıştırılmadan eklenir. |
 | `readZipEntries(read, size)` / `openZipEntry(read, entry)` | Rastgele erişimli zip okuyucu; arşiv belleğe alınmaz |
-| `CSRF_HEADER` | `"x-ci-finder"` |
+| `CSRF_HEADER` | `"x-thefinder"` |
 | `VERSION` | Paket sürümü |
-| `TRASH_ROOT`, `THUMBS_ROOT`, `VERSIONS_ROOT` | `"/.cf-trash"`, `"/.cf-thumbs"`, `"/.cf-versions"` |
+| `TRASH_ROOT`, `THUMBS_ROOT`, `VERSIONS_ROOT` | `"/.tf-trash"`, `"/.tf-thumbs"`, `"/.tf-versions"` |
 | `isTrashPath(path)`, `isVersionsPath(path)`, `isReservedPath(path)` | Yol iç klasörlerden birinde mi |
 | `Volume`, `ThumbnailService` | Motorun iç sınıfları; ileri düzey kullanım içindir, API'leri küçük sürümlerde değişebilir |
 
@@ -345,7 +345,7 @@ interface ZipSource {
 
 ## Tipler
 
-Tüm tipler `import type { … } from "@ci-finder/core"` ile alınabilir. Tarayıcı kodunda aynı tipler `@ci-finder/core/client` üzerinden de gelir.
+Tüm tipler `import type { … } from "@thefinder/core"` ile alınabilir. Tarayıcı kodunda aynı tipler `@thefinder/core/client` üzerinden de gelir.
 
 ### `Entry`
 
@@ -395,7 +395,7 @@ Tüm tipler `import type { … } from "@ci-finder/core"` ile alınabilir. Taray�
 | `truncated` | Volume tamamen taranamayacak kadar büyükse `true` |
 | `scannedAt` | Tarama zamanı (ms) |
 
-`VersionedFile`: `{ id, path, name, exists, count, size, latest }`. `exists: false` ise dosya silinmiş ya da ciFinder dışında taşınmıştır, yani sürümleri sahipsizdir.
+`VersionedFile`: `{ id, path, name, exists, count, size, latest }`. `exists: false` ise dosya silinmiş ya da theFinder dışında taşınmıştır, yani sürümleri sahipsizdir.
 
 ### `TransformResult`
 
