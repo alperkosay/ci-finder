@@ -38,6 +38,8 @@ const LANGS = [
     readme: "README.md",
     api: "docs/api",
     from: "## Installation",
+    home: "",
+    anchors: { overview: "overview", compare: "elfinder" },
     t: {
       guide: "Guide",
       api: "API reference",
@@ -55,7 +57,7 @@ const LANGS = [
       navDocs: "Docs",
       navDemo: "Open demo",
       docsNav: "Documentation",
-      switchTo: "Türkçe",
+      language: "Language",
     },
   },
   {
@@ -64,6 +66,8 @@ const LANGS = [
     readme: "README.tr.md",
     api: "docs/api/tr",
     from: "## Kurulum",
+    home: "tr/",
+    anchors: { overview: "genel-bakis", compare: "elfinder" },
     t: {
       guide: "Kılavuz",
       api: "API referansı",
@@ -81,7 +85,7 @@ const LANGS = [
       navDocs: "Belgeler",
       navDemo: "Demoyu aç",
       docsNav: "Belgeler",
-      switchTo: "English",
+      language: "Dil",
     },
   },
 ];
@@ -313,18 +317,30 @@ function renderMarkdown(src, page) {
 // ---------------------------------------------------------------------------------------------
 // Docs template
 
+/** EN / TR switch; each language links to the same page in that language. */
+const langSwitch = (page, twin) => {
+  const links = [page, twin]
+    .sort((a, b) => LANGS.indexOf(a.lang) - LANGS.indexOf(b.lang))
+    .map((p) => {
+      const here = p === page;
+      return `<a href="${here ? p.out : pageHref(page, p)}" hreflang="${p.lang.code}" lang="${p.lang.code}"${here ? ' aria-current="true"' : ""}>${p.lang.code.toUpperCase()}</a>`;
+    });
+  return `<div class="langs" role="group" aria-label="${page.lang.t.language}">${links.join("")}</div>`;
+};
+
 const nav = (prefix, page, twin) => {
-  const { t } = page.lang;
+  const { t, home, anchors } = page.lang;
+  const demo = `${prefix}demo/?lang=${page.lang.code}`;
   return `<nav class="localnav" aria-label="Site">
       <div class="localnav-in">
-        <a class="wordmark" href="${prefix}" aria-label="${t.home}"><span>ci</span>Finder</a>
+        <a class="wordmark" href="${prefix}${home}" aria-label="${t.home}"><span>ci</span>Finder</a>
         <div class="localnav-links">
-          <a href="${prefix}#genel-bakis">${t.navOverview}</a>
-          <a href="${prefix}#elfinder">${t.navCompare}</a>
+          <a href="${prefix}${home}#${anchors.overview}">${t.navOverview}</a>
+          <a href="${prefix}${home}#${anchors.compare}">${t.navCompare}</a>
           <a href="${prefix}${page.lang.dir}/" aria-current="page">${t.navDocs}</a>
           <a href="${GITHUB}">GitHub</a>
-          <a class="lang" href="${pageHref(page, twin)}" hreflang="${twin.lang.code}" lang="${twin.lang.code}">${t.switchTo}</a>
-          <a class="pill pill-sm" href="${prefix}demo/">${t.navDemo}</a>
+          ${langSwitch(page, twin)}
+          <a class="pill pill-sm" href="${demo}">${t.navDemo}</a>
         </div>
       </div>
     </nav>`;

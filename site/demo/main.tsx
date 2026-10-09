@@ -4,9 +4,16 @@ import { createCiFinder } from "@ci-finder/core";
 import { CiFinder } from "@ci-finder/react";
 import "@ci-finder/react/styles.css";
 import { MemoryDriver } from "./memory-driver";
-import { seed } from "./seed";
+import { seed, teamName, type DemoLang } from "./seed";
 
 const MiB = 1024 * 1024;
+
+// ?lang=en|tr picks the language of both the UI and the demo files; without it, the browser's.
+const params = new URLSearchParams(location.search);
+const asked = params.get("lang");
+const lang: DemoLang = asked === "tr" || asked === "en" ? asked : navigator.language.toLowerCase().startsWith("tr") ? "tr" : "en";
+document.documentElement.lang = lang;
+if (lang === "tr") document.title = "Canlı demo · ciFinder";
 
 const demo = new MemoryDriver(200 * MiB);
 const team = new MemoryDriver(20 * MiB);
@@ -14,10 +21,10 @@ const finder = createCiFinder({
   chunkSize: MiB,
   volumes: [
     { id: "demo", name: "Demo", driver: demo, maxUploadSize: 50 * MiB, denyExtensions: ["exe"] },
-    { id: "team", name: "Ekip", driver: team, readOnly: true },
+    { id: "team", name: teamName(lang), driver: team, readOnly: true },
   ],
 });
-const seeded = seed(finder, demo, team);
+const seeded = seed(finder, demo, team, lang);
 
 interface WireRequest {
   type: "ci-finder:request";
@@ -76,17 +83,16 @@ async function connect(): Promise<boolean> {
   return Promise.race([changed, new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 4000))]);
 }
 
-const params = new URLSearchParams(location.search);
 const embedded = params.has("embed");
 if (embedded) document.documentElement.classList.add("is-embed");
 
 function Demo() {
-  const [locale, setLocale] = useState<"tr" | "en">(params.get("lang") === "en" ? "en" : "tr");
+  const [locale, setLocale] = useState<DemoLang>(lang);
   return (
     <>
       {!embedded && (
         <header className="bar">
-          <a className="bar-back" href="../">
+          <a className="bar-back" href={lang === "tr" ? "../tr/" : "../"}>
             ciFinder
           </a>
           <p className="bar-note">
@@ -123,5 +129,8 @@ connect()
       );
       return;
     }
-    root.innerHTML = `<div class="fallback"><h1>Demo bu tarayıcıda açılamadı.</h1><p>Canlı demo, motoru tarayıcıda çalıştırmak için Service Worker kullanır. Gizli pencerede ya da Service Worker kapalıyken çalışmaz. Sayfayı normal bir pencerede yeniden açmayı deneyin.</p><p><a href="../">Siteye dön</a></p></div>`;
+    root.innerHTML =
+      lang === "tr"
+        ? `<div class="fallback"><h1>Demo bu tarayıcıda açılamadı.</h1><p>Canlı demo, motoru tarayıcıda çalıştırmak için Service Worker kullanır. Gizli pencerede ya da Service Worker kapalıyken çalışmaz. Sayfayı normal bir pencerede yeniden açmayı deneyin.</p><p><a href="../tr/">Siteye dön</a></p></div>`
+        : `<div class="fallback"><h1>The demo could not start in this browser.</h1><p>The live demo runs the engine in the browser through a Service Worker, which is unavailable in private windows or when Service Workers are turned off. Try opening the page in a normal window.</p><p><a href="../">Back to the site</a></p></div>`;
   });

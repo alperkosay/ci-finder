@@ -183,14 +183,31 @@ pre {
 .localnav-links a[aria-current="page"] {
   color: var(--text-3);
 }
-.localnav-links a.lang {
-  padding: 3px 9px;
-  border: 1px solid currentColor;
+/* EN / TR switch: a two-segment control, the current language filled in. */
+.langs {
+  display: flex;
+  padding: 2px;
   border-radius: 980px;
-  opacity: 0.65;
+  background: var(--line-soft);
 }
-.localnav-links a.lang:hover {
+.localnav-links .langs a {
+  min-width: 26px;
+  padding: 2px 7px;
+  border-radius: 980px;
+  color: var(--text-2);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
   opacity: 1;
+}
+.localnav-links .langs a:hover {
+  color: var(--text);
+}
+.localnav-links .langs a[aria-current="true"] {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
 }
 
 .wordmark {
@@ -1387,7 +1404,7 @@ kbd {
 }
 
 @media (max-width: 834px) {
-  .localnav-links a:not(.pill, .lang) {
+  .localnav-links > a:not(.pill) {
     display: none;
   }
   .section {
