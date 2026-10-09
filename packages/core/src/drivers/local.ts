@@ -1,4 +1,5 @@
 import { constants, promises as fs, type Dirent } from "node:fs";
+import type { FileHandle } from "node:fs/promises";
 import * as nodePath from "node:path";
 import { CiFinderError } from "../errors";
 import { mapLimit } from "../stream";
@@ -140,42 +141,58 @@ export class LocalDriver implements StorageDriver {
     await fs.mkdir(await this.safe(path));
   }
 
+  /**
+   * The file is opened on the first read, not here: a stream that is never consumed (a dropped
+   * Response, an unread body) then holds no file handle. Missing files still fail right away.
+   */
   async read(path: VolumePath, range?: ByteRange): Promise<ReadableStream<Uint8Array>> {
-    const handle = await fs.open(await this.safe(path), "r");
+    const abs = await this.safe(path);
+    await fs.stat(abs);
+    let handle: FileHandle | null = null;
     let position = range?.start ?? 0;
     const end = range ? range.end + 1 : Infinity;
     let closed = false;
     const close = async () => {
-      if (!closed) {
-        closed = true;
-        await handle.close().catch(() => {});
-      }
+      closed = true;
+      const h = handle;
+      handle = null;
+      await h?.close().catch(() => {});
     };
-    return new ReadableStream<Uint8Array>({
-      async pull(controller) {
-        try {
-          const want = Math.min(READ_CHUNK, end - position);
-          if (want <= 0) {
+    return new ReadableStream<Uint8Array>(
+      {
+        async pull(controller) {
+          try {
+            if (!handle) {
+              const opened = await fs.open(abs, "r");
+              // Cancelled while opening: nobody will read it.
+              if (closed) return void (await opened.close().catch(() => {}));
+              handle = opened;
+            }
+            const want = Math.min(READ_CHUNK, end - position);
+            if (want <= 0) {
+              await close();
+              controller.close();
+              return;
+            }
+            const buffer = new Uint8Array(want);
+            const { bytesRead } = await handle.read(buffer, 0, want, position);
+            if (bytesRead === 0) {
+              await close();
+              controller.close();
+              return;
+            }
+            position += bytesRead;
+            controller.enqueue(bytesRead === want ? buffer : buffer.subarray(0, bytesRead));
+          } catch (e) {
             await close();
-            controller.close();
-            return;
+            controller.error(e);
           }
-          const buffer = new Uint8Array(want);
-          const { bytesRead } = await handle.read(buffer, 0, want, position);
-          if (bytesRead === 0) {
-            await close();
-            controller.close();
-            return;
-          }
-          position += bytesRead;
-          controller.enqueue(bytesRead === want ? buffer : buffer.subarray(0, bytesRead));
-        } catch (e) {
-          await close();
-          controller.error(e);
-        }
+        },
+        cancel: close,
       },
-      cancel: close,
-    });
+      // Pull only when the consumer asks, so nothing is opened ahead of the first read.
+      { highWaterMark: 0 },
+    );
   }
 
   /** Writes to a temporary sibling first and renames, so readers never see a half-written file. */

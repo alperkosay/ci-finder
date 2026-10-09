@@ -15,16 +15,30 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      # Publishing needs the NPM_TOKEN secret; until it is set the job is skipped instead of failing.
+      - id: guard
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NPM_TOKEN" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::NPM_TOKEN secret is not set, skipping the release."
+          fi
+      - if: steps.guard.outputs.ready == 'true'
+        uses: actions/checkout@v4
+      - if: steps.guard.outputs.ready == 'true'
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
           registry-url: https://registry.npmjs.org
-      - run: npm ci
+      - if: steps.guard.outputs.ready == 'true'
+        run: npm ci
       # With pending changesets: opens / updates a "Version Packages" PR.
       # After that PR is merged: builds and publishes the new versions to npm.
-      - uses: changesets/action@v1
+      - if: steps.guard.outputs.ready == 'true'
+        uses: changesets/action@v1
         with:
           version: npm run version-packages
           publish: npm run release
