@@ -43,11 +43,12 @@ interface Post {
   title: string;
   cover: string;
   attachment: string;
+  file: string;
   gallery: string[];
 }
 
 export function Playground() {
-  const [post, setPost] = useState<Post>({ title: "Kapadokya gezisi", cover: "", attachment: "", gallery: [] });
+  const [post, setPost] = useState<Post>({ title: "Kapadokya gezisi", cover: "", attachment: "", file: "", gallery: [] });
   const [submitted, setSubmitted] = useState<Post | null>(null);
   const [html, setHtml] = useState("");
   const [html4, setHtml4] = useState("");
@@ -100,6 +101,14 @@ export function Playground() {
               placeholder="/uploads/Belgeler/…"
               hint="accept: .pdf, .docx, .xlsx"
               onChange={(v) => set("attachment", v)}
+            />
+            <FileField
+              label="Herhangi bir dosya"
+              name="file"
+              value={post.file}
+              placeholder="/uploads/…"
+              hint="accept verilmedi: her türden dosya seçilebilir."
+              onChange={(v) => set("file", v)}
             />
             <GalleryField label="Galeri" value={post.gallery} onChange={(v) => set("gallery", v)} />
             <div className="form-actions">

@@ -126,22 +126,31 @@
 
 .file-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
 }
 
-.file-row input {
+/* Input with the preview under it: the preview is never wider than the input. */
+.file-main {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.file-row input {
   font-family: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
   font-size: 12px;
 }
 
-.file-thumb {
-  flex: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 5px;
-  object-fit: cover;
+.file-preview {
+  display: block;
+  /* Natural size; small images are not stretched to the input's width. */
+  align-self: flex-start;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
   box-shadow: 0 0 0 1px var(--line);
 }
 

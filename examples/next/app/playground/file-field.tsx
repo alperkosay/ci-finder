@@ -38,8 +38,10 @@ export function FileField({
     <div className="field">
       <label htmlFor={id}>{label}</label>
       <div className="file-row">
-        {IMAGE.test(value) && <img className="file-thumb" src={value} alt="" />}
-        <input id={id} name={name} value={value} placeholder={placeholder} spellCheck={false} onChange={(e) => onChange(e.target.value)} />
+        <div className="file-main">
+          <input id={id} name={name} value={value} placeholder={placeholder} spellCheck={false} onChange={(e) => onChange(e.target.value)} />
+          {IMAGE.test(value) && <img className="file-preview" src={value} alt="" />}
+        </div>
         {value && (
           <button type="button" className="btn ghost" aria-label={`${label}: temizle`} onClick={() => onChange("")}>
             ×
