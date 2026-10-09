@@ -1,6 +1,6 @@
 {
   "name": "@thefinder/ckeditor",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "theFinder connector for CKEditor 5 and CKEditor 4: a CKFinder replacement to browse files from the toolbar and upload pasted images.",
   "license": "MIT",
   "author": "Alper Koşay",
@@ -48,8 +48,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@thefinder/core": "0.3.0",
-    "@thefinder/react": "0.3.0"
+    "@thefinder/core": "0.3.1",
+    "@thefinder/react": "0.3.1"
   },
   "peerDependencies": {
     "ckeditor5": ">=42",

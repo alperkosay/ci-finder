@@ -1,6 +1,6 @@
 {
   "name": "@thefinder/core",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "theFinder server engine: a framework-agnostic file manager backend with local disk and S3 storage, chunked uploads, zip, trash and version history. Zero dependencies.",
   "license": "MIT",
   "author": "Alper Koşay",

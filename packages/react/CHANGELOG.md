@@ -1,5 +1,13 @@
 # @thefinder/react
 
+## 0.3.1
+
+### Patch Changes
+
+- 69df986: Fix context menus near the bottom and in a moved picker. A menu with no room below the pointer now opens above it, or ends at the bottom edge when it does not fit there either, instead of jumping to the top of the screen. The picker is now moved with its position instead of a transform, so context menus, Quick Look and the editors inside a dragged picker stay where they belong.
+- 41017eb: Open context menus at the pointer on pages that style `<dialog>` themselves. A host rule such as `dialog { transform: translate(-50%, -50%) }` made the picker the containing block of its menus, so they opened shifted, e.g. in the picker launched from CKEditor. Menus now render in the top layer (popover) and are placed against the viewport whatever their ancestors do, and moving the picker no longer jumps when the page centers dialogs with a transform.
+- @thefinder/core@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes

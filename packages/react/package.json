@@ -1,6 +1,6 @@
 {
   "name": "@thefinder/react",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "theFinder React UI: a fast, keyboard-friendly file manager and file picker, written in plain CSS. Code, Markdown and image editors built in.",
   "license": "MIT",
   "author": "Alper Koşay",
@@ -50,7 +50,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@thefinder/core": "0.3.0"
+    "@thefinder/core": "0.3.1"
   },
   "peerDependencies": {
     "react": ">=18",
