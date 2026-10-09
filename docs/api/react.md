@@ -33,7 +33,9 @@ import "@ci-finder/react/styles.css";
 | `locale` | `string` | tarayıcı dili (`tr` ya da `en`) | Hazır diller: `"tr"`, `"en"`. Başka bir dil için `messages` ile birlikte verin. |
 | `messages` | `Partial<Messages>` | — | Çevirileri ezer ya da ekler. Eksik anahtarlar İngilizceden gelir. |
 | `theme` | `"light" \| "dark" \| "auto"` | `"auto"` | `auto` işletim sistemini izler |
+| `skin` | `"classic" \| "macos"` | `"classic"` | `macos`: Finder benzeri görünüm (mavi klasörler, trafik ışıkları, zebra satırlar, buzlu menüler). Açık ve koyu modda çalışır. |
 | `density` | `"comfortable" \| "compact"` | `"comfortable"` | |
+| `settings` | `boolean` | `true` | Başlıkta tema, görünüm ve yoğunluk seçilen ayarlar menüsü. Kullanıcının seçimi `persistKey` altında saklanır ve prop'ları ezer; prop sonradan değişirse prop geçerli olur. |
 | `height` | `number \| string` | `"100%"` | |
 | `className`, `style` | | — | Kök öğeye (`.cf-root`) eklenir |
 | `thumbnails` | `boolean` | `true` | Görsellerde küçük resim gösterir |
@@ -244,7 +246,7 @@ Arayüzün elle çizilmiş SVG ikonları kendi bileşenlerinizde de kullanılabi
 
 ## Tema
 
-Tüm stiller `@layer ci-finder` içindedir. Katman dışında yazdığınız her kural onları ezer, `!important` gerekmez. Kök öğe `.cf-root`'tur. `data-theme` (`light`, `dark`, `auto`) ve `data-density` öznitelikleri taşır.
+Tüm stiller `@layer ci-finder` içindedir. Katman dışında yazdığınız her kural onları ezer, `!important` gerekmez. Kök öğe `.cf-root`'tur. `data-theme` (`light`, `dark`, `auto`), `data-skin` (`classic`, `macos`) ve `data-density` öznitelikleri taşır.
 
 ```css
 .cf-root {

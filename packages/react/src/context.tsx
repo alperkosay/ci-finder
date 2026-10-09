@@ -2,7 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useLayoutEffect, use
 import type { Entry } from "@ci-finder/core/client";
 import { getActions } from "./actions";
 import type { Translate } from "./i18n";
-import type { FinderStore, State } from "./store";
+import type { Density, FinderStore, Skin, State, Theme } from "./store";
 
 export interface EditorProps {
   entry: Entry;
@@ -35,7 +35,30 @@ export interface FinderContextValue {
   /** Opens the hidden file input (files or a whole folder). */
   pickUpload: (folder: boolean) => void;
   rootRef: React.RefObject<HTMLDivElement | null>;
+  /** Appearance from the props; a choice made in the settings menu (store prefs) wins over it. */
+  appearance: { theme: Theme; skin: Skin; density: Density };
+  /** Show the settings menu in the header. */
+  settings: boolean;
 }
+
+/** The appearance in effect: the user's choice from the settings menu, else the props. */
+export function useAppearance(): { theme: Theme; skin: Skin; density: Density } {
+  const { appearance } = useFinder();
+  // The server cannot read the saved choice, and React keeps mismatched attributes after hydration,
+  // so the saved choice is applied only once hydration is over (immediately on client-only renders).
+  const hydrated = useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false,
+  );
+  const theme = useStore((s) => s.theme);
+  const skin = useStore((s) => s.skin);
+  const density = useStore((s) => s.density);
+  if (!hydrated) return appearance;
+  return { theme: theme ?? appearance.theme, skin: skin ?? appearance.skin, density: density ?? appearance.density };
+}
+
+const noopSubscribe = () => () => {};
 
 export const FinderContext = createContext<FinderContextValue | null>(null);
 

@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { encodeId, type Entry } from "@ci-finder/core/client";
-import { cx, useFinder, useStore } from "../context";
+import { cx, useAppearance, useFinder, useStore } from "../context";
 import { Icon, Spinner } from "../icons";
 import { readDragIds, isInternalDrag } from "./dnd";
-import { TRASH_ID } from "../store";
+import { TRASH_ID, type Prefs } from "../store";
+import { item, MenuButton, sep, type MenuEntry } from "./Menu";
 
 function useCrumbs(): Entry[] {
   const cwd = useStore((s) => s.cwd);
@@ -158,8 +159,31 @@ function SearchBox() {
   );
 }
 
-export function Header() {
+function SettingsButton() {
   const { store, t } = useFinder();
+  const current = useAppearance();
+  const choice = <K extends "theme" | "skin" | "density">(key: K, value: NonNullable<Prefs[K]>, label: string): MenuEntry =>
+    item({ id: `${key}-${value}`, label, enabled: true, run: () => store.set({ [key]: value }) }, current[key] === value);
+
+  const entries: MenuEntry[] = [
+    { type: "label", label: t("skin") },
+    choice("skin", "classic", t("skinClassic")),
+    choice("skin", "macos", t("skinMacos")),
+    sep,
+    { type: "label", label: t("colorScheme") },
+    choice("theme", "auto", t("themeAuto")),
+    choice("theme", "light", t("themeLight")),
+    choice("theme", "dark", t("themeDark")),
+    sep,
+    { type: "label", label: t("density") },
+    choice("density", "comfortable", t("densityComfortable")),
+    choice("density", "compact", t("densityCompact")),
+  ];
+  return <MenuButton label={t("settings")} icon="sliders" entries={entries} alignRight />;
+}
+
+export function Header() {
+  const { store, t, settings } = useFinder();
   const canBack = useStore((s) => s.historyIndex > 0);
   const canForward = useStore((s) => s.historyIndex < s.history.length - 1);
   const canUp = useStore((s) => !!(s.cwd && s.entries[s.cwd]?.parent));
@@ -203,6 +227,7 @@ export function Header() {
       >
         <Icon name="gauge" />
       </button>
+      {settings && <SettingsButton />}
     </div>
   );
 }

@@ -266,3 +266,66 @@ function SubMenu({
     </div>
   );
 }
+
+/** A button that opens a dropdown menu below itself. */
+export function MenuButton({
+  label,
+  icon,
+  entries,
+  showLabel,
+  className,
+  alignRight,
+}: {
+  label: string;
+  icon?: IconName;
+  entries: MenuEntry[];
+  showLabel?: boolean;
+  className?: string;
+  alignRight?: boolean;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const open = () => {
+    const r = ref.current!.getBoundingClientRect();
+    setPos({ x: alignRight ? r.right : r.left, y: r.bottom + 4 });
+  };
+  const items = compact(entries, true);
+  return (
+    <>
+      <button
+        ref={ref}
+        type="button"
+        className={cx("cf-btn", !showLabel && "is-icon", pos && "is-on", className)}
+        aria-haspopup="menu"
+        aria-expanded={!!pos}
+        aria-label={label}
+        title={label}
+        disabled={!items.some((e) => (e.type === "action" ? e.action.enabled : e.type === "submenu"))}
+        onClick={() => (pos ? setPos(null) : open())}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            open();
+          }
+        }}
+      >
+        {icon && <Icon name={icon} />}
+        {showLabel && <span>{label}</span>}
+        {showLabel && <Icon name="chevronDown" size={12} className="cf-caret" />}
+      </button>
+      {pos && (
+        <Menu
+          entries={items}
+          x={pos.x}
+          y={pos.y}
+          alignRight={alignRight}
+          label={label}
+          onClose={() => {
+            setPos(null);
+            ref.current?.focus();
+          }}
+        />
+      )}
+    </>
+  );
+}

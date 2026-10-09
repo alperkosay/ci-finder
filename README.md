@@ -1,5 +1,7 @@
 # ciFinder
 
+![ciFinder](docs/media/cifinder-hero.png)
+
 React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüphanesine bağlı değil. Backend Web standardı `Request → Response` üzerine kurulu; Next.js (standalone dahil), Node.js, Bun, Express, Fastify, Koa ve Hono ile çalışır. Dosyalar yerel diskte, S3'te ya da ikisinde birden tutulabilir.
 
 | Paket | İçerik |
@@ -10,6 +12,8 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 | `@ci-finder/ckeditor` | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
 Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/README.md).
+
+![ciFinder özellikleri](docs/media/cifinder-features.png)
 
 ## Özellikler
 
@@ -356,7 +360,9 @@ CKEDITOR.replace("body", {
 | `headers`, `credentials` | Ek istek başlıkları (örn. `Authorization`), cross-origin için cookie ayarı |
 | `locale`, `messages` | `"tr"` / `"en"`, çeviri ekleme veya ezme |
 | `theme` | `"auto"` (varsayılan), `"light"`, `"dark"` |
+| `skin` | `"classic"` (varsayılan), `"macos"` (Finder benzeri görünüm) |
 | `density` | `"comfortable"` (varsayılan), `"compact"` |
+| `settings` | Başlıktaki ayarlar menüsü (tema, görünüm, yoğunluk). Kullanıcının seçimi `persistKey` altında saklanır. Varsayılan `true` |
 | `height`, `className`, `style` | Boyut ve stil. Varsayılan yükseklik ebeveynin %100'ü |
 | `initialFolder`, `defaultView`, `persistKey` | Başlangıç klasörü, varsayılan görünüm ve sıralama, tercihlerin saklanacağı localStorage anahtarı |
 | `onSelect`, `selectLabel`, `multiple` | Seçici modu (örn. CMS'te "görsel seç" alanı) |

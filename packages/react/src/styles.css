@@ -2,6 +2,7 @@
  * ciFinder — native CSS, no framework.
  * Everything lives in the `ci-finder` cascade layer, so any un-layered rule in your app wins.
  * Theme by overriding the custom properties on `.cf-root` (or `.cf-root[data-theme="dark"]`).
+ * `.cf-root[data-skin="macos"]` swaps in a Finder-like look on top of the same tokens.
  */
 
 @layer ci-finder {
@@ -3626,6 +3627,386 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 12px;
+  }
+
+  /* ------------------------------------------------------------------------------------------
+   * macOS skin (`skin="macos"`): Finder colors, blue folders, traffic lights, vibrant menus
+   * ---------------------------------------------------------------------------------------- */
+  .cf-root[data-skin="macos"] {
+    --cf-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    --cf-mono: "SF Mono", ui-monospace, Menlo, Monaco, "Cascadia Code", Consolas, monospace;
+
+    /* Finder's selection blue, dark enough for white text. */
+    --cf-accent: #0064e1;
+    --cf-accent-ink: #0066cc;
+
+    --cf-bg: #ffffff;
+    --cf-surface: #ffffff;
+    --cf-chrome: #f6f6f6;
+    --cf-field: #ffffff;
+    --cf-line: #e3e3e3;
+    --cf-line-strong: #cdcdcf;
+    --cf-text: #1d1d1f;
+    --cf-text-2: #5e5e63;
+    --cf-text-3: #737378;
+    --cf-hover: rgb(0 0 0 / 0.05);
+    --cf-press: rgb(0 0 0 / 0.1);
+    --cf-sel: rgb(0 0 0 / 0.09);
+    --cf-sel-muted: #e4e4e6;
+    --cf-danger: #d70015;
+    --cf-success: #248a3d;
+    --cf-warn: #b25000;
+
+    --cf-folder-back: #3f9ae9;
+    --cf-folder-front: #6cb8f6;
+    --cf-page: #ffffff;
+    --cf-page-line: #c9c9cc;
+
+    --cf-code-bg: #ffffff;
+    --cf-code-active: rgb(0 100 225 / 0.05);
+    --cf-toast-bg: rgb(44 44 46 / 0.94);
+    --cf-toast-text: #f5f5f7;
+    --cf-backdrop: rgb(0 0 0 / 0.28);
+
+    --cf-shadow-pop: 0 0 0 0.5px rgb(0 0 0 / 0.18), 0 10px 32px -6px rgb(0 0 0 / 0.24), 0 2px 6px rgb(0 0 0 / 0.06);
+    --cf-shadow-dialog: 0 0 0 0.5px rgb(0 0 0 / 0.18), 0 28px 70px -12px rgb(0 0 0 / 0.42);
+
+    --cf-radius: 6px;
+    --cf-radius-lg: 12px;
+
+    /* macOS-only surfaces */
+    --cf-mac-sidebar: #ececee;
+    --cf-mac-fill: rgb(0 0 0 / 0.055);
+    --cf-mac-stripe: #f5f5f7;
+    --cf-mac-button: #ffffff;
+    --cf-mac-menu: rgb(246 246 246 / 0.82);
+    --cf-mac-window: 0 0 0 0.5px rgb(0 0 0 / 0.22), 0 22px 56px -16px rgb(0 0 0 / 0.32);
+
+    /* Xcode "Default (Light)" */
+    --tk-kw: #9b2393;
+    --tk-str: #c41a16;
+    --tk-com: #5d6c79;
+    --tk-num: #1c00cf;
+    --tk-fn: #326d74;
+    --tk-type: #0b4f79;
+    --tk-prop: #3900a0;
+    --tk-tag: #9b2393;
+    --tk-attr: #815f03;
+    --tk-op: #262626;
+    --tk-const: #1c00cf;
+    --tk-var: #0f68a0;
+    --tk-meta: #643820;
+  }
+
+  .cf-root[data-skin="macos"]:not([data-density="compact"]) {
+    --cf-header-h: 50px;
+  }
+
+  .cf-root[data-skin="macos"][data-theme="dark"] {
+    --cf-accent: #0a64d8;
+    --cf-accent-ink: #4da3ff;
+    --cf-bg: #1e1e1e;
+    --cf-surface: #2c2c2e;
+    --cf-chrome: #2a2a2a;
+    --cf-field: #2c2c2e;
+    --cf-line: #393939;
+    --cf-line-strong: #4b4b4e;
+    --cf-text: #f5f5f7;
+    --cf-text-2: #b1b1b6;
+    --cf-text-3: #8e8e93;
+    --cf-hover: rgb(255 255 255 / 0.06);
+    --cf-press: rgb(255 255 255 / 0.11);
+    --cf-sel: rgb(255 255 255 / 0.12);
+    --cf-sel-muted: rgb(255 255 255 / 0.1);
+    --cf-danger: #ff6961;
+    --cf-success: #30d158;
+    --cf-warn: #ffb340;
+    --cf-folder-back: #2f86d8;
+    --cf-folder-front: #58a8ee;
+    --cf-page: #2c2c2e;
+    --cf-page-line: #59595e;
+    --cf-code-bg: #1f1f24;
+    --cf-code-active: rgb(255 255 255 / 0.04);
+    --cf-toast-bg: rgb(58 58 60 / 0.94);
+    --cf-backdrop: rgb(0 0 0 / 0.48);
+    --cf-shadow-pop: 0 0 0 0.5px rgb(255 255 255 / 0.14), 0 12px 32px -6px rgb(0 0 0 / 0.6);
+    --cf-shadow-dialog: 0 0 0 0.5px rgb(255 255 255 / 0.14), 0 28px 70px -12px rgb(0 0 0 / 0.75);
+    --cf-mac-sidebar: #262628;
+    --cf-mac-fill: rgb(255 255 255 / 0.08);
+    --cf-mac-stripe: #242426;
+    --cf-mac-button: rgb(255 255 255 / 0.14);
+    --cf-mac-menu: rgb(40 40 42 / 0.82);
+    --cf-mac-window: 0 0 0 0.5px rgb(255 255 255 / 0.12), 0 22px 56px -16px rgb(0 0 0 / 0.7);
+    /* Xcode "Default (Dark)" */
+    --tk-kw: #fc5fa3;
+    --tk-str: #fc6a5d;
+    --tk-com: #7f8c98;
+    --tk-num: #d0bf69;
+    --tk-fn: #67b7a4;
+    --tk-type: #5dd8ff;
+    --tk-prop: #a167e6;
+    --tk-tag: #fc5fa3;
+    --tk-attr: #bf8555;
+    --tk-op: #dfdfe0;
+    --tk-const: #d0bf69;
+    --tk-var: #41a1c0;
+    --tk-meta: #fd8f3f;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .cf-root[data-skin="macos"][data-theme="auto"] {
+      --cf-accent: #0a64d8;
+      --cf-accent-ink: #4da3ff;
+      --cf-bg: #1e1e1e;
+      --cf-surface: #2c2c2e;
+      --cf-chrome: #2a2a2a;
+      --cf-field: #2c2c2e;
+      --cf-line: #393939;
+      --cf-line-strong: #4b4b4e;
+      --cf-text: #f5f5f7;
+      --cf-text-2: #b1b1b6;
+      --cf-text-3: #8e8e93;
+      --cf-hover: rgb(255 255 255 / 0.06);
+      --cf-press: rgb(255 255 255 / 0.11);
+      --cf-sel: rgb(255 255 255 / 0.12);
+      --cf-sel-muted: rgb(255 255 255 / 0.1);
+      --cf-danger: #ff6961;
+      --cf-success: #30d158;
+      --cf-warn: #ffb340;
+      --cf-folder-back: #2f86d8;
+      --cf-folder-front: #58a8ee;
+      --cf-page: #2c2c2e;
+      --cf-page-line: #59595e;
+      --cf-code-bg: #1f1f24;
+      --cf-code-active: rgb(255 255 255 / 0.04);
+      --cf-toast-bg: rgb(58 58 60 / 0.94);
+      --cf-backdrop: rgb(0 0 0 / 0.48);
+      --cf-shadow-pop: 0 0 0 0.5px rgb(255 255 255 / 0.14), 0 12px 32px -6px rgb(0 0 0 / 0.6);
+      --cf-shadow-dialog: 0 0 0 0.5px rgb(255 255 255 / 0.14), 0 28px 70px -12px rgb(0 0 0 / 0.75);
+      --cf-mac-sidebar: #262628;
+      --cf-mac-fill: rgb(255 255 255 / 0.08);
+      --cf-mac-stripe: #242426;
+      --cf-mac-button: rgb(255 255 255 / 0.14);
+      --cf-mac-menu: rgb(40 40 42 / 0.82);
+      --cf-mac-window: 0 0 0 0.5px rgb(255 255 255 / 0.12), 0 22px 56px -16px rgb(0 0 0 / 0.7);
+      --tk-kw: #fc5fa3;
+      --tk-str: #fc6a5d;
+      --tk-com: #7f8c98;
+      --tk-num: #d0bf69;
+      --tk-fn: #67b7a4;
+      --tk-type: #5dd8ff;
+      --tk-prop: #a167e6;
+      --tk-tag: #fc5fa3;
+      --tk-attr: #bf8555;
+      --tk-op: #dfdfe0;
+      --tk-const: #d0bf69;
+      --tk-var: #41a1c0;
+      --tk-meta: #fd8f3f;
+    }
+  }
+
+  /* Window */
+  .cf-root[data-skin="macos"] {
+    border-color: transparent;
+    box-shadow: var(--cf-mac-window);
+  }
+
+  /* Title bar + toolbar read as one unified toolbar, with the traffic lights on the left. */
+  .cf-root[data-skin="macos"] .cf-header {
+    gap: 8px;
+    padding: 0 10px 0 14px;
+    border-bottom: 0;
+  }
+
+  .cf-root[data-skin="macos"] .cf-header::before {
+    content: "";
+    flex: none;
+    width: 52px;
+    height: 12px;
+    margin-right: 10px;
+    background:
+      radial-gradient(circle at 6px 6px, #ff5f57 5.5px, rgb(0 0 0 / 0.12) 5.5px 6px, transparent 6.5px),
+      radial-gradient(circle at 26px 6px, #febc2e 5.5px, rgb(0 0 0 / 0.12) 5.5px 6px, transparent 6.5px),
+      radial-gradient(circle at 46px 6px, #28c840 5.5px, rgb(0 0 0 / 0.12) 5.5px 6px, transparent 6.5px);
+  }
+
+  .cf-root[data-skin="macos"].is-narrow .cf-header::before {
+    display: none;
+  }
+
+  .cf-root[data-skin="macos"] .cf-pathbar,
+  .cf-root[data-skin="macos"] .cf-search {
+    border-color: transparent;
+    border-radius: 7px;
+    background: var(--cf-mac-fill);
+  }
+
+  .cf-root[data-skin="macos"] .cf-pathbar.is-editing,
+  .cf-root[data-skin="macos"] .cf-search:focus-within {
+    border-color: var(--cf-accent);
+    background: var(--cf-field);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cf-accent) 32%, transparent);
+  }
+
+  .cf-root[data-skin="macos"] .cf-crumb-btn.is-current {
+    font-weight: 600;
+  }
+
+  .cf-root[data-skin="macos"] .cf-toolgroup + .cf-toolgroup {
+    border-left-color: transparent;
+  }
+
+  .cf-root[data-skin="macos"] .cf-btn {
+    border-radius: 6px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-btn.is-primary {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--cf-accent) 82%, #fff), var(--cf-accent));
+    box-shadow:
+      inset 0 0.5px 0 rgb(255 255 255 / 0.25),
+      0 0 0 0.5px color-mix(in srgb, var(--cf-accent) 70%, #000),
+      0 1px 2px rgb(0 0 0 / 0.12);
+  }
+
+  .cf-root[data-skin="macos"] .cf-btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--cf-accent) 45%, transparent);
+    outline-offset: 0;
+  }
+
+  .cf-root[data-skin="macos"] .cf-segmented {
+    background: var(--cf-mac-fill);
+  }
+
+  .cf-root[data-skin="macos"] .cf-segmented .cf-btn.is-on {
+    background: var(--cf-mac-button);
+    box-shadow:
+      0 0 0 0.5px rgb(0 0 0 / 0.12),
+      0 1px 2px rgb(0 0 0 / 0.1);
+  }
+
+  /* Sidebar: a quiet gray source list; the current folder gets a gray capsule, not a blue one. */
+  .cf-root[data-skin="macos"] .cf-sidebar {
+    background: var(--cf-mac-sidebar);
+    border-right-color: transparent;
+  }
+
+  .cf-root[data-skin="macos"] .cf-tree {
+    padding: 6px 10px 16px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-tree-row.is-root {
+    color: var(--cf-text-2);
+    font-size: 12px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-tree-row.is-current,
+  .cf-root[data-skin="macos"] .cf-tree:focus-within .cf-tree-row.is-current {
+    background: var(--cf-press);
+  }
+
+  .cf-root[data-skin="macos"] .cf-tree-volume {
+    color: var(--cf-accent-ink);
+  }
+
+  /* Icon view: gray rounded square behind the icon, blue capsule behind the name. */
+  .cf-root[data-skin="macos"] .is-grid > .cf-item:hover .cf-item-icon {
+    background: transparent;
+  }
+
+  .cf-root[data-skin="macos"] .is-grid .cf-item-name {
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+
+  /* List view: zebra stripes, full-width rows. */
+  .cf-root[data-skin="macos"] .is-list {
+    padding: 0 8px;
+  }
+
+  .cf-root[data-skin="macos"] .is-list > .cf-item.is-alt {
+    background: var(--cf-mac-stripe);
+  }
+
+  .cf-root[data-skin="macos"] .is-list > .cf-item:hover {
+    background: var(--cf-hover);
+  }
+
+  .cf-root[data-skin="macos"] .is-list > .cf-item.is-selected {
+    background: var(--cf-sel-muted);
+  }
+
+  .cf-root[data-skin="macos"] .cf-view:focus-within .is-list > .cf-item.is-selected {
+    background: var(--cf-accent);
+  }
+
+  .cf-root[data-skin="macos"] .is-list > .cf-item.is-drop {
+    background: var(--cf-accent-soft);
+  }
+
+  .cf-root[data-skin="macos"] .cf-list-head {
+    background: var(--cf-bg);
+  }
+
+  /* Menus: translucent, blurred, blue highlight. */
+  .cf-root[data-skin="macos"] .cf-menu {
+    padding: 5px;
+    border-radius: 10px;
+    background: var(--cf-mac-menu);
+    -webkit-backdrop-filter: blur(28px) saturate(1.8);
+    backdrop-filter: blur(28px) saturate(1.8);
+  }
+
+  .cf-root[data-skin="macos"] .cf-menu-item {
+    border-radius: 5px;
+  }
+
+  @media (pointer: fine) {
+    .cf-root[data-skin="macos"] .cf-menu-item {
+      height: 24px;
+    }
+  }
+
+  .cf-root[data-skin="macos"] .cf-menu-label {
+    padding: 5px 8px 2px;
+    font-size: 11px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-menu-sep {
+    margin: 4px 8px;
+  }
+
+  /* Dialogs: macOS sheets with raised push buttons. */
+  .cf-root[data-skin="macos"] .cf-dialog {
+    border-radius: 14px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-dialog-actions .cf-btn:not(.is-primary):not(.is-danger) {
+    background: var(--cf-mac-button);
+    color: var(--cf-text);
+    box-shadow:
+      0 0 0 0.5px rgb(0 0 0 / 0.16),
+      0 1px 2px rgb(0 0 0 / 0.08);
+  }
+
+  .cf-root[data-skin="macos"] .cf-input {
+    border-color: var(--cf-line-strong);
+    border-radius: 6px;
+  }
+
+  .cf-root[data-skin="macos"] .cf-input:focus {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--cf-accent) 32%, transparent);
+  }
+
+  .cf-root[data-skin="macos"] .cf-toast {
+    border-radius: 12px;
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    backdrop-filter: blur(20px) saturate(1.6);
+  }
+
+  .cf-root[data-skin="macos"] .cf-statusbar {
+    border-top-color: var(--cf-line);
+    color: var(--cf-text-3);
+    font-size: 11px;
   }
 
   /* ------------------------------------------------------------------------------------------

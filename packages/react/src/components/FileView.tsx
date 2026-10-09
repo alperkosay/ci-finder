@@ -184,6 +184,8 @@ const Item = memo(function Item({ entry, rowIndex, selected, focused, cut, renam
     draggable: !renaming && !entry.locked && !entry.trash,
     className: cx(
       "cf-item",
+      // Odd list rows by absolute position, so striping stays put while the virtual window scrolls.
+      view === "list" && rowIndex % 2 === 1 && "is-alt",
       selected && "is-selected",
       focused && "is-focused",
       cut && "is-cut",

@@ -4,6 +4,9 @@ import type { MessageKey, Translate } from "./i18n";
 
 export type ViewMode = "grid" | "list";
 export type SortKey = "name" | "size" | "mtime" | "kind";
+export type Theme = "auto" | "light" | "dark";
+export type Skin = "classic" | "macos";
+export type Density = "comfortable" | "compact";
 
 export interface UploadItem {
   id: number;
@@ -47,6 +50,10 @@ export interface Prefs {
   foldersFirst: boolean;
   detailsOpen: boolean;
   sidebarWidth: number;
+  /** Appearance picked in the settings menu; null follows the `theme` / `skin` / `density` props. */
+  theme: Theme | null;
+  skin: Skin | null;
+  density: Density | null;
 }
 
 export interface State extends Prefs {
@@ -112,7 +119,7 @@ export interface StoreOptions {
   onUnauthorized?: () => void;
 }
 
-const PREF_KEYS: (keyof Prefs)[] = ["view", "sortKey", "sortDir", "foldersFirst", "detailsOpen", "sidebarWidth"];
+const PREF_KEYS: (keyof Prefs)[] = ["view", "sortKey", "sortDir", "foldersFirst", "detailsOpen", "sidebarWidth", "theme", "skin", "density"];
 const MAX_PARALLEL_UPLOADS = 3;
 
 const EMPTY: string[] = [];
@@ -153,6 +160,9 @@ export class FinderStore {
       foldersFirst: true,
       detailsOpen: false,
       sidebarWidth: 232,
+      theme: null,
+      skin: null,
+      density: null,
       ...options.initialPrefs,
       ...loadPrefs(options.persistKey),
     };

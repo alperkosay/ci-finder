@@ -20,6 +20,7 @@ function Segmented<T extends string>({ label, value, options, onChange }: { labe
 
 export function Demo() {
   const [theme, setTheme] = useState<Theme>("auto");
+  const [skin, setSkin] = useState<"classic" | "macos">("classic");
   const [locale, setLocale] = useState<"tr" | "en">("tr");
   const [density, setDensity] = useState<"comfortable" | "compact">("comfortable");
 
@@ -45,6 +46,15 @@ export function Demo() {
         </div>
         <Nav />
         <div className="controls">
+          <Segmented
+            label="Skin"
+            value={skin}
+            onChange={setSkin}
+            options={[
+              ["classic", "Klasik"],
+              ["macos", "macOS"],
+            ]}
+          />
           <Segmented
             label="Theme"
             value={theme}
@@ -76,7 +86,7 @@ export function Demo() {
         </div>
       </header>
       <main className="stage">
-        <CiFinder key={locale} endpoint="/api/files" locale={locale} theme={theme} density={density} />
+        <CiFinder key={locale} endpoint="/api/files" locale={locale} theme={theme} skin={skin} density={density} />
       </main>
     </div>
   );

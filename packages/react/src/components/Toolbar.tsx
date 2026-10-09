@@ -1,9 +1,8 @@
-import { useRef, useState } from "react";
 import type { Action } from "../actions";
 import { cx, shortcut, useActions, useFinder, useStore } from "../context";
 import { Icon } from "../icons";
 import { TRASH_ID, type SortKey } from "../store";
-import { compact, item, Menu, sep, type MenuEntry } from "./Menu";
+import { item, MenuButton, sep, type MenuEntry } from "./Menu";
 
 function ToolButton({ action, label }: { action: Action; label?: boolean }) {
   const title = action.shortcut ? `${action.label} (${shortcut(action.shortcut)})` : action.label;
@@ -12,69 +11,6 @@ function ToolButton({ action, label }: { action: Action; label?: boolean }) {
       {action.icon && <Icon name={action.icon} />}
       {label && <span>{action.label}</span>}
     </button>
-  );
-}
-
-/** A button that opens a dropdown menu below itself. */
-function MenuButton({
-  label,
-  icon,
-  entries,
-  showLabel,
-  className,
-  alignRight,
-}: {
-  label: string;
-  icon?: Parameters<typeof Icon>[0]["name"];
-  entries: MenuEntry[];
-  showLabel?: boolean;
-  className?: string;
-  alignRight?: boolean;
-}) {
-  const ref = useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
-  const open = () => {
-    const r = ref.current!.getBoundingClientRect();
-    setPos({ x: alignRight ? r.right : r.left, y: r.bottom + 4 });
-  };
-  const items = compact(entries, true);
-  return (
-    <>
-      <button
-        ref={ref}
-        type="button"
-        className={cx("cf-btn", !showLabel && "is-icon", pos && "is-on", className)}
-        aria-haspopup="menu"
-        aria-expanded={!!pos}
-        aria-label={label}
-        title={label}
-        disabled={!items.some((e) => (e.type === "action" ? e.action.enabled : e.type === "submenu"))}
-        onClick={() => (pos ? setPos(null) : open())}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowDown") {
-            e.preventDefault();
-            open();
-          }
-        }}
-      >
-        {icon && <Icon name={icon} />}
-        {showLabel && <span>{label}</span>}
-        {showLabel && <Icon name="chevronDown" size={12} className="cf-caret" />}
-      </button>
-      {pos && (
-        <Menu
-          entries={items}
-          x={pos.x}
-          y={pos.y}
-          alignRight={alignRight}
-          label={label}
-          onClose={() => {
-            setPos(null);
-            ref.current?.focus();
-          }}
-        />
-      )}
-    </>
   );
 }
 

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { createClient, type CiFinderClient, type Entry } from "@ci-finder/core/client";
 import { getActions } from "./actions";
-import { cx, FinderContext, isMac, modKey, useElementSize, useFinder, useStore, type CustomEditor, type FinderContextValue } from "./context";
+import { cx, FinderContext, isMac, modKey, useAppearance, useElementSize, useFinder, useStore, type CustomEditor, type FinderContextValue } from "./context";
 import { matchesAccept, type Accept } from "./format";
 import { createTranslator, type Messages } from "./i18n";
-import { FinderStore, type Prefs } from "./store";
+import { FinderStore, type Density, type Prefs, type Skin, type Theme } from "./store";
 import { ContextMenu } from "./components/ContextMenu";
 import { DetailsPanel } from "./components/DetailsPanel";
 import { Dashboard } from "./components/Dashboard";
@@ -12,7 +12,7 @@ import { Dialogs } from "./components/Dialogs";
 import { ImageBatch } from "./components/ImageBatch";
 import { VersionsDialog } from "./components/Versions";
 import { Toasts, UploadPanel } from "./components/Feedback";
-import { FileView, type Density } from "./components/FileView";
+import { FileView } from "./components/FileView";
 import { Header } from "./components/Header";
 import { QuickLook } from "./components/QuickLook";
 import { Sidebar } from "./components/Sidebar";
@@ -37,10 +37,17 @@ export interface CiFinderProps {
   locale?: string;
   /** Override or add translations. */
   messages?: Partial<Messages>;
-  /** Default: "auto" (follows the OS). */
-  theme?: "light" | "dark" | "auto";
+  /** Color scheme. Default: "auto" (follows the OS). */
+  theme?: Theme;
+  /** Look of the file manager: "classic" or "macos" (Finder-like). Default: "classic". */
+  skin?: Skin;
   /** Default: "comfortable". */
   density?: Density;
+  /**
+   * Show the settings menu (theme, color scheme, density) in the header. The user's choice is
+   * remembered under `persistKey` and wins over the props until a prop changes. Default: true.
+   */
+  settings?: boolean;
   /** Height of the file manager. Default: 100% of the parent. */
   height?: number | string;
   className?: string;
@@ -106,9 +113,10 @@ function EditorHost() {
   return custom ? <>{custom.render({ entry, store, onClose: close })}</> : null;
 }
 
-function Shell({ density, theme, height, className, style }: Pick<CiFinderProps, "theme" | "height" | "className" | "style"> & { density: Density }) {
+function Shell({ height, className, style }: Pick<CiFinderProps, "height" | "className" | "style">) {
   const ctx = useFinder();
   const { store, t, rootRef } = ctx;
+  const { theme, skin, density } = useAppearance();
   const ready = useStore((s) => s.ready);
   const initError = useStore((s) => s.initError);
   const detailsOpen = useStore((s) => s.detailsOpen);
@@ -183,7 +191,8 @@ function Shell({ density, theme, height, className, style }: Pick<CiFinderProps,
         (sizeRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
       }}
       className={cx("cf-root", narrow && "is-narrow", className)}
-      data-theme={theme ?? "auto"}
+      data-theme={theme}
+      data-skin={skin}
       data-density={density}
       style={rootStyle}
       onKeyDown={onKeyDown}
@@ -278,6 +287,23 @@ export function CiFinder(props: CiFinderProps) {
   });
   store.options.t = t;
 
+  // A prop that changes after mount is a new decision by the host page: it replaces the user's choice.
+  const appearance = useMemo(
+    () => ({ theme: props.theme ?? "auto", skin: props.skin ?? "classic", density: props.density ?? "comfortable" }) as const,
+    [props.theme, props.skin, props.density],
+  );
+  const firstAppearance = useRef(appearance);
+  useEffect(() => {
+    const prev = firstAppearance.current;
+    if (prev === appearance) return;
+    const patch: Partial<Prefs> = {};
+    if (prev.theme !== appearance.theme) patch.theme = null;
+    if (prev.skin !== appearance.skin) patch.skin = null;
+    if (prev.density !== appearance.density) patch.density = null;
+    firstAppearance.current = appearance;
+    store.set(patch);
+  }, [appearance, store]);
+
   useEffect(() => {
     void store.init(initialFolder);
     // Only once per mounted store.
@@ -300,8 +326,23 @@ export function CiFinder(props: CiFinderProps) {
       onPickCancel: cancellable ? () => latest.current.onCancel?.() : undefined,
       pickUpload: (folder) => (folder ? folderInput : fileInput).current?.click(),
       rootRef,
+      appearance,
+      settings: props.settings ?? true,
     }),
-    [store, t, locale, props.thumbnails, props.editors, props.onSelect, props.selectLabel, props.multiple, props.accept, cancellable],
+    [
+      store,
+      t,
+      locale,
+      props.thumbnails,
+      props.editors,
+      props.onSelect,
+      props.selectLabel,
+      props.multiple,
+      props.accept,
+      cancellable,
+      appearance,
+      props.settings,
+    ],
   );
 
   const onFiles = (list: FileList | null) => {
@@ -310,7 +351,7 @@ export function CiFinder(props: CiFinderProps) {
 
   return (
     <FinderContext.Provider value={value}>
-      <Shell density={props.density ?? "comfortable"} theme={props.theme} height={props.height} className={props.className} style={props.style} />
+      <Shell height={props.height} className={props.className} style={props.style} />
       <input ref={fileInput} type="file" multiple hidden onChange={(e) => (onFiles(e.target.files), (e.target.value = ""))} />
       <input
         ref={folderInput}
