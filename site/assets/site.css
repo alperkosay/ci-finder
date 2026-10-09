@@ -712,6 +712,7 @@ kbd {
   color: #1d1d1f;
   font: inherit;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
 }
 .film-play svg {
@@ -1507,7 +1508,13 @@ kbd {
     min-height: 480px;
   }
   .film-play {
-    bottom: 16px;
+    bottom: 12px;
+    padding: 8px 16px 8px 12px;
+    font-size: 15px;
+  }
+  .film-play svg {
+    width: 16px;
+    height: 16px;
   }
   .doc h1 {
     font-size: 32px;
