@@ -144,7 +144,7 @@ export function getActions(env: ActionEnv): Record<ActionId, Action> & { openWit
     download: a("download", "download", "download", sel.length > 0, () => store.download(sel)),
     copyLink: a("copyLink", "copyLink", "link", !!one && one.kind === "file", () => {
       if (!one) return;
-      const url = new URL(store.fileUrl(one), location.href).toString();
+      const url = new URL(store.linkUrl(one), location.href).toString();
       void store.copyText(url);
     }),
     rename: a("rename", "rename", "rename", !!one && one.write && !one.locked, () => store.startRename(), "F2"),

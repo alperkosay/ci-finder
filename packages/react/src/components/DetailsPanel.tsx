@@ -110,7 +110,7 @@ function RegularItem({ entry }: { entry: Entry }) {
   const original = category === "image" && entry.size > 0 ? store.fileUrl(entry) : null;
   const src = original ? store.previewUrl(entry, 512) : null;
   const dims = useImageSize(original);
-  const url = entry.kind === "file" ? new URL(store.fileUrl(entry), typeof location !== "undefined" ? location.href : "http://localhost").toString() : null;
+  const url = entry.kind === "file" ? new URL(store.linkUrl(entry), typeof location !== "undefined" ? location.href : "http://localhost").toString() : null;
 
   return (
     <>

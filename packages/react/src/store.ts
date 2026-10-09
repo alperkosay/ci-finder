@@ -606,7 +606,19 @@ export class FinderStore {
     this.download([entry]);
   }
 
+  /**
+   * URL for showing a file (previews, thumbnails, editors). It changes whenever the file does: a
+   * public `url` gets the modification time appended, or the browser keeps showing an image it
+   * already loaded from that address, e.g. right after the image editor overwrote it.
+   */
   fileUrl(entry: Entry): string {
+    if (!entry.url) return this.client.fileUrl(entry);
+    const [base, hash] = entry.url.split("#");
+    return `${base}${base!.includes("?") ? "&" : "?"}v=${entry.mtime}${hash === undefined ? "" : `#${hash}`}`;
+  }
+
+  /** The file's address as users share it (copy link, details panel): the public `url` as is. */
+  linkUrl(entry: Entry): string {
     return entry.url ?? this.client.fileUrl(entry);
   }
 
