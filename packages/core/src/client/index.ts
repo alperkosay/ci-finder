@@ -141,8 +141,8 @@ export class TheFinderClient {
   info(ids: string[]) {
     return this.get<{ entries: Entry[] }>("info", { ids: ids.join(",") });
   }
-  size(ids: string[]) {
-    return this.get<SizeResult>("size", { ids: ids.join(",") });
+  size(ids: string[], signal?: AbortSignal) {
+    return this.get<SizeResult>("size", { ids: ids.join(",") }, signal);
   }
   search(id: string, q: string, signal?: AbortSignal) {
     return this.get<{ entries: Entry[]; truncated: boolean }>("search", { id, q }, signal);

@@ -2612,6 +2612,52 @@
     box-shadow: inset 0 0 0 1px var(--tf-line-strong);
   }
 
+  /* Output summary under the image editor's controls: dimensions and the estimated file size. */
+  .tf-estimate {
+    display: grid;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid var(--tf-line);
+    font-size: 12px;
+  }
+
+  .tf-estimate > div {
+    display: grid;
+    gap: 3px;
+  }
+
+  .tf-estimate dt {
+    color: var(--tf-text-3);
+  }
+
+  .tf-estimate dd {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    min-height: 20px;
+    color: var(--tf-text-2);
+    font-variant-numeric: tabular-nums;
+    transition: opacity 120ms;
+  }
+
+  .tf-estimate dd.is-pending {
+    opacity: 0.55;
+  }
+
+  .tf-estimate b {
+    color: var(--tf-text);
+    font-weight: 600;
+  }
+
+  .tf-calculating {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--tf-text-3);
+  }
+
   /* ------------------------------------------------------------------------------------------
    * Quick look
    * ---------------------------------------------------------------------------------------- */

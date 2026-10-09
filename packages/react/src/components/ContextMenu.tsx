@@ -19,10 +19,12 @@ export function ContextMenu() {
   } else if (inTrash && menu.context === "background") {
     entries = [item(actions.refresh), item(actions.selectAll), sep, item(actions.emptyTrash)];
   } else if (menu.context === "item") {
-    const openWith: MenuEntry[] = [item(actions.edit), item(actions.editImage), ...actions.openWith.map((a) => item(a))];
+    // One "Edit" right under "Open": the image editor for pictures, the code editor for text.
+    const edit = actions.editImage.enabled ? actions.editImage : actions.edit;
     entries = [
       item(actions.open),
-      { type: "submenu", id: "open-with", label: t("openWith"), items: openWith },
+      item({ ...edit, label: t("edit") }),
+      { type: "submenu", id: "open-with", label: t("openWith"), items: actions.openWith.map((a) => item(a)) },
       item(actions.preview),
       sep,
       item(actions.download),

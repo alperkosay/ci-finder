@@ -1,4 +1,4 @@
-import { ApiError, type TheFinderClient, type ConflictMode, type Entry, type InitResult, type VolumeInfo } from "@thefinder/core/client";
+import { ApiError, type TheFinderClient, type ConflictMode, type Entry, type InitResult, type SizeResult, type VolumeInfo } from "@thefinder/core/client";
 import { baseOf, categoryOf, createCollator, extOf, isEditableText } from "./format";
 import type { MessageKey, Translate } from "./i18n";
 
@@ -152,6 +152,8 @@ export class FinderStore {
   private searchTimer: ReturnType<typeof setTimeout> | null = null;
   private visibleCache: { deps: unknown[]; value: string[] } | null = null;
   private collator: Intl.Collator;
+  /** Folder sizes worked out so far, by the ids asked for. Any change to the files drops them. */
+  private sizes = new Map<string, SizeResult>();
 
   constructor(readonly options: StoreOptions) {
     this.collator = createCollator(options.locale);
@@ -254,6 +256,29 @@ export class FinderStore {
     } catch {
       // storage unavailable: the next visit starts at the first volume's root
     }
+  }
+
+  /** Reports a change in the files to the host page; sizes worked out before may be stale now. */
+  private changed(event: { type: string; entries?: Entry[]; ids?: string[] }) {
+    this.sizes = new Map();
+    this.options.onChange?.(event);
+  }
+
+  /** A size from `folderSize` that is still current, if there is one. */
+  knownSize(ids: string[]): SizeResult | undefined {
+    return this.sizes.get(ids.join(","));
+  }
+
+  /** Total size and item counts of folders and files, walked on the server, then remembered. */
+  async folderSize(ids: string[], signal?: AbortSignal): Promise<SizeResult> {
+    const key = ids.join(",");
+    // A change while the walk runs swaps the map, so a result that may be stale is not kept.
+    const cache = this.sizes;
+    const known = cache.get(key);
+    if (known) return known;
+    const result = await this.client.size(ids, signal);
+    cache.set(key, result);
+    return result;
   }
 
   private savePrefs() {
@@ -529,6 +554,7 @@ export class FinderStore {
   }
 
   refresh() {
+    this.sizes = new Map();
     const { cwd, searchQuery } = this.state;
     if (!cwd) return;
     if (cwd === TRASH_ID) return void this.openTrash({ history: "keep" });
@@ -699,7 +725,7 @@ export class FinderStore {
       const { entry } = await this.client.mkdir(cwd, this.uniqueName(this.t("newFolderName"), true));
       this.addLocal([entry]);
       this.set({ selection: [entry.id], anchor: entry.id, focus: entry.id, renaming: entry.id });
-      this.options.onChange?.({ type: "mkdir", entries: [entry] });
+      this.changed({ type: "mkdir", entries: [entry] });
     } catch (e) {
       this.fail(e);
     }
@@ -712,7 +738,7 @@ export class FinderStore {
       const { entry } = await this.client.mkfile(cwd, this.uniqueName(this.t("newFileName"), false));
       this.addLocal([entry]);
       this.set({ selection: [entry.id], anchor: entry.id, focus: entry.id, renaming: entry.id });
-      this.options.onChange?.({ type: "mkfile", entries: [entry] });
+      this.changed({ type: "mkfile", entries: [entry] });
     } catch (e) {
       this.fail(e);
     }
@@ -753,7 +779,7 @@ export class FinderStore {
           cwd: s.cwd === id ? next.id : s.cwd,
         };
       });
-      this.options.onChange?.({ type: "rename", entries: [next], ids: [id] });
+      this.changed({ type: "rename", entries: [next], ids: [id] });
       // Children of a renamed folder have new ids; drop stale cache below it.
       if (entry.kind === "dir") void this.revalidate([entry.parent]);
     } catch (e) {
@@ -793,7 +819,7 @@ export class FinderStore {
         !toTrash,
       );
       this.removeLocal(removed);
-      this.options.onChange?.({ type: "rm", ids: removed });
+      this.changed({ type: "rm", ids: removed });
       if (trashed.length) {
         this.set((s) => ({ trashCount: s.trashCount + trashed.length }));
         this.toast(this.t("trashed", { n: trashed.length }), "success", { label: this.t("undo"), run: () => void this.restore(trashed) });
@@ -867,7 +893,7 @@ export class FinderStore {
       this.addLocal(restored);
       this.set((s) => ({ trashCount: Math.max(0, s.trashCount - removed.length) }));
       this.toast(this.t("restored", { n: restored.length }), "success");
-      this.options.onChange?.({ type: "restore", entries: restored });
+      this.changed({ type: "restore", entries: restored });
       void this.revalidate([...new Set(restored.map((e) => e.parent))]);
     } catch (e) {
       this.fail(e);
@@ -918,7 +944,7 @@ export class FinderStore {
       const { added } = await this.client.duplicate(entries.map((e) => e.id));
       this.addLocal(added);
       this.setSelection(added.map((e) => e.id));
-      this.options.onChange?.({ type: "duplicate", entries: added });
+      this.changed({ type: "duplicate", entries: added });
     } catch (e) {
       this.fail(e);
     }
@@ -967,7 +993,7 @@ export class FinderStore {
       if (dstId === this.state.cwd) this.setSelection(result.added.map((e) => e.id));
       const n = result.added.length;
       if (n) this.toast(this.t(cut ? "moved" : "pasted", { n }), "success");
-      this.options.onChange?.({ type: cut ? "move" : "copy", entries: result.added, ids: result.removed });
+      this.changed({ type: cut ? "move" : "copy", entries: result.added, ids: result.removed });
       void this.revalidate([dstId, ...items.map((e) => e.parent)]);
       return true;
     } catch (e) {
@@ -989,7 +1015,7 @@ export class FinderStore {
       this.addLocal([entry]);
       this.setSelection([entry.id]);
       this.toast(this.t("archived", { name: entry.name }), "success");
-      this.options.onChange?.({ type: "archive", entries: [entry] });
+      this.changed({ type: "archive", entries: [entry] });
     } catch (e) {
       this.fail(e);
     }
@@ -1001,7 +1027,7 @@ export class FinderStore {
       this.addLocal([folder]);
       this.setSelection([folder.id]);
       this.toast(skipped ? this.t("extractedSkipped", { name: folder.name, n: skipped }) : this.t("extracted", { name: folder.name }), "success");
-      this.options.onChange?.({ type: "extract", entries: [folder] });
+      this.changed({ type: "extract", entries: [folder] });
     } catch (e) {
       this.fail(e);
     }
@@ -1024,6 +1050,7 @@ export class FinderStore {
 
   /** Called by editors after saving so listings show the new size / date. */
   updateEntry(entry: Entry) {
+    this.sizes = new Map();
     this.addLocal([entry]);
     this.set({ entries: this.merge([entry]) });
   }
@@ -1131,7 +1158,7 @@ export class FinderStore {
       });
       this.patchUpload(item.id, { status: "done", loaded: item.size, controller: undefined });
       if (!item.relativePath) this.addLocal([entry]);
-      this.options.onChange?.({ type: "upload", entries: [entry] });
+      this.changed({ type: "upload", entries: [entry] });
     } catch (e) {
       const cancelled = e instanceof ApiError && e.code === "ABORTED";
       this.patchUpload(item.id, { status: cancelled ? "cancelled" : "error", error: cancelled ? undefined : this.errorMessage(e), controller: undefined });

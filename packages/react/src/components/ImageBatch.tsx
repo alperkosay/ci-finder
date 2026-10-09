@@ -111,7 +111,7 @@ function BatchView({ ids, onClose }: { ids: string[]; onClose: () => void }) {
         <span>
           {formatSize(r.before, locale)} → <b>{formatSize(r.after ?? 0, locale)}</b>
         </span>
-        <span className={cx("tf-batch-pct", pct > 0 && "is-good")}>{pct > 0 ? `−${pct}%` : `${-pct}%`}</span>
+        <span className={cx("tf-batch-pct", pct > 0 && "is-good")}>{pct > 0 ? `−${pct}%` : pct < 0 ? `+${-pct}%` : "0%"}</span>
       </span>
     );
   };

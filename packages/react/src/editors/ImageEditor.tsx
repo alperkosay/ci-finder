@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { Entry } from "@thefinder/core/client";
 import { cx, useFinder } from "../context";
-import { baseOf, extOf } from "../format";
+import { baseOf, extOf, formatSize } from "../format";
 import { FileIcon, Icon, Spinner } from "../icons";
 import { Modal } from "../components/Dialogs";
 
@@ -233,6 +233,28 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
 
   const sameFormat = format === originalFormat(entry.name) && extOf(entry.name) !== "gif" && extOf(entry.name) !== "bmp" && extOf(entry.name) !== "avif";
   const changed = rotation !== 0 || flipX || flipY || !!crop || !!size || !sameFormat || quality !== 0.9;
+
+  // Size the saved file would have: encode the result in the background a moment after each change.
+  const [estimate, setEstimate] = useState<{ bytes: number | null; pending: boolean }>({ bytes: null, pending: false });
+  const exportRef = useRef(exportBlob);
+  exportRef.current = exportBlob;
+  useEffect(() => {
+    if (!img || !changed) return setEstimate({ bytes: null, pending: false });
+    setEstimate((e) => ({ ...e, pending: true }));
+    let live = true;
+    const timer = setTimeout(() => {
+      exportRef.current().then(
+        (blob) => live && setEstimate({ bytes: blob.size, pending: false }),
+        // A cross-origin image without CORS cannot be encoded; saving reports that, no need here.
+        () => live && setEstimate({ bytes: null, pending: false }),
+      );
+    }, 300);
+    return () => {
+      live = false;
+      clearTimeout(timer);
+    };
+  }, [img, changed, rotation, flipX, flipY, crop, size, format, quality]);
+  const change = estimate.bytes !== null && entry.size > 0 ? Math.round((1 - estimate.bytes / entry.size) * 100) : null;
   const pct = (v: number, total: number) => `${(v / total) * 100}%`;
 
   const setWidth = (w: number) => {
@@ -428,9 +450,37 @@ export function ImageEditor({ entry, onClose }: { entry: Entry; onClose: () => v
               <Icon name="refresh" />
               <span>{t("reset")}</span>
             </button>
-            <p className="tf-dim tf-small">
-              {out.w.toLocaleString(locale)} × {out.h.toLocaleString(locale)} px
-            </p>
+            <dl className="tf-estimate" aria-live="polite">
+              <div>
+                <dt>{t("dimensions")}</dt>
+                <dd>
+                  {out.w.toLocaleString(locale)} × {out.h.toLocaleString(locale)} px
+                </dd>
+              </div>
+              <div>
+                <dt>{changed ? t("estimatedSize") : t("size")}</dt>
+                <dd className={cx(estimate.pending && "is-pending")}>
+                  {!changed ? (
+                    formatSize(entry.size, locale)
+                  ) : estimate.bytes === null ? (
+                    estimate.pending ? (
+                      <Spinner size={12} />
+                    ) : (
+                      "—"
+                    )
+                  ) : (
+                    <>
+                      <span>
+                        {formatSize(entry.size, locale)} → <b>{formatSize(estimate.bytes, locale)}</b>
+                      </span>
+                      {change !== null && (
+                        <span className={cx("tf-batch-pct", change > 0 && "is-good")}>{change > 0 ? `−${change}%` : change < 0 ? `+${-change}%` : "0%"}</span>
+                      )}
+                    </>
+                  )}
+                </dd>
+              </div>
+            </dl>
           </aside>
         </div>
       </div>
