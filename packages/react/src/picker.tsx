@@ -41,31 +41,45 @@ function isHandle(target: EventTarget | null): boolean {
   return !!el?.closest?.(".tf-header") && !el.closest(NOT_A_HANDLE);
 }
 
+/** Below this width the picker is full screen and stays put. */
+const SMALL_SCREEN = "(max-width: 640px)";
+
+const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
+
 /**
- * Lets the user move the picker by its header, like a window. The offset lives only as long as the
- * dialog, so every picker opens centered. Small screens get a full-screen picker that stays put.
+ * Lets the user move the picker by its header, like a window. The position lives only as long as
+ * the dialog, so every picker opens centered.
  */
 function useMovable(ref: RefObject<HTMLDialogElement | null>) {
-  const offset = useRef({ x: 0, y: 0 });
+  // Where the user put the dialog; null while it sits centered.
+  const at = useRef<{ left: number; top: number } | null>(null);
 
   const place = useCallback(
-    (x: number, y: number) => {
+    (to: { left: number; top: number } | null) => {
       const el = ref.current;
       if (!el) return;
-      // Keep the header reachable: clamp against where the dialog would sit without any offset.
-      const rect = el.getBoundingClientRect();
-      const left = rect.left - offset.current.x;
-      const top = rect.top - offset.current.y;
-      x = Math.min(Math.max(x, KEEP_VISIBLE - rect.width - left), window.innerWidth - KEEP_VISIBLE - left);
-      y = Math.min(Math.max(y, -top), window.innerHeight - KEEP_VISIBLE / 2 - top);
-      offset.current = { x, y };
-      el.style.translate = x || y ? `${x}px ${y}px` : "";
+      if (!to) {
+        at.current = null;
+        el.style.removeProperty("margin");
+        el.style.removeProperty("inset");
+        return;
+      }
+      // Keep the header reachable.
+      const left = clamp(to.left, KEEP_VISIBLE - el.offsetWidth, window.innerWidth - KEEP_VISIBLE);
+      const top = clamp(to.top, 0, window.innerHeight - KEEP_VISIBLE / 2);
+      at.current = { left, top };
+      // Moved with inset, not a transform: a transform would make the dialog the containing block of
+      // the context menus and overlays inside it, which are positioned against the viewport.
+      el.style.margin = "0";
+      el.style.inset = `${top}px auto auto ${left}px`;
     },
     [ref],
   );
 
   useEffect(() => {
-    const onResize = () => place(offset.current.x, offset.current.y);
+    const onResize = () => {
+      if (at.current) place(window.matchMedia(SMALL_SCREEN).matches ? null : at.current);
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [place]);
@@ -73,10 +87,11 @@ function useMovable(ref: RefObject<HTMLDialogElement | null>) {
   const onPointerDown = (e: ReactPointerEvent<HTMLDialogElement>) => {
     const el = ref.current;
     if (!el || e.button !== 0 || !e.isPrimary || !isHandle(e.target)) return;
-    if (window.matchMedia("(max-width: 640px)").matches) return;
+    if (window.matchMedia(SMALL_SCREEN).matches) return;
     const startX = e.clientX;
     const startY = e.clientY;
-    const from = offset.current;
+    const rect = el.getBoundingClientRect();
+    const from = at.current ?? { left: rect.left, top: rect.top };
     let moving = false;
 
     const move = (ev: PointerEvent) => {
@@ -94,7 +109,7 @@ function useMovable(ref: RefObject<HTMLDialogElement | null>) {
           // the pointer is already gone; the window listeners still end the drag
         }
       }
-      place(from.x + dx, from.y + dy);
+      place({ left: from.left + dx, top: from.top + dy });
     };
     const end = () => {
       window.removeEventListener("pointermove", move);
@@ -117,7 +132,7 @@ function useMovable(ref: RefObject<HTMLDialogElement | null>) {
 
   /** Double click on the header puts the dialog back in the middle. */
   const onDoubleClick = (e: ReactMouseEvent) => {
-    if (isHandle(e.target) && !(e.target as Element).closest("button, .tf-pathbar")) place(0, 0);
+    if (isHandle(e.target) && !(e.target as Element).closest("button, .tf-pathbar")) place(null);
   };
 
   return { onPointerDown, onDoubleClick };

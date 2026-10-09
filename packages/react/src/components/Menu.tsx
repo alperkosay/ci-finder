@@ -70,8 +70,9 @@ export function Menu({ entries, x, y, onClose, alignRight, label, autoFocus = tr
     let top = y;
     if (left + w > vw - 8) left = flipX !== undefined && flipX - w >= 8 ? flipX - w : Math.max(8, vw - w - 8);
     if (left < 8) left = 8;
-    // A dropdown flips above its anchor; a submenu just slides up until it fits.
-    if (top + h > vh - 8) top = Math.max(8, flipX !== undefined ? vh - h - 8 : y - h);
+    // No room below: a menu flips above its anchor when it fits there, otherwise (and always for a
+    // submenu) it slides up just enough to end at the bottom edge, staying next to the pointer.
+    if (top + h > vh - 8) top = Math.max(8, flipX === undefined && y - h >= 8 ? y - h : vh - h - 8);
     setPos({ left, top, ready: true });
   }, [x, y, alignRight, flipX]);
 
