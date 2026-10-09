@@ -11,7 +11,7 @@ React için dosya yöneticisi. Arayüz saf CSS ile yazıldı, hiçbir UI kütüp
 | `@ci-finder/react` | `<CiFinder />` bileşeni, `useFilePicker` / `openFilePicker` ve `styles.css`. Tek bağımlılığı `react` (peer). |
 | `@ci-finder/ckeditor` | CKEditor 5 ve CKEditor 4 connector'ı (CKFinder'ın yerine). |
 
-Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/README.md).
+Tüm seçenekler, komutlar ve tipler için: [API referansı](docs/api/README.md). Canlı demo, belgeler ve elFinder karşılaştırması: [alperkosay.github.io/ci-finder](https://alperkosay.github.io/ci-finder/).
 
 ![ciFinder özellikleri](docs/media/cifinder-features.png)
 
@@ -404,9 +404,12 @@ npm run build      # core → next → react → ckeditor
 npm test           # core testleri (Node)
 npm run test:bun   # aynı testler Bun ile
 npm run dev        # paketleri derler ve Next örneğini başlatır (http://localhost:3000)
+npm run site:dev   # GitHub Pages sitesini derler ve sunar (http://localhost:4173); önce npm run build
 ```
 
 Örnekler: [examples/next](examples/next), [examples/bun](examples/bun), [examples/express](examples/express).
+
+Site kaynağı [site/](site) klasöründedir. Belgeler sayfaları `README.md` ve `docs/api/*.md` dosyalarından üretilir; canlı demo gerçek `@ci-finder/core` motorunu tarayıcıda, bellek içi bir sürücüyle çalıştırır. `main`'e gelen her push'ta [Pages](.github/workflows/pages.yml) iş akışı siteyi yayımlar.
 
 ## Sürüm ve yayın
 

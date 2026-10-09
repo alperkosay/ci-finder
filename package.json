@@ -12,6 +12,8 @@
   "scripts": {
     "build": "npm run build -w @ci-finder/core && npm run build -w @ci-finder/next && npm run build -w @ci-finder/react && npm run build -w @ci-finder/ckeditor",
     "dev": "npm run build && npm run dev -w example-next",
+    "site:build": "node site/build.mjs",
+    "site:dev": "node site/build.mjs --serve",
     "test": "npm run test -w @ci-finder/core",
     "test:bun": "npm run test:bun -w @ci-finder/core",
     "typecheck": "npm run typecheck -w @ci-finder/core && npm run typecheck -w @ci-finder/next && npm run typecheck -w @ci-finder/react && npm run typecheck -w @ci-finder/ckeditor",
@@ -26,6 +28,7 @@
     "@changesets/cli": "^3.0.3",
     "@eslint/js": "^10.0.1",
     "@types/node": "^24.0.0",
+    "esbuild": "^0.27.7",
     "eslint": "^10.12.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.13.0",

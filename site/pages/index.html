@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ciFinder · Web için dosya yöneticisi</title>
+    <meta
+      name="description"
+      content="ciFinder: React için dosya yöneticisi. Saf CSS, sıfır bağımlılıklı çekirdek, Next.js, Bun, Node ve S3 desteği. elFinder'a modern bir alternatif."
+    />
+    <meta property="og:title" content="ciFinder" />
+    <meta property="og:description" content="Web uygulamanız için gerçek bir dosya yöneticisi." />
+    <meta property="og:image" content="media/cifinder-hero.png" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="assets/site.css" />
+  </head>
+  <body>
+    <nav class="localnav" aria-label="Site">
+      <div class="localnav-in">
+        <a class="wordmark" href="./" aria-label="ciFinder ana sayfa"><span>ci</span>Finder</a>
+        <div class="localnav-links">
+          <a href="#genel-bakis">Genel bakış</a>
+          <a href="#elfinder">elFinder ile karşılaştırma</a>
+          <a href="docs/">Belgeler</a>
+          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
+          <a class="pill pill-sm" href="demo/">Demoyu aç</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Hero -->
+      <header class="hero">
+        <p class="eyebrow">Açık kaynak · MIT · v0.1</p>
+        <h1 class="hero-title">Web için bir Finder.</h1>
+        <p class="hero-lede">React uygulamanıza tek bileşenle gelen, gerçek bir masaüstü dosya yöneticisi kadar hızlı ve klavye dostu bir arayüz.</p>
+        <div class="cta-row">
+          <a class="pill" href="demo/">Tam ekran dene</a>
+          <a class="more" href="docs/">Belgeleri okuyun</a>
+        </div>
+      </header>
+
+      <section class="stage" aria-label="Canlı demo">
+        <div class="window">
+          <div class="window-bar" aria-hidden="true">
+            <i></i><i></i><i></i>
+            <span>Bu bir ekran görüntüsü değil. Dosyaları sürükleyin, sağ tıklayın, Space'e basın.</span>
+          </div>
+          <iframe class="window-frame" src="demo/?embed" title="ciFinder canlı demo" allow="clipboard-write"></iframe>
+        </div>
+        <p class="stage-note">
+          Arkada sunucu yok: <code>@ci-finder/core</code> motorunun kendisi bu sayfada, bellekte tutulan bir sürücüyle çalışıyor. Yenileyince her şey baştan
+          başlar.
+        </p>
+      </section>
+
+      <!-- Statement -->
+      <section class="section" id="genel-bakis">
+        <div class="wrap">
+          <p class="statement">
+            ciFinder bir <b>React bileşeni</b>, bir <b>CSS dosyası</b> ve <b>tek bir API ucu</b>. Arayüz hiçbir UI kütüphanesine bağlı değil. Sunucu tarafı Web
+            standardı <b>Request → Response</b> üzerine kurulu, bu yüzden <b>Next.js, Bun, Node, Express, Fastify, Koa</b> ve <b>Hono</b> ile aynı kodla
+            çalışıyor. Dosyalar <b>yerel diskte, S3'te</b> ya da ikisinde birden duruyor. Çekirdeğin çalışma zamanı bağımlılığı: <b>sıfır</b>.
+          </p>
+        </div>
+      </section>
+
+      <!-- Highlights -->
+      <section class="section section-alt" aria-labelledby="highlights-title">
+        <div class="wrap">
+          <h2 class="section-title" id="highlights-title">Öne çıkanlar.</h2>
+        </div>
+        <div class="gallery" data-gallery>
+          <ul class="gallery-track" tabindex="0" aria-label="Öne çıkanlar, yatay kaydırılabilir">
+            <li class="tile tile-dark">
+              <p class="tile-kicker">Sanal liste</p>
+              <h3 class="tile-title">10.000 dosyalık klasör. Takılmadan.</h3>
+              <div class="viz viz-number">
+                <strong>~100</strong>
+                <span>DOM öğesi, klasörde kaç dosya olursa olsun.</span>
+              </div>
+            </li>
+            <li class="tile">
+              <p class="tile-kicker">Sürüm geçmişi</p>
+              <h3 class="tile-title">Her kaydın önceki hali saklanır. Veritabanı yok.</h3>
+              <ol class="viz viz-versions" aria-label="Örnek sürüm geçmişi">
+                <li><span class="dot is-now"></span><b>teklif-2026.md</b><em>Şimdiki hal</em></li>
+                <li><span class="dot"></span>Düzenleme öncesi<em>2 dk önce · 412 B</em></li>
+                <li><span class="dot"></span>Optimizasyon öncesi<em>Dün · 1,8 MB</em></li>
+                <li><span class="dot"></span>Yükleme öncesi<em>3 Eki · 1,9 MB</em></li>
+              </ol>
+            </li>
+            <li class="tile">
+              <p class="tile-kicker">Çöp kutusu</p>
+              <h3 class="tile-title">Delete onay sormaz. Çünkü geri alınabilir.</h3>
+              <div class="viz viz-toast">
+                <div class="toast"><span>“kapak.jpg” çöpe taşındı</span><button type="button" tabindex="-1">Geri al</button></div>
+                <p>Silinen öğeler volume içindeki <code>.cf-trash</code> klasöründe 30 gün bekler. Yerel diskte de S3'te de.</p>
+              </div>
+            </li>
+            <li class="tile tile-dark">
+              <p class="tile-kicker">S3, R2, MinIO</p>
+              <h3 class="tile-title">Bulut depolama. AWS SDK olmadan.</h3>
+              <pre class="viz viz-code"><code><span class="tk-fn">s3Driver</span>({
+  bucket: <span class="tk-str">"my-bucket"</span>,
+  region: <span class="tk-str">"auto"</span>,
+  endpoint: <span class="tk-str">"https://…r2.cloudflarestorage.com"</span>,
+})</code></pre>
+              <p class="tile-foot">SigV4 imzası Web Crypto ile. Edge runtime'da da çalışır.</p>
+            </li>
+            <li class="tile">
+              <p class="tile-kicker">Klavye</p>
+              <h3 class="tile-title">Fareye hiç dokunmadan.</h3>
+              <div class="viz viz-keys" aria-label="Kısayol örnekleri">
+                <span><kbd>Space</kbd> Hızlı bakış</span>
+                <span><kbd>F2</kbd> Yeniden adlandır</span>
+                <span><kbd>Ctrl</kbd><kbd>C</kbd> Kopyala</span>
+                <span><kbd>Shift</kbd><kbd>Del</kbd> Kalıcı sil</span>
+                <span><kbd>Ctrl</kbd><kbd>F</kbd> Editörde bul</span>
+                <span><kbd>a</kbd><kbd>b</kbd><kbd>c</kbd> Yazarak atla</span>
+              </div>
+            </li>
+            <li class="tile">
+              <p class="tile-kicker">Erişilebilirlik</p>
+              <h3 class="tile-title">axe-core taraması, açık ve koyu temada.</h3>
+              <div class="viz viz-number viz-number-green">
+                <strong>0</strong>
+                <span>WCAG 2.1 AA ihlali. Liste görünümü bir ARIA grid, simge görünümü bir listbox.</span>
+              </div>
+            </li>
+            <li class="tile tile-dark">
+              <p class="tile-kicker">Next.js</p>
+              <h3 class="tile-title"><code>output: "standalone"</code> dahil.</h3>
+              <div class="viz viz-tree">
+                <span>proje/</span>
+                <span class="i1">.next/standalone/server.js</span>
+                <span class="i1 is-hl">uploads/ <em>← dosyalar her modda burada</em></span>
+                <span class="i1">app/api/files/route.ts</span>
+              </div>
+            </li>
+          </ul>
+          <div class="gallery-nav">
+            <button type="button" class="round" data-dir="-1" aria-label="Önceki">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+            </button>
+            <button type="button" class="round" data-dir="1" aria-label="Sonraki">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Film -->
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title">42 saniyede ciFinder.</h2>
+          <p class="section-lede">Yükleme, sürükle-bırak, editörler, depolama paneli ve macOS görünümü, sessiz bir kısa filmde.</p>
+          <div class="film" data-film>
+            <video src="media/cifinder-tanitim.mp4" poster="media/cifinder-hero.png" preload="none" playsinline></video>
+            <button type="button" class="film-play" aria-label="Filmi oynat">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" /></svg>
+              <span>Filmi izle</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Backends -->
+      <section class="section section-alt" id="backend">
+        <div class="wrap split">
+          <div class="split-text">
+            <h2 class="section-title">Backend'iniz hangisiyse.</h2>
+            <p class="section-lede">
+              Motor tek bir fonksiyon: <code>finder.handler(request)</code> bir <code>Request</code> alır, bir <code>Response</code> döner. Bun, Hono ve Next.js
+              bunu olduğu gibi kullanır; Express, Fastify ve Koa için ince adaptörler hazır.
+            </p>
+            <p class="section-lede">
+              Yüklemeler parça parça gelir ve sunucu yüklemeler arasında durum tutmaz. Gövde limitine takılmaz, serverless'ta da çalışır.
+            </p>
+          </div>
+          <div class="code-tabs" data-tabs>
+            <div class="code-tabs-list" role="tablist" aria-label="Framework">
+              <button type="button" role="tab" aria-selected="true" aria-controls="tab-next" id="t-next">Next.js</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="tab-bun" id="t-bun" tabindex="-1">Bun</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="tab-express" id="t-express" tabindex="-1">Express</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="tab-fastify" id="t-fastify" tabindex="-1">Fastify</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="tab-koa" id="t-koa" tabindex="-1">Koa</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="tab-hono" id="t-hono" tabindex="-1">Hono</button>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-next" aria-labelledby="t-next">
+              <p class="code-file">app/api/files/route.ts</p>
+              <pre><code><span class="tk-kw">import</span> {
+  createCiFinder, createNextRoutes, localDriver, uploadsDir,
+} <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/next"</span>;
+
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+  volumes: [{
+    id: <span class="tk-str">"uploads"</span>,
+    driver: <span class="tk-fn">localDriver</span>({ root: <span class="tk-fn">uploadsDir</span>() }),
+    url: <span class="tk-str">"/uploads"</span>,
+  }],
+});
+
+<span class="tk-kw">export const</span> runtime = <span class="tk-str">"nodejs"</span>;
+<span class="tk-kw">export const</span> { GET, POST } = <span class="tk-fn">createNextRoutes</span>(finder);</code></pre>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-bun" aria-labelledby="t-bun" hidden>
+              <p class="code-file">server.ts</p>
+              <pre><code><span class="tk-kw">const</span> driver = <span class="tk-fn">localDriver</span>({ root: <span class="tk-str">"./uploads"</span> });
+<span class="tk-kw">const</span> finder = <span class="tk-fn">createCiFinder</span>({
+  volumes: [{ id: <span class="tk-str">"files"</span>, driver, url: <span class="tk-str">"/uploads"</span> }],
+});
+
+Bun.<span class="tk-fn">serve</span>({
+  routes: {
+    <span class="tk-str">"/api/files"</span>: finder.handler,
+    <span class="tk-str">"/uploads/*"</span>: <span class="tk-fn">createFileServer</span>({ driver, prefix: <span class="tk-str">"/uploads"</span> }),
+  },
+});</code></pre>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-express" aria-labelledby="t-express" hidden>
+              <p class="code-file">server.mjs</p>
+              <pre><code><span class="tk-kw">import</span> { toExpress } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+
+app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toExpress</span>(finder.handler));
+app.<span class="tk-fn">get</span>(<span class="tk-str">"/uploads/*"</span>, <span class="tk-fn">toExpress</span>(
+  <span class="tk-fn">createFileServer</span>({ driver, prefix: <span class="tk-str">"/uploads"</span> }),
+));
+
+<span class="tk-com">// express.json() önce çalışmış olsa bile sorun yok:</span>
+<span class="tk-com">// adaptör okunmuş gövdeyi yeniden oluşturur.</span></code></pre>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-fastify" aria-labelledby="t-fastify" hidden>
+              <p class="code-file">server.ts</p>
+              <pre><code><span class="tk-kw">import</span> { toFastify } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+
+fastify.<span class="tk-fn">register</span>(<span class="tk-fn">toFastify</span>(finder.handler), { prefix: <span class="tk-str">"/api/files"</span> });
+
+<span class="tk-com">// Eklenti kendi kapsamında gövde ayrıştırmayı kapatır.</span></code></pre>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-koa" aria-labelledby="t-koa" hidden>
+              <p class="code-file">server.ts</p>
+              <pre><code><span class="tk-kw">import</span> { toKoa } <span class="tk-kw">from</span> <span class="tk-str">"@ci-finder/core/node"</span>;
+
+router.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, <span class="tk-fn">toKoa</span>(finder.handler));</code></pre>
+            </div>
+            <div class="code-panel" role="tabpanel" id="tab-hono" aria-labelledby="t-hono" hidden>
+              <p class="code-file">index.ts</p>
+              <pre><code><span class="tk-com">// Adaptör gerekmez: Hono zaten Web standardı Request kullanır.</span>
+app.<span class="tk-fn">all</span>(<span class="tk-str">"/api/files"</span>, (c) =&gt; finder.<span class="tk-fn">handler</span>(c.req.raw));</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Storage -->
+      <section class="section">
+        <div class="wrap">
+          <h2 class="section-title center">Disk de. Bulut da. Aynı anda.</h2>
+          <p class="section-lede center">Her depolama bir volume. Kenar çubuğunda yan yana görünürler; aralarında kopyalayıp taşıyabilirsiniz.</p>
+          <div class="volumes" aria-hidden="true">
+            <div class="vol">
+              <span class="vol-kind">localDriver</span>
+              <b>Yerel disk</b>
+              <span>&lt;proje&gt;/uploads</span>
+            </div>
+            <div class="vol-link"><span>kopyala · taşı</span></div>
+            <div class="vol vol-core">
+              <span class="vol-kind">@ci-finder/core</span>
+              <b>Motor</b>
+              <span>yetki · sürümler · çöp · küçük resimler</span>
+            </div>
+            <div class="vol-link"><span>multipart · presigned</span></div>
+            <div class="vol">
+              <span class="vol-kind">s3Driver</span>
+              <b>S3 · R2 · MinIO</b>
+              <span>Spaces · Backblaze B2</span>
+            </div>
+          </div>
+          <ul class="facts">
+            <li><b>Kendi sürücünüzü yazın.</b> FTP, Azure Blob, Google Drive… <code>StorageDriver</code> arayüzündeki dokuz metodu uygulamak yeterli.</li>
+            <li><b>Sunucu durum tutmaz.</b> Yükleme oturumu istemcide taşınır; her parçada hedef, izin ve uzantı yeniden doğrulanır.</li>
+            <li><b>Veritabanı gerekmez.</b> Çöp kutusu, sürümler ve küçük resimler volume içindeki gizli <code>.cf-*</code> klasörlerinde durur.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Editors -->
+      <section class="section section-alt">
+        <div class="wrap">
+          <h2 class="section-title">İçinde gelenler.</h2>
+          <p class="section-lede">Monaco yok, CodeMirror yok, CDN'den yüklenen bir şey yok. Editörler paketin kendisinde.</p>
+          <div class="trio">
+            <article class="card">
+              <h3>Kod editörü</h3>
+              <p>
+                13 dil ailesi için renklendirme, bul ve değiştir, satıra git, akıllı girinti, Ctrl+S ile kaydetme. Kaydetmeden önce eski hal sürüm geçmişine
+                girer.
+              </p>
+            </article>
+            <article class="card">
+              <h3>Markdown</h3>
+              <p>Yan yana önizlemeli düzenleme. Ham HTML işlenmez, bağlantılar güvenli şemalarla sınırlı; güvenilmeyen bir dosyayı açmak zararsızdır.</p>
+            </article>
+            <article class="card">
+              <h3>Görsel editörü</h3>
+              <p>Kırp, döndür, çevir, yeniden boyutlandır; biçim ve kalite seç. Seçili görselleri toplu olarak WebP ya da AVIF'e çevir.</p>
+            </article>
+            <article class="card">
+              <h3>Hızlı bakış</h3>
+              <p>Space ile görsel, video, ses, PDF, kod ve Markdown önizlemesi. Video ileri sarma Range istekleriyle çalışır.</p>
+            </article>
+            <article class="card">
+              <h3>Dosya seçici</h3>
+              <p><code>useFilePicker</code> bir Promise döner: formunuza “Dosya seç” düğmesi eklemek üç satır. React dışında <code>openFilePicker</code>.</p>
+            </article>
+            <article class="card">
+              <h3>CKEditor</h3>
+              <p>CKEditor 5 eklentisi ve CKEditor 4 connector'ı. CKFinder'ın işini görür: araç çubuğu düğmesi, yapıştırılan görsellerin yüklenmesi.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Security -->
+      <section class="section section-ink">
+        <div class="wrap">
+          <h2 class="section-title">Güvenlik, varsayılan olarak açık.</h2>
+          <p class="section-lede">Bir dosya yöneticisi sunucunuza yazma izni demektir. ciFinder bunu ilk günden ciddiye alır.</p>
+          <dl class="sec-grid">
+            <div>
+              <dt>Path traversal</dt>
+              <dd><code>..</code> içeren yollar çözülmeye çalışılmaz, reddedilir. Kök dışını gösteren symlink'ler gizlenir.</dd>
+            </div>
+            <div>
+              <dt>CSRF</dt>
+              <dd>Değişiklik yapan her istek POST olmak ve <code>x-ci-finder</code> başlığını taşımak zorunda.</dd>
+            </div>
+            <div>
+              <dt>Arşivler</dt>
+              <dd>Zip-slip ve zip bombası koruması. Açılan toplam boyut sınırlı.</dd>
+            </div>
+            <div>
+              <dt>Aktif içerik</dt>
+              <dd>Yüklenen HTML ve SVG, sandbox CSP ile sunulur; sitenizin origin'inde script çalıştıramaz.</dd>
+            </div>
+            <div>
+              <dt>Yetkilendirme</dt>
+              <dd>Her komuttan önce <code>authorize</code>. 401, 403 ya da istek bazında salt okunur mod.</dd>
+            </div>
+            <div>
+              <dt>İzinler</dt>
+              <dd>Volume bazında <code>readOnly</code>, yol bazında <code>permission</code>, uzantı listeleri ve boyut sınırı.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Comparison -->
+      <section class="section" id="elfinder">
+        <div class="wrap">
+          <h2 class="section-title center">ciFinder ve elFinder.</h2>
+          <p class="section-lede center narrow">
+            elFinder, web dosya yöneticileri denince akla gelen ilk isim ve on beş yılı aşkın süredir sahada. ciFinder aynı işi bugünün yığınıyla yeniden
+            düşünüyor. İkisi de iyi araçlar; hangisinin size uyduğu, projenizin nasıl kurulduğuna bağlı.
+          </p>
+
+          <div class="compare" role="table" aria-label="ciFinder ve elFinder karşılaştırması">
+            <div class="compare-head" role="row">
+              <span role="columnheader"><span class="sr">Özellik</span></span>
+              <div class="compare-model" role="columnheader">
+                <b class="wordmark wordmark-sm"><span>ci</span>Finder</b>
+                <span>React · TypeScript · 2026</span>
+              </div>
+              <div class="compare-model" role="columnheader">
+                <b>elFinder</b>
+                <span>jQuery · PHP · 2.1 serisi</span>
+              </div>
+            </div>
+
+            <div class="compare-group" role="rowgroup">
+              <h3 class="compare-cat">Teknoloji</h3>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Arayüz</span>
+                <span role="cell">React 18+ bileşeni, saf CSS (<code>@layer</code>, container query)</span>
+                <span role="cell">jQuery ve jQuery UI eklentisi</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Sunucu</span>
+                <span role="cell">TypeScript, Web standardı <code>Request → Response</code>. Node, Bun, Deno, edge.</span>
+                <span role="cell">Resmî bağlayıcı PHP. Diğer diller için topluluk bağlayıcıları.</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Bağımlılıklar</span>
+                <span role="cell">Çekirdekte sıfır. Arayüzde yalnızca <code>react</code> (peer).</span>
+                <span role="cell">İstemcide jQuery ve jQuery UI</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Next.js</span>
+                <span role="cell">Hazır route'lar, standalone uyumlu proje kökü tespiti</span>
+                <span role="cell" class="no">Resmî entegrasyon yok</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Protokol</span>
+                <span role="cell">Tek uç, JSON zarfı, tipli istemci (<code>@ci-finder/core/client</code>)</span>
+                <span role="cell">Tek uç, elFinder protokolü (<code>cmd=open</code>…)</span>
+              </div>
+            </div>
+
+            <div class="compare-group" role="rowgroup">
+              <h3 class="compare-cat">Depolama</h3>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Yerel disk</span>
+                <span role="cell" class="yes">Var</span>
+                <span role="cell" class="yes">Var</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">S3 uyumlu</span>
+                <span role="cell" class="yes">Dahili, AWS SDK'sız; multipart, presigned URL</span>
+                <span role="cell">Ek sürücü paketiyle (örneğin Flysystem)</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">FTP, Dropbox, Google Drive, OneDrive, Box</span>
+                <span role="cell" class="no">Hazır değil; <code>StorageDriver</code> ile yazılabilir</span>
+                <span role="cell" class="yes">Dahili sürücüler</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Birden çok volume, aralarında taşıma</span>
+                <span role="cell" class="yes">Var</span>
+                <span role="cell" class="yes">Var</span>
+              </div>
+            </div>
+
+            <div class="compare-group" role="rowgroup">
+              <h3 class="compare-cat">Dosya işlemleri</h3>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Parçalı ve klasörlü yükleme</span>
+                <span role="cell" class="yes">Var; sunucu durum tutmaz</span>
+                <span role="cell" class="yes">Var</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Çoklu indirmede zip</span>
+                <span role="cell" class="yes">Akışla, anında; zip64</span>
+                <span role="cell" class="yes">Var</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Arşiv biçimleri</span>
+                <span role="cell">Zip; kendi kodu, sunucuda araç gerekmez</span>
+                <span role="cell">Zip, tar, gzip, bzip2, 7z, rar; sunucudaki araçlarla</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Çöp kutusu</span>
+                <span role="cell" class="yes">Varsayılan açık, “Geri al” bildirimi, otomatik temizlik</span>
+                <span role="cell">Ayrı bir çöp volume'ü yapılandırılarak</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Sürüm geçmişi</span>
+                <span role="cell" class="yes">Var; önizle, geri yükle, toplu temizle</span>
+                <span role="cell" class="no">Yok</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Depolama paneli</span>
+                <span role="cell" class="yes">Türlere göre kullanım, en büyük dosyalar, temizlik</span>
+                <span role="cell" class="no">Yok</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Toplu görsel dönüştürme</span>
+                <span role="cell" class="yes">WebP, AVIF, JPEG, PNG; boyutlandırma ve sıkıştırma</span>
+                <span role="cell">Tek görsel için boyutlandırma, kırpma, döndürme</span>
+              </div>
+            </div>
+
+            <div class="compare-group" role="rowgroup">
+              <h3 class="compare-cat">Editörler ve arayüz</h3>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Kod ve Markdown editörü</span>
+                <span role="cell" class="yes">Dahili, bağımlılıksız</span>
+                <span role="cell">Düz metin dahili; Ace, CodeMirror gibi editörler CDN'den yüklenir</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Büyük klasörler</span>
+                <span role="cell" class="yes">Sanal liste: 10.000 dosyada ~100 DOM öğesi</span>
+                <span role="cell">Kaydırdıkça parça parça çizim</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Erişilebilirlik</span>
+                <span role="cell" class="yes">ARIA grid ve listbox, axe-core ile 0 ihlal</span>
+                <span role="cell">Klavye kısayolları</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Tema</span>
+                <span role="cell">Açık, koyu, otomatik; Klasik ve macOS görünümü; CSS değişkenleri</span>
+                <span role="cell">jQuery UI temaları ve topluluk temaları</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Dil</span>
+                <span role="cell">Türkçe ve İngilizce; <code>messages</code> ile ek dil</span>
+                <span role="cell" class="yes">30'dan fazla dil</span>
+              </div>
+            </div>
+
+            <div class="compare-group" role="rowgroup">
+              <h3 class="compare-cat">Ekosistem</h3>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Dosya seçici</span>
+                <span role="cell" class="yes"><code>useFilePicker</code>, <code>openFilePicker</code> (Promise)</span>
+                <span role="cell" class="yes"><code>getFileCallback</code></span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Editör entegrasyonu</span>
+                <span role="cell" class="yes">CKEditor 5 ve 4 paketi</span>
+                <span role="cell" class="yes">CKEditor, TinyMCE ve diğerleri için tarifler</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Olgunluk</span>
+                <span role="cell">Yeni; 0.x sürümleri</span>
+                <span role="cell" class="yes">15 yılı aşkın; Laravel, Symfony, Django, WordPress eklentileri</span>
+              </div>
+              <div class="compare-row" role="row">
+                <span role="rowheader">Lisans</span>
+                <span role="cell">MIT</span>
+                <span role="cell">BSD-3-Clause</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="choose">
+            <div>
+              <h3>ciFinder'ı seçin, eğer</h3>
+              <ul>
+                <li>Uygulamanız React, Next.js ya da bir JavaScript sunucusu üzerindeyse,</li>
+                <li>dosyalar S3 ya da R2'de duruyorsa veya serverless'ta çalışıyorsanız,</li>
+                <li>sürüm geçmişi, çöp kutusu ve görsel optimizasyonu kurulumla gelsin istiyorsanız,</li>
+                <li>arayüzün tasarım sisteminize CSS değişkenleriyle uymasını istiyorsanız.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>elFinder'da kalın, eğer</h3>
+              <ul>
+                <li>Sunucunuz PHP ise ve öyle kalacaksa,</li>
+                <li>Dropbox, Google Drive ya da FTP'ye bugün bağlanmanız gerekiyorsa,</li>
+                <li>tar, 7z, rar gibi arşivlerle çalışıyorsanız,</li>
+                <li>Türkçe ve İngilizce dışında dillere hazır çeviri gerekiyorsa.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="footnote">
+            elFinder bilgileri 2.1 serisinin belgelerine göre derlendi. Yanlış ya da eskimiş bir satır görürseniz
+            <a href="https://github.com/alperkosay/ci-finder/issues">bir issue açın</a>.
+          </p>
+        </div>
+      </section>
+
+      <!-- Packages -->
+      <section class="section section-alt" id="paketler">
+        <div class="wrap">
+          <h2 class="section-title">Dört paket. İhtiyacınız kadarını kurun.</h2>
+          <div class="install">
+            <code id="install-cmd">npm i @ci-finder/core @ci-finder/react @ci-finder/next</code>
+            <button type="button" class="copy" data-copy="#install-cmd">Kopyala</button>
+          </div>
+          <dl class="packages">
+            <div>
+              <dt><code>@ci-finder/core</code></dt>
+              <dd>Sunucu motoru, yerel ve S3 sürücüleri, Node adaptörleri, tarayıcı istemcisi. Çalışma zamanı bağımlılığı yok.</dd>
+              <a class="more" href="docs/core.html">API</a>
+            </div>
+            <div>
+              <dt><code>@ci-finder/react</code></dt>
+              <dd><code>&lt;CiFinder /&gt;</code> bileşeni, <code>useFilePicker</code>, <code>openFilePicker</code> ve <code>styles.css</code>.</dd>
+              <a class="more" href="docs/react.html">API</a>
+            </div>
+            <div>
+              <dt><code>@ci-finder/next</code></dt>
+              <dd>Next.js route'ları ve standalone uyumlu proje kökü tespiti.</dd>
+              <a class="more" href="docs/next.html">API</a>
+            </div>
+            <div>
+              <dt><code>@ci-finder/ckeditor</code></dt>
+              <dd>CKEditor 5 eklentisi ve CKEditor 4 connector'ı.</dd>
+              <a class="more" href="docs/ckeditor.html">API</a>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Closing -->
+      <section class="section closing">
+        <div class="wrap">
+          <h2 class="closing-title">Kendiniz görün.</h2>
+          <div class="cta-row">
+            <a class="pill" href="demo/">Demoyu tam ekran aç</a>
+            <a class="more" href="docs/">Kuruluma başlayın</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="wrap footer-in">
+        <p>ciFinder, MIT lisansıyla açık kaynak. Alper Koşay tarafından geliştiriliyor.</p>
+        <p class="footer-links">
+          <a href="docs/">Belgeler</a>
+          <a href="docs/protocol.html">HTTP protokolü</a>
+          <a href="https://github.com/alperkosay/ci-finder">GitHub</a>
+          <a href="https://github.com/alperkosay/ci-finder/blob/main/ROADMAP.md">Yol haritası</a>
+        </p>
+      </div>
+    </footer>
+
+    <script src="assets/site.js" defer></script>
+  </body>
+</html>
